@@ -803,7 +803,7 @@ body.radar-hybrid.dimension.lite #articleGrid .article-cover-placeholder{
 /* Ajuste independiente del título de las fichas: no altera cuerpo ni lector. */
 body.radar-hybrid.dimension{
   --radar-card-title-size:16px;--radar-title-scale:1;
-  --radar-reading-title-size:calc(var(--radar-card-title-size) * 1.15 * var(--radar-title-scale));
+  --radar-reading-title-size:calc(var(--radar-card-title-size) * var(--radar-title-scale));
 }
 body.radar-hybrid.dimension.font-large{--radar-title-scale:1.2}
 body.radar-hybrid.dimension[data-card-title-size="14"]{--radar-card-title-size:14px}
