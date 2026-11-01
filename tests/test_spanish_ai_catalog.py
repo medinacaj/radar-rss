@@ -45,7 +45,7 @@ class SpanishAICatalogTests(unittest.TestCase):
     def test_all_previous_271_records_remain_identical(self):
         added = {r['feed'] for r in self.record['sources']}
         added.update(r['feed'] for r in json.loads((ROOT/'sources/world-coverage-verification.json').read_text())['sources'])
-        original = [s for s in self.sources if s['url'] not in added]
+        original = [s for s in self.sources if s['url'] not in added and s['name'] != 'RADAR — ElevenLabs | video y herramientas IA']
         digest = hashlib.sha256(json.dumps(original, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
         self.assertEqual(digest, '184892ac4967a9293b9514139bc61d2b2026a683d20de9c576920c72496b304b')
         previous_expansion = json.loads((ROOT / 'sources/reliable-expansion-verification.json').read_text())['sources']
@@ -53,8 +53,8 @@ class SpanishAICatalogTests(unittest.TestCase):
         main_sources = [s for s in original if s['url'] not in pending_urls]
         main_digest = hashlib.sha256(json.dumps(main_sources, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
         self.assertEqual(main_digest, 'f5e294ff5a53550353923023d1d233130cf1709dee4c5dc98da4c18781e5ac06')
-        self.assertEqual(len(self.sources), 311)
-        self.assertEqual(len({s['id'] for s in self.sources}), 311)
+        self.assertEqual(len(self.sources), 312)
+        self.assertEqual(len({s['id'] for s in self.sources}), 312)
         self.assertEqual(len({s['category'] for s in self.sources}), 8)
 
     def test_network_restrictions_do_not_masquerade_as_invalid_feeds(self):
