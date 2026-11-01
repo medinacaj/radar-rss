@@ -1,6 +1,6 @@
 # Radar RSS — Editorial + tecnológico (propuesta de diseño, issue #129)
 
-**Estado:** solo rama de revisión; no publicado. Se apoya en el rediseño inicial del PR #123; este cambio es **incremental** y su integración depende del PR #123. No fusionar ni publicar sin aprobación humana.
+**Estado:** PR #130 en borrador contra `main`, no publicado. Incluye el trabajo base del PR #123 y esta evolución editorial/tecnológica para habilitar CI. El PR #123 permanece abierto sin fusionar. No aprobar ni publicar sin revisión humana.
 
 ## Dirección visual aprobada
 Una portada con noticia principal dominante y titulares secundarios; centro de información con jerarquía editorial y controles precisos. Se eliminan violetas como acento dominante y el efecto de superficies de igual tonalidad. Se conserva la marca y la lógica editorial del PR #123, sin cambiar el motor de extracción.
@@ -46,4 +46,4 @@ Los colores de categorías derivados del feed permanecen separados de la acción
 
 ## Riesgos y límites
 
-No se han tocado fuentes RSS, la lógica de ingesta, claves de usuario, respaldos ni las APIs públicas. El cambio en anchura máxima puede exigir ajustes visuales en pantallas grandes; el nuevo contraste y los estados activos deben verificarse con mediciones reales. Las pruebas estáticas no reemplazan una inspección visual de producción. El PR #123 aún está en borrador y es requisito previo de esta propuesta.
+No se han tocado fuentes RSS, la lógica de ingesta, claves de usuario, respaldos ni las APIs públicas. El cambio en anchura máxima puede exigir ajustes visuales en pantallas grandes; el nuevo contraste y los estados activos deben verificarse con mediciones reales. Las pruebas estáticas no reemplazan una inspección visual de producción. El PR #123 aún está en borrador. El PR #130 agrupa su trabajo y el nuevo rediseño contra `main` con el objetivo de ejecutar CI; **no se deben fusionar ambos PR por separado**. Comparar el diff de este diseño con la rama `feat/volver-radar-rss` para aislar los cambios visuales.
