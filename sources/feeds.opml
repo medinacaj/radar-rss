@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <opml version="1.0">
   <head>
-    <title>Fuentes públicas Radar RSS (311 feeds, 8 categorías)</title>
+    <title>Fuentes públicas Radar RSS (312 feeds, 8 categorías)</title>
   </head>
   <body>
     <outline text="01 - Inteligencia Artificial" title="01 - Inteligencia Artificial">
@@ -21,6 +21,7 @@
       <outline text="RADAR — Microsoft AI, Copilot y Azure AI" title="RADAR — Microsoft AI, Copilot y Azure AI" type="rss" xmlUrl="https://news.google.com/rss/search?q=%28%22Microsoft+AI%22+OR+Copilot+OR+%22Azure+AI%22%29&amp;hl=es-419&amp;gl=CL&amp;ceid=CL%3Aes-419" htmlUrl="https://microsoft.ai/blog/" />
       <outline text="RADAR — xAI / Grok" title="RADAR — xAI / Grok" type="rss" xmlUrl="https://news.google.com/rss/search?q=%28xAI+OR+Grok%29+%28modelo+OR+chatbot+OR+%22modelo+de+lenguaje%22%29&amp;hl=es-419&amp;gl=CL&amp;ceid=CL%3Aes-419" htmlUrl="https://x.ai/" />
       <outline text="RADAR — Perplexity" title="RADAR — Perplexity" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aperplexity.ai+Perplexity&amp;hl=es-419&amp;gl=CL&amp;ceid=CL:es-419" htmlUrl="https://www.perplexity.ai/" />
+      <outline text="RADAR — ElevenLabs | video y herramientas IA" title="RADAR — ElevenLabs | video y herramientas IA" type="rss" xmlUrl="https://news.google.com/rss/search?q=ElevenLabs+%28video+OR+v%C3%ADdeo+OR+generaci%C3%B3n+OR+ElevenCreative+OR+MCP%29+when%3A45d&amp;hl=es-419&amp;gl=CL&amp;ceid=CL%3Aes-419" htmlUrl="https://elevenlabs.io/blog" />
       <outline text="RADAR — DeepSeek" title="RADAR — DeepSeek" type="rss" xmlUrl="https://news.google.com/rss/search?q=DeepSeek+%28%22inteligencia+artificial%22+OR+modelo+OR+chatbot%29&amp;hl=es-419&amp;gl=CL&amp;ceid=CL%3Aes-419" htmlUrl="https://www.deepseek.com/" />
       <outline text="MEDIO — Xataka | Inteligencia Artificial" title="MEDIO — Xataka | Inteligencia Artificial" type="rss" xmlUrl="https://www.xataka.com/categoria/inteligencia-artificial/rss2.xml" htmlUrl="https://www.xataka.com/" />
       <outline text="MEDIO — Genbeta | Inteligencia Artificial" title="MEDIO — Genbeta | Inteligencia Artificial" type="rss" xmlUrl="https://www.genbeta.com/categoria/inteligencia-artificial/rss2.xml" htmlUrl="https://www.genbeta.com/" />
