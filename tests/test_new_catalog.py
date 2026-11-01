@@ -24,7 +24,7 @@ class ExpandedCatalogTests(unittest.TestCase):
         self.world_additions = json.loads((ROOT/'sources/world-coverage-verification.json').read_text())['sources']
 
     def test_new_folders_have_local_and_international_channels(self):
-        self.assertEqual(len(self.sources), 311)
+        self.assertEqual(len(self.sources), 312)
         self.assertEqual(sum(s['category'] == '08 - Maturín / Monagas' for s in self.sources), 8)
         self.assertEqual(sum(s['category'].startswith('09 -') for s in self.sources), 0)
         self.assertEqual(audit(ROOT / 'sources/feeds.opml')['problem_count'], 0)
@@ -41,7 +41,7 @@ class ExpandedCatalogTests(unittest.TestCase):
         for url in spanish_feeds:
             self.assertIn(url, urls)
             self.assertIn(urls[url]['category'], ('01 - Inteligencia Artificial', '02 - Tecnología'))
-        self.assertEqual(len(set(item['id'] for item in self.sources)), 311)
+        self.assertEqual(len(set(item['id'] for item in self.sources)), 312)
         expansion = json.loads((ROOT / 'sources/ia-technology-verification.json').read_text())['sources']
         self.assertEqual(len(expansion), 27)
         self.assertEqual(len({item['feed'] for item in expansion}), 27)
@@ -58,14 +58,14 @@ class ExpandedCatalogTests(unittest.TestCase):
         additions = {record['feed'] for record in records + self.additions + self.ai_additions + self.world_additions}
         expanded = json.loads((ROOT / 'sources/ia-technology-verification.json').read_text())['sources']
         additions.update(record['feed'] for record in expanded)
-        originals = [s for s in self.sources if s['url'] not in additions]
+        originals = [s for s in self.sources if s['url'] not in additions and s['name'] != 'RADAR — ElevenLabs | video y herramientas IA']
         digest = hashlib.sha256(json.dumps(originals, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
         self.assertEqual(digest, '2e34363f0a62c2e6d348850216a19bf1921db26eb7c4b1ec83b513093b6f303c')
 
     def test_source_expansion_preserves_all_original_221_records(self):
         additions = {r['feed'] for r in self.additions + self.ai_additions + self.world_additions}
         additions.update(r['feed'] for r in json.loads((ROOT/'sources/ia-technology-verification.json').read_text())['sources'])
-        originals = [s for s in self.sources if s['url'] not in additions]
+        originals = [s for s in self.sources if s['url'] not in additions and s['name'] != 'RADAR — ElevenLabs | video y herramientas IA']
         digest = hashlib.sha256(json.dumps(originals, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
         self.assertEqual(digest, 'b83e08b187155adc406677267109f4ca4f0618f2060c0c46e06752fdf7054683')
 
