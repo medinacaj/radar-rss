@@ -83,7 +83,7 @@ body.radar-hybrid.dimension .topbar {
   position:sticky;top:16px;z-index:45;display:flex;align-items:center;gap:12px;min-height:64px;
   margin:16px auto 0;padding:9px 14px;border:1px solid var(--line);border-radius:24px;
   background:color-mix(in srgb,var(--surface) 96%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  box-shadow:var(--glass-shadow);width:calc(100% - 2 * var(--radar-page-gutter));max-width:calc(var(--radar-content-width) - 2 * var(--radar-page-gutter));
+  box-shadow:var(--glass-shadow);width:calc(100% - var(--radar-page-gutter) - var(--radar-page-gutter));max-width:calc(var(--radar-content-width) - var(--radar-page-gutter) - var(--radar-page-gutter));
 }
 body.radar-hybrid.dimension .topbar-caption {display:flex;align-items:center;gap:10px;color:var(--muted);letter-spacing:0;font-size:12px;font-weight:400;flex-shrink:0;}
 body.radar-hybrid.dimension .topbar-caption strong {font-size:14px;font-weight:500;color:var(--text);}
@@ -997,8 +997,8 @@ body.radar-hybrid.dimension .main {
   padding:32px var(--radar-page-gutter) 76px;
 }
 body.radar-hybrid.dimension .topbar {
-  width:calc(100% - 2 * var(--radar-page-gutter));
-  max-width:calc(var(--radar-content-width) - 2 * var(--radar-page-gutter));
+  width:calc(100% - var(--radar-page-gutter) - var(--radar-page-gutter));
+  max-width:calc(var(--radar-content-width) - var(--radar-page-gutter) - var(--radar-page-gutter));
   min-width:0;
   min-height:68px;
   margin:14px auto 0;
@@ -1121,7 +1121,7 @@ body.radar-hybrid.dimension :is(#articleGrid,#dashboardFeature)>.article-card,
 body.radar-hybrid.dimension #dashboardRecent>:is(.dashboard-latest-card,.dashboard-recent-row),
 body.radar-hybrid.dimension :is(.agenda-item,.briefing-section,.home-insight-card) {
   border:1px solid var(--line);
-  background-color:var(--surface);
+  background:var(--surface);
   box-shadow:var(--editorial-shadow);
   transform:translateZ(0);
   transition:transform .44s var(--editorial-ease),box-shadow .44s var(--editorial-ease),border-color .25s ease;
@@ -1269,7 +1269,7 @@ body.radar-hybrid.dimension .radar-folder-arrived > .nav-link {
 @media(max-width:950px) {
   body.radar-hybrid.dimension {--radar-page-gutter:clamp(15px,3vw,26px);}
   body.radar-hybrid.dimension .main {padding-top:25px;}
-  body.radar-hybrid.dimension .topbar {width:calc(100% - 2 * var(--radar-page-gutter));margin:12px auto 0;max-width:none;}
+  body.radar-hybrid.dimension .topbar {width:calc(100% - var(--radar-page-gutter) - var(--radar-page-gutter));margin:12px auto 0;max-width:none;}
   body.radar-hybrid.dimension .sidebar {
     border-radius:0 18px 18px 0;margin:0;top:0;height:100dvh;
   }
@@ -1281,7 +1281,7 @@ body.radar-hybrid.dimension .radar-folder-arrived > .nav-link {
   body.radar-hybrid.dimension {--radar-page-gutter:16px;}
   body.radar-hybrid.dimension .main {padding:23px var(--radar-page-gutter) 50px;}
   body.radar-hybrid.dimension .topbar {
-    width:calc(100% - 2 * var(--radar-page-gutter));min-height:60px;
+    width:calc(100% - var(--radar-page-gutter) - var(--radar-page-gutter));min-height:60px;
     border-radius:16px;
   }
   body.radar-hybrid.dimension :is(.home-heading h1,.section-heading h1,.page-heading h1,.briefing-head h1) {font-size:clamp(28px,6.7vw,37px);}
