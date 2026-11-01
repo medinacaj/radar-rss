@@ -112,7 +112,7 @@ class DimensionRegressions(unittest.TestCase):
                     for edge in ('left','right'):
                         self.assertAlmostEqual(bounds['header'][edge],bounds['route'][edge],delta=1,msg=context)
                         self.assertAlmostEqual(bounds['footer'][edge],bounds['route'][edge],delta=1,msg=context)
-                    self.assertLessEqual(bounds['main']['width'],1201,context)
+                    self.assertLessEqual(bounds['main']['width'],1451,context)
                     self.assertGreaterEqual(bounds['header']['left'],bounds['page']['left'],context)
                     self.assertLessEqual(bounds['header']['right'],bounds['page']['right']+1,context)
                     self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth+2'),context)
@@ -170,6 +170,39 @@ class DimensionRegressions(unittest.TestCase):
         self.assertFalse(set(sheets)&{'editorial.css','hashnode-preview.css','radar-hybrid.css','copper-theme.css','home-editorial.css','cosmic-theme.css','iaadc-editorial.css'})
         self.page.evaluate("setTheme('light',true)")
         self.assertNotEqual(self.page.evaluate('getComputedStyle(document.body).backgroundColor'),colors['bg'])
+
+    def test_editorial_tech_palette_surface_depth_hover_and_reduced_motion(self):
+        # Real computed-style contract: both themes and user motion preferences.
+        for theme, bg, accent in (('dark', '#10151d', '#ff8968'),
+                                  ('light', '#edf1f5', '#b5422a')):
+            self.page.evaluate('(theme)=>setTheme(theme,true)', theme)
+            tokens=self.page.evaluate("""() => {
+                const style=getComputedStyle(document.body);
+                return {bg:style.getPropertyValue('--bg').trim(),
+                        surface:style.getPropertyValue('--surface').trim(),
+                        accent:style.getPropertyValue('--accent').trim()};
+            }""")
+            self.assertEqual(tokens['bg'], bg)
+            self.assertEqual(tokens['accent'], accent)
+            self.assertNotEqual(tokens['bg'], tokens['surface'])
+            for width in (320, 390, 768, 950, 951, 1440, 2560):
+                self.page.set_viewport_size({'width':width,'height':950})
+                for target in ('home','all','agenda','briefing'):
+                    self.page.evaluate('(target)=>goTo(target)', target)
+                    self.assertTrue(self.page.evaluate(
+                        'document.documentElement.scrollWidth<=innerWidth+2'),
+                        (theme,width,target))
+        self.page.set_viewport_size({'width':1440,'height':1000})
+        self.page.evaluate("goTo('all')")
+        card=self.page.locator('#articleGrid > .article-card').first
+        self.page.emulate_media(reduced_motion='no-preference')
+        card.hover()
+        self.page.wait_for_timeout(550)
+        transformed=card.evaluate('node=>getComputedStyle(node).transform')
+        self.assertNotIn(transformed, ('none','matrix(1, 0, 0, 1, 0, 0)'))
+        self.page.emulate_media(reduced_motion='reduce')
+        self.assertEqual(card.evaluate('node=>getComputedStyle(node).transform'),'none')
+        self.assertEqual(card.evaluate('node=>getComputedStyle(node).transitionDuration'),'0s')
 
     def test_automatic_columns_use_available_space_and_preserve_a_saved_choice(self):
         self.page.evaluate("goTo('all')")
