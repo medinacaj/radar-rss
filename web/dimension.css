@@ -803,7 +803,7 @@ body.radar-hybrid.dimension.lite #articleGrid .article-cover-placeholder{
 /* Ajuste independiente del título de las fichas: no altera cuerpo ni lector. */
 body.radar-hybrid.dimension{
   --radar-card-title-size:16px;--radar-title-scale:1;
-  --radar-reading-title-size:calc(var(--radar-card-title-size) * var(--radar-title-scale));
+  --radar-reading-title-size:calc(var(--radar-card-title-size) * 1.15 * var(--radar-title-scale));
 }
 body.radar-hybrid.dimension.font-large{--radar-title-scale:1.2}
 body.radar-hybrid.dimension[data-card-title-size="14"]{--radar-card-title-size:14px}
@@ -819,7 +819,7 @@ body.radar-hybrid.dimension #articleGrid.article-grid .article-card .article-tit
   font-size:var(--radar-reading-title-size)!important;line-height:1.4;
 }
 body.radar-hybrid.dimension #dashboardFeature .article-card .article-title{
-  font-size:calc(clamp(22px,calc(var(--radar-card-title-size) * 1.35),30px) * var(--radar-title-scale))!important;
+  font-size:clamp(26px,calc(var(--radar-card-title-size) * 2.15 * var(--radar-title-scale)),46px)!important;
   line-height:1.32;
 }
 body.radar-hybrid.dimension #dashboardRecent .dashboard-recent-title{
@@ -1117,7 +1117,7 @@ body.radar-hybrid.dimension #articleGrid .article-card .article-meta :is(.publis
 body.radar-hybrid.dimension .article-card .cover img {
   transition:transform .62s var(--editorial-ease),filter .4s ease;
 }
-body.radar-hybrid.dimension :is(#articleGrid,#dashboardFeature)>.article-card,
+body.radar-hybrid.dimension :is(#articleGrid.article-grid,#dashboardFeature)>.article-card,
 body.radar-hybrid.dimension #dashboardRecent>:is(.dashboard-latest-card,.dashboard-recent-row),
 body.radar-hybrid.dimension :is(.agenda-item,.briefing-section,.home-insight-card) {
   border:1px solid var(--line);
@@ -1205,7 +1205,7 @@ body.radar-hybrid.dimension.light .footer-profile {
 }
 body.radar-hybrid.dimension.light .footer-profile .footer-profile-label {color:var(--muted);}
 @media(hover:hover) and (pointer:fine) {
-  body.radar-hybrid.dimension :is(#articleGrid,#dashboardFeature)>.article-card:hover,
+  body.radar-hybrid.dimension :is(#articleGrid.article-grid,#dashboardFeature)>.article-card:hover,
   body.radar-hybrid.dimension #dashboardRecent>:is(.dashboard-latest-card,.dashboard-recent-row):hover,
   body.radar-hybrid.dimension :is(.agenda-item,.briefing-section,.home-insight-card):hover {
     transform:translateY(-5px);
@@ -1230,7 +1230,7 @@ body.radar-hybrid.dimension :is(button,.nav-link):not(:disabled):active {
   transform:scale(.985);
   transition-duration:.1s;
 }
-body.radar-hybrid.dimension :is(#articleGrid,#dashboardFeature)>.article-card:focus-within,
+body.radar-hybrid.dimension :is(#articleGrid.article-grid,#dashboardFeature)>.article-card:focus-within,
 body.radar-hybrid.dimension #dashboardRecent>:is(.dashboard-latest-card,.dashboard-recent-row):focus-within {
   border-color:var(--accent);
   box-shadow:var(--editorial-shadow),0 0 0 2px var(--editorial-glow);
@@ -1269,6 +1269,7 @@ body.radar-hybrid.dimension .radar-folder-arrived > .nav-link {
 @media(max-width:950px) {
   body.radar-hybrid.dimension {--radar-page-gutter:clamp(15px,3vw,26px);}
   body.radar-hybrid.dimension .main {padding-top:25px;}
+  body.radar-hybrid.dimension .footer {padding-inline:var(--radar-page-gutter);}
   body.radar-hybrid.dimension .topbar {width:calc(100% - var(--radar-page-gutter) - var(--radar-page-gutter));margin:12px auto 0;max-width:none;}
   body.radar-hybrid.dimension .sidebar {
     border-radius:0 18px 18px 0;margin:0;top:0;height:100dvh;
