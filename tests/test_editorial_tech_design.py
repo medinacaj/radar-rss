@@ -30,6 +30,32 @@ class EditorialTechDesignTests(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, CSS)
 
+    def test_essential_text_and_action_contrasts(self):
+        # WCAG contrast on solid design-system tokens; gradients/images need
+        # separate browser verification.
+        def luminance(color):
+            channels = [int(color[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+            linear = [v / 12.92 if v <= .04045 else ((v + .055) / 1.055) ** 2.4
+                      for v in channels]
+            return sum(v * w for v, w in zip(linear, (.2126, .7152, .0722)))
+
+        for selector in ("body.radar-hybrid.dimension {",
+                         "body.radar-hybrid.dimension.light {"):
+            block = CSS.split(selector, 1)[1].split("}", 1)[0]
+            def token(name):
+                match = re.search(r"--" + re.escape(name) + r":(#[0-9a-fA-F]{6})", block)
+                self.assertIsNotNone(match, (selector, name))
+                return match.group(1)
+            for foreground, background in (
+                ("text", "surface"), ("muted", "surface"),
+                ("text", "bg"), ("accent", "surface"),
+                ("action-ink", "action-lime"),
+            ):
+                a, b = luminance(token(foreground)), luminance(token(background))
+                ratio = (max(a, b) + .05) / (min(a, b) + .05)
+                self.assertGreaterEqual(ratio, 4.5,
+                                        (selector, foreground, background, ratio))
+
     def test_routes_share_design_tokens_and_responsive_structure(self):
         selectors = (
             "#dashboardFeature>.article-card",
