@@ -3,30 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Notisonda: noticias actualizadas de inteligencia artificial, tecnología, Chile, Venezuela, Latinoamérica y el mundo.">
-  <meta name="theme-color" content="#19181f">
-  <link rel="canonical" href="https://medinacaj.github.io/notisonda/">
+  <meta name="description" content="Radar-RSS: noticias actualizadas de inteligencia artificial, tecnología, Chile, Venezuela, Latinoamérica y el mundo.">
+  <meta name="theme-color" content="#10151d">
+  <link rel="canonical" href="https://medinacaj.github.io/radar-rss/">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Notisonda">
+  <meta property="og:site_name" content="Radar-RSS">
   <meta property="og:locale" content="es_CL">
-  <meta property="og:title" content="Notisonda — Actualidad en un solo lugar">
+  <meta property="og:title" content="Radar-RSS — Noticias con perspectiva">
   <meta property="og:description" content="Noticias actualizadas de inteligencia artificial, tecnología, Chile, Venezuela, Latinoamérica y el mundo, reunidas desde fuentes RSS públicas.">
-  <meta property="og:url" content="https://medinacaj.github.io/notisonda/">
-  <meta property="og:image" content="https://medinacaj.github.io/notisonda/notisonda-social-card.png">
+  <meta property="og:url" content="https://medinacaj.github.io/radar-rss/">
+  <meta property="og:image" content="https://medinacaj.github.io/radar-rss/radar-rss-social-card.png">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Notisonda: actualidad en un solo lugar">
+  <meta property="og:image:alt" content="Radar-RSS: noticias con perspectiva">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Notisonda — Actualidad en un solo lugar">
+  <meta name="twitter:title" content="Radar-RSS — Noticias con perspectiva">
   <meta name="twitter:description" content="Noticias actualizadas de inteligencia artificial, tecnología, Chile, Venezuela, Latinoamérica y el mundo, reunidas desde fuentes RSS públicas.">
-  <meta name="twitter:image" content="https://medinacaj.github.io/notisonda/notisonda-social-card.png">
+  <meta name="twitter:image" content="https://medinacaj.github.io/radar-rss/radar-rss-social-card.png">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https: data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
-  <link rel="icon" href="./favicon.svg?v=5" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./notisonda-apple-touch-icon.png?v=1" sizes="180x180">
-  <link rel="alternate" type="application/rss+xml" title="Notisonda · Lo más cubierto" href="./feeds/mas-cubierto.xml">
-  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./radar-rss-favicon-64.png?v=1" type="image/png">
+  <link rel="apple-touch-icon" href="./radar-rss-apple-touch-icon.png?v=1" sizes="180x180">
+  <link rel="alternate" type="application/rss+xml" title="Radar-RSS · Lo más cubierto" href="./feeds/mas-cubierto.xml">
+  <link rel="manifest" href="./manifest.webmanifest?v=3">
   <link rel="stylesheet" href="./styles.css?v=5.2.0">
   <link rel="stylesheet" href="./library.css?v=1.8.0">
   <link rel="stylesheet" href="./sidebar-layout.css?v=1.0.3">
@@ -34,7 +34,7 @@
   <link rel="stylesheet" href="./news-effects.css?v=1.0.0">
   <link rel="stylesheet" href="./sidebar-health.css?v=1.0.0">
   <link rel="stylesheet" href="./ux.css?v=1.0.2">
-  <link rel="stylesheet" href="./features.css?v=1.2.2">
+  <link rel="stylesheet" href="./features.css?v=1.2.3">
   <link rel="stylesheet" href="./v12.css?v=1.2.3">
   <link rel="stylesheet" href="./v13.css?v=7.1.1">
   <link rel="stylesheet" href="./usability.css?v=1.0.1">
@@ -42,8 +42,8 @@
   <link rel="stylesheet" href="./agenda.css?v=1.1.0">
   <link rel="stylesheet" href="./reader-layout.css?v=1.0.0">
   <link rel="stylesheet" href="./reading-ux.css?v=1.0.0">
-  <link rel="stylesheet" href="./dimension.css?v=2.0.0">
-  <title>Notisonda — Actualidad en un solo lugar</title>
+  <link rel="stylesheet" href="./dimension.css?v=4.0.0">
+  <title>Radar-RSS — Noticias con perspectiva</title>
 </head>
 <body class="radar-hybrid dimension" data-columns="auto">
   <div class="app-shell">
@@ -65,7 +65,7 @@
         </section>
       </div>
       <div class="sidebar-bottom">
-          <div class="topbar-refresh" id="refreshCycle" role="group" aria-label="Actualización de noticias" title="Notisonda busca noticias nuevas cada 15 minutos. Los medios se recopilan aproximadamente cada 3 horas.">
+          <div class="topbar-refresh" id="refreshCycle" role="group" aria-label="Actualización de noticias" title="Radar-RSS busca noticias nuevas cada 15 minutos. Los medios se recopilan aproximadamente cada 3 horas.">
             <span class="update-label" id="lastUpdate">Sin sincronizar</span>
             <button id="refreshNow" class="refresh-now" type="button" title="Buscar y cargar las novedades ya publicadas" aria-label="Comprobar novedades ahora" aria-describedby="refreshStatus"><span data-icon="refresh" class="ui-icon-slot" aria-hidden="true"></span><span id="refreshNowLabel">Actualizar</span></button>
             <span id="refreshStatus" class="refresh-status" role="status" aria-live="polite" aria-atomic="true"></span>
@@ -88,7 +88,7 @@
     <div class="page">
       <header class="topbar">
         <button type="button" id="menuToggle" class="menu-toggle" aria-label="Abrir menú" aria-controls="appSidebar" aria-expanded="false" title="Menú"><span data-icon="menu" class="ui-icon-slot" aria-hidden="true"></span></button>
-        <div class="topbar-caption"><a class="brand topbar-brand" id="brandHome" href="#inicio" aria-label="Notisonda: ir al inicio"><span class="brand-mark" aria-hidden="true"><img src="./favicon.svg?v=5" width="24" height="24" alt=""></span><strong>Notisonda</strong></a><span id="topbarSection" class="sr-only">Actualidad</span></div>
+        <div class="topbar-caption"><a class="brand topbar-brand" id="brandHome" href="#inicio" aria-label="Radar-RSS: ir al inicio"><span class="brand-mark" aria-hidden="true"><img src="./radar-rss-mark.png?v=1" width="24" height="24" alt=""></span><strong>Radar-RSS</strong></a><span id="topbarSection" class="sr-only">Actualidad</span></div>
         <button type="button" id="searchToggle" class="search-toggle icon-button" aria-label="Buscar noticias" aria-controls="topbarSearch" aria-expanded="false" title="Buscar"><span data-icon="search" class="ui-icon-slot" aria-hidden="true"></span></button>
         <div class="topbar-search" id="topbarSearch" role="search">
           <label class="search-wrap"><span class="sr-only">Buscar en todas las noticias</span><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg><input id="searchInput" type="search" placeholder="Buscar noticias…" autocomplete="off" enterkeyhint="search" aria-keyshortcuts="/"><kbd class="search-shortcut" aria-hidden="true">/</kbd></label>
@@ -234,7 +234,7 @@
           <div class="load-more-wrap"><button id="loadMore" class="load-more" type="button" hidden>Cargar más noticias <span class="ui-icon-slot" data-icon="arrow-down" aria-hidden="true"></span></button></div>
         </section>
       </main>
-      <footer class="footer"><span>NOTISONDA <span class="footer-separator">·</span> Una aplicación independiente de lectura de fuentes públicas.</span><span>Créditos y derechos de los artículos pertenecen a sus respectivos medios. <a href="#info" id="footerInfo">Sobre el proyecto</a></span><a class="footer-profile" href="https://www.linkedin.com/in/medinacaj/" target="_blank" rel="noopener noreferrer" aria-label="Diseñado por @medinacaj, perfil en LinkedIn, abre otra pestaña"><span class="footer-profile-label">Diseñado por</span> <strong>@medinacaj</strong> <span aria-hidden="true">✨</span> <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 17 17 7M7 7h10v10"/></svg></a></footer>
+      <footer class="footer"><span>Radar-RSS <span class="footer-separator">·</span> Una aplicación independiente de lectura de fuentes públicas.</span><span>Créditos y derechos de los artículos pertenecen a sus respectivos medios. <a href="#info" id="footerInfo">Sobre el proyecto</a></span><a class="footer-profile" href="https://www.linkedin.com/in/medinacaj/" target="_blank" rel="noopener noreferrer" aria-label="Diseñado por @medinacaj, perfil en LinkedIn, abre otra pestaña"><span class="footer-profile-label">Diseñado por</span> <strong>@medinacaj</strong> <span aria-hidden="true">✨</span> <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 17 17 7M7 7h10v10"/></svg></a></footer>
     </div>
   </div>
   <dialog id="articleReaderDialog" class="article-reader-dialog" aria-labelledby="readerTitle" aria-describedby="readerNote">
@@ -271,9 +271,9 @@
     </div>
     <div class="feed-health-footer"><button type="button" id="doneFeedHealth">Cerrar diagnóstico</button></div>
   </dialog>
-  <dialog id="aboutDialog" class="about-dialog"><div class="dialog-head"><h2>Acerca de Notisonda</h2><button type="button" id="closeAbout" aria-label="Cerrar"><span data-icon="x" class="ui-icon-slot" aria-hidden="true"></span></button></div>
-    <p>Notisonda reúne titulares, extractos breves y enlaces a noticias de medios y blogs externos. Cada artículo enlaza al sitio original y sus derechos siguen perteneciendo a sus respectivos autores.</p>
-    <p>Las fuentes se organizan en ocho categorías, inicialmente importadas desde OPML. Los contenidos se recopilan mediante GitHub Actions y se publican de forma estática. La frecuencia programada es de aproximadamente tres horas, sujeta a disponibilidad de GitHub y de cada feed.</p>
+  <dialog id="aboutDialog" class="about-dialog"><div class="dialog-head"><h2>Acerca de Radar-RSS</h2><button type="button" id="closeAbout" aria-label="Cerrar"><span data-icon="x" class="ui-icon-slot" aria-hidden="true"></span></button></div>
+    <p>Radar-RSS reúne titulares, extractos breves y enlaces a noticias de medios y blogs externos. Cada artículo enlaza al sitio original y sus derechos siguen perteneciendo a sus respectivos autores.</p>
+    <p>Las fuentes se organizan en carpetas a partir del catálogo OPML. Los contenidos se recopilan mediante GitHub Actions y se publican de forma estática. La frecuencia programada es de aproximadamente tres horas, sujeta a disponibilidad de GitHub y de cada feed.</p>
     <p>Los artículos guardados y marcados como leídos se conservan <strong>solo en este navegador</strong>; no hay cuentas, sincronización entre dispositivos ni seguimiento personal desde esta aplicación. Las imágenes externas pueden realizar solicitudes a los sitios de sus editores.</p>
     <p>Un RSS con error o sin noticias recientes no implica necesariamente que el periódico haya cerrado. La revisión editorial es necesaria antes de retirar una fuente.</p>
     <h3 class="about-subtitle">Sigue esta selección en tu lector</h3>
@@ -301,7 +301,7 @@
     </dl>
   </dialog>
   <dialog id="settingsDialog" class="settings-dialog" aria-labelledby="settingsTitle">
-    <div class="settings-top"><div><span class="setting-eyebrow">CENTRO DE PREFERENCIAS</span><h2 id="settingsTitle">Configuración</h2><p>Personaliza Notisonda. Tus ajustes se guardan en este navegador.</p></div><button type="button" id="closeSettings" aria-label="Cerrar configuración"><span data-icon="x" class="ui-icon-slot" aria-hidden="true"></span></button></div>
+    <div class="settings-top"><div><span class="setting-eyebrow">CENTRO DE PREFERENCIAS</span><h2 id="settingsTitle">Configuración</h2><p>Personaliza Radar-RSS. Tus ajustes se guardan en este navegador.</p></div><button type="button" id="closeSettings" aria-label="Cerrar configuración"><span data-icon="x" class="ui-icon-slot" aria-hidden="true"></span></button></div>
     <div class="settings-body">
       <nav class="settings-tabs" aria-label="Secciones de configuración">
         <button type="button" class="settings-tab active" data-settings-tab="appearance" aria-selected="true"><span data-icon="settings" class="ui-icon-slot" aria-hidden="true"></span> <span>Apariencia</span></button>
@@ -388,7 +388,7 @@
           </section>
           <p id="sourceImportNotice" class="settings-notice" aria-live="polite"></p>
           <div id="settingsSources" class="settings-source-list" role="group" aria-label="Seleccionar fuentes visibles"></div>
-          <p class="setting-admin">Para añadir o eliminar fuentes <strong>para todos los visitantes</strong>, hay que actualizar <a href="https://github.com/medinacaj/radar-rss-publico/blob/main/sources/feeds.opml" rel="noopener noreferrer" target="_blank">el OPML del repositorio</a>. Los cambios de este panel son personales.</p>
+          <p class="setting-admin">Para añadir o eliminar fuentes <strong>para todos los visitantes</strong>, hay que actualizar <a href="https://github.com/medinacaj/radar-rss/blob/main/sources/feeds.opml" rel="noopener noreferrer" target="_blank">el OPML del repositorio</a>. Los cambios de este panel son personales.</p>
         </section>
         <section class="settings-pane" data-settings-pane="data" aria-label="Datos y privacidad" hidden>
           <h3>Datos y privacidad</h3><p class="setting-hint">No se solicita cuenta. Tus favoritos, lecturas y preferencias se almacenan en este navegador.</p>
@@ -400,7 +400,7 @@
         <section class="settings-pane" data-settings-pane="health" aria-label="Estado de las fuentes RSS" hidden>
           <h3>Estado de RSS</h3><p class="setting-hint">Medios que no se pudieron leer en la última revisión automática. Que un medio no esté disponible no significa que haya dejado de publicar.</p>
           <div id="healthSummary" class="health-summary"></div><div id="healthFeedList" class="health-list"></div>
-          <p class="setting-admin">El intervalo de actualización del servidor está definido en <a href="https://github.com/medinacaj/radar-rss-publico/blob/main/.github/workflows/deploy.yml" rel="noopener noreferrer" target="_blank">GitHub Actions</a> (aproximadamente cada tres horas). Un visitante no puede cambiarlo desde la web pública.</p>
+          <p class="setting-admin">El intervalo de actualización del servidor está definido en <a href="https://github.com/medinacaj/radar-rss/blob/main/.github/workflows/deploy.yml" rel="noopener noreferrer" target="_blank">GitHub Actions</a> (aproximadamente cada tres horas). Un visitante no puede cambiarlo desde la web pública.</p>
         </section>
       </div>
     </div>
@@ -413,17 +413,17 @@
   </div>
   <button id="backTop" class="back-to-top" type="button" aria-label="Volver arriba" title="Volver arriba" hidden><span data-icon="arrow-up" class="ui-icon-slot" aria-hidden="true"></span></button>
   <div id="actionToast" class="action-toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
-  <script src="./source-tools.js?v=1.0.1" defer></script>
-  <script src="./app.js?v=9.9.0" defer></script>
-  <script src="./library.js?v=2.0.1" defer></script>
+  <script src="./source-tools.js?v=1.0.2" defer></script>
+  <script src="./app.js?v=9.10.0" defer></script>
+  <script src="./library.js?v=2.0.2" defer></script>
   <script src="./sidebar-layout.js?v=1.2.3" defer></script>
   <script src="./news-effects.js?v=1.0.0" defer></script>
-  <script src="./features.js?v=1.3.2" defer></script>
+  <script src="./features.js?v=1.3.3" defer></script>
   <script src="./v12.js?v=1.3.1" defer></script>
-  <script src="./v13.js?v=1.4.2" defer></script>
+  <script src="./v13.js?v=1.4.3" defer></script>
   <script src="./usability.js?v=1.1.1" defer></script>
   <script src="./homepage.js?v=1.3.0" defer></script>
-  <script src="./agenda.js?v=1.1.1" defer></script>
+  <script src="./agenda.js?v=1.1.2" defer></script>
   <script src="./feed-ux.js?v=1.0.0" defer></script>
   <script src="./reader-ux.js?v=1.0.0" defer></script>
 </body>

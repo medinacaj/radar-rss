@@ -2,6 +2,8 @@
 from copy import deepcopy
 from datetime import datetime, timedelta
 from pathlib import Path
+import base64
+import hashlib
 import json
 import os
 import ssl
@@ -28,6 +30,12 @@ class DimensionRegressions(unittest.TestCase):
         threading.Thread(target=cls.server.serve_forever,daemon=True).start()
         cls.driver=sync_playwright().start()
         engine=os.environ.get('RADAR_TEST_ENGINE','chromium');options={'headless':True}
+        if engine=='chromium':
+            # Trust only this temporary fixture certificate, including SW fetches.
+            pem=subprocess.run(['openssl','x509','-in',str(cert),'-pubkey','-noout'],check=True,capture_output=True).stdout
+            der=subprocess.run(['openssl','pkey','-pubin','-outform','DER'],input=pem,check=True,capture_output=True).stdout
+            spki=base64.b64encode(hashlib.sha256(der).digest()).decode()
+            options['args']=[f'--ignore-certificate-errors-spki-list={spki}']
         if engine=='chromium' and os.environ.get('RADAR_CHROMIUM_EXECUTABLE'):options['executable_path']=os.environ['RADAR_CHROMIUM_EXECUTABLE']
         cls.browser=getattr(cls.driver,engine).launch(**options)
 
@@ -47,6 +55,10 @@ class DimensionRegressions(unittest.TestCase):
     def tearDown(self):
         self.assertFalse(self.errors)
         self.context.close()
+
+    def test_failed_cache_upgrade_keeps_the_working_offline_reader(self):
+        from cache_upgrade_fixture import check_failed_upgrade
+        check_failed_upgrade(self.browser, self.server.socket.context)
 
     def test_destinations_are_separate_and_agenda_is_reloadable(self):
         expect(self.page.locator('#dashboardView')).to_be_visible()
@@ -100,7 +112,7 @@ class DimensionRegressions(unittest.TestCase):
                     for edge in ('left','right'):
                         self.assertAlmostEqual(bounds['header'][edge],bounds['route'][edge],delta=1,msg=context)
                         self.assertAlmostEqual(bounds['footer'][edge],bounds['route'][edge],delta=1,msg=context)
-                    self.assertLessEqual(bounds['main']['width'],1201,context)
+                    self.assertLessEqual(bounds['main']['width'],1451,context)
                     self.assertGreaterEqual(bounds['header']['left'],bounds['page']['left'],context)
                     self.assertLessEqual(bounds['header']['right'],bounds['page']['right']+1,context)
                     self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth+2'),context)
@@ -158,6 +170,39 @@ class DimensionRegressions(unittest.TestCase):
         self.assertFalse(set(sheets)&{'editorial.css','hashnode-preview.css','radar-hybrid.css','copper-theme.css','home-editorial.css','cosmic-theme.css','iaadc-editorial.css'})
         self.page.evaluate("setTheme('light',true)")
         self.assertNotEqual(self.page.evaluate('getComputedStyle(document.body).backgroundColor'),colors['bg'])
+
+    def test_editorial_tech_palette_surface_depth_hover_and_reduced_motion(self):
+        # Real computed-style contract: both themes and user motion preferences.
+        for theme, bg, accent in (('dark', '#10151d', '#ff8968'),
+                                  ('light', '#edf1f5', '#b5422a')):
+            self.page.evaluate('(theme)=>setTheme(theme,true)', theme)
+            tokens=self.page.evaluate("""() => {
+                const style=getComputedStyle(document.body);
+                return {bg:style.getPropertyValue('--bg').trim(),
+                        surface:style.getPropertyValue('--surface').trim(),
+                        accent:style.getPropertyValue('--accent').trim()};
+            }""")
+            self.assertEqual(tokens['bg'], bg)
+            self.assertEqual(tokens['accent'], accent)
+            self.assertNotEqual(tokens['bg'], tokens['surface'])
+            for width in (320, 390, 768, 950, 951, 1440, 2560):
+                self.page.set_viewport_size({'width':width,'height':950})
+                for target in ('home','all','agenda','briefing'):
+                    self.page.evaluate('(target)=>goTo(target)', target)
+                    self.assertTrue(self.page.evaluate(
+                        'document.documentElement.scrollWidth<=innerWidth+2'),
+                        (theme,width,target))
+        self.page.set_viewport_size({'width':1440,'height':1000})
+        self.page.evaluate("goTo('all')")
+        card=self.page.locator('#articleGrid > .article-card').first
+        self.page.emulate_media(reduced_motion='no-preference')
+        card.hover()
+        self.page.wait_for_timeout(550)
+        transformed=card.evaluate('node=>getComputedStyle(node).transform')
+        self.assertNotIn(transformed, ('none','matrix(1, 0, 0, 1, 0, 0)'))
+        self.page.emulate_media(reduced_motion='reduce')
+        self.assertEqual(card.evaluate('node=>getComputedStyle(node).transform'),'none')
+        self.assertEqual(card.evaluate('node=>getComputedStyle(node).transitionDuration'),'0s')
 
     def test_automatic_columns_use_available_space_and_preserve_a_saved_choice(self):
         self.page.evaluate("goTo('all')")
@@ -417,19 +462,19 @@ class DimensionRegressions(unittest.TestCase):
         self.page.locator('#settingsButton').click()
         self.page.locator('[data-settings-tab="sources"]').click()
 
-    def test_notisonda_exports_keep_legacy_backup_format_and_use_current_identity(self):
+    def test_exports_keep_legacy_backup_format_and_use_current_identity(self):
         self.open_source_settings()
         self.page.locator('#settingsSources .library-source-details-trigger').first.click()
-        expect(self.page.locator('#librarySourceDetailsDialog')).to_contain_text('catálogo público de Notisonda')
+        expect(self.page.locator('#librarySourceDetailsDialog')).to_contain_text('catálogo público de Radar-RSS')
         self.page.locator('#librarySourceDetailsDialog button').last.click()
         self.page.evaluate('()=>{window.brandDownloads=[];downloadText=(name,body,mime)=>window.brandDownloads.push({name,body,mime});}')
         self.page.locator('#exportOPML').click()
         xml=self.page.evaluate('window.brandDownloads.at(-1).body')
-        self.assertIn('<title>Mis fuentes Notisonda</title>',xml)
+        self.assertIn('<title>Mis fuentes Radar-RSS</title>',xml)
         self.page.locator('[data-settings-tab="data"]').click()
         self.page.locator('#exportData').click()
         backup=self.page.evaluate('window.brandDownloads.at(-1)')
-        self.assertEqual(backup['name'],'notisonda-respaldo-completo.json')
+        self.assertEqual(backup['name'],'radar-rss-respaldo-completo.json')
         self.assertEqual(json.loads(backup['body'])['format'],'radar-rss-settings-v3')
 
     def test_source_addresses_search_filters_and_stable_identity(self):
@@ -765,6 +810,15 @@ class DimensionRegressions(unittest.TestCase):
                 self.assertLessEqual(box['x']+box['width'],width+1)
                 self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth+2'))
             self.page.set_viewport_size({'width':1440,'height':1000})
+
+            self.page.locator('#articleGrid .article-title a').first.click()
+            expect(self.page.locator('#articleReaderDialog')).to_be_visible()
+            for selector in ('.reader-primary', '.reader-primary .reader-open-hint'):
+                self.assertGreaterEqual(self.page.locator(selector).evaluate(contrast), 4.5, (theme, selector))
+            self.page.locator('.reader-primary').hover()
+            for selector in ('.reader-primary', '.reader-primary .reader-open-hint'):
+                self.assertGreaterEqual(self.page.locator(selector).evaluate(contrast), 4.5, (theme, 'hover', selector))
+            self.page.keyboard.press('Escape')
 
 
 if __name__=='__main__':

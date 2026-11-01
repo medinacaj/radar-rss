@@ -1,11 +1,11 @@
-/* Notisonda — lectura sin conexión.
+/* Radar-RSS — lectura sin conexión.
    Estrategia: primero la red (siempre lo más reciente); si no hay conexión, la última
    copia guardada. Solo se guardan archivos del propio sitio, nunca imágenes ni enlaces externos.
    Las URL se guardan sin parámetros (?v=, ?check=) para que la caché no crezca sin límite. */
-const CACHE = 'notisonda-v4';
+const CACHE = 'radar-rss-v58';
 const SHELL = [
-  './', './index.html', './manifest.webmanifest', './favicon.svg', './social-card.svg', './icon-maskable.svg',
-  './notisonda-icon-192.png', './notisonda-icon-512.png', './notisonda-maskable-512.png', './notisonda-apple-touch-icon.png', './notisonda-social-card.png',
+  './', './index.html', './manifest.webmanifest', './radar-rss-mark.png', './radar-rss-favicon-64.png', './radar-rss-social-card.png',
+  './radar-rss-icon-192.png', './radar-rss-icon-512.png', './radar-rss-maskable-512.png', './radar-rss-apple-touch-icon.png',
   './styles.css', './dimension.css', './library.css',
   './sidebar-layout.css', './modal-layout.css', './news-effects.css', './sidebar-health.css', './ux.css', './features.css',
   './v12.css', './v13.css', './source-tools.js', './app.js', './v12.js', './v13.js', './library.js', './sidebar-layout.js', './news-effects.js', './features.js',
@@ -19,9 +19,11 @@ const keyFor = request => {
 };
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE).then(cache => Promise.all(SHELL.map(path =>
-    fetch(path, { cache: 'reload' }).then(res => res.ok ? cache.put(keyFor(new Request(path)), res) : null).catch(() => null)
-  ))).then(() => self.skipWaiting()));
+  // addAll es atómico: un fallo conserva activo el lector anterior y su caché.
+  // Solo una copia completa puede pasar a activate y retirar las versiones viejas.
+  event.waitUntil(caches.open(CACHE)
+    .then(cache => cache.addAll(SHELL.map(path => new Request(path, { cache: 'reload' }))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', event => {

@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import struct
 import unittest
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urlsplit
 
 ROOT=Path(__file__).resolve().parents[1]
 WEB=ROOT/'web'
@@ -26,10 +26,20 @@ class NotisondaAssetsTests(unittest.TestCase):
     def setUp(self):
         self.tags=HeadTags((WEB/'index.html').read_text()).tags
 
-    def test_apple_touch_icon_is_a_real_180px_png(self):
+    def test_public_html_has_no_previous_product_name(self):
+        self.assertNotRegex((WEB/'index.html').read_text(), r'(?i)notisonda')
+
+    def test_calendar_script_version_advances_past_previous_identity(self):
+        scripts = [urlsplit(a['src']) for tag, a in self.tags if tag == 'script' and 'src' in a]
+        script = next(url for url in scripts if url.path.endswith('/agenda.js'))
+        version = parse_qs(script.query)['v'][0]
+        self.assertGreater(tuple(map(int, version.split('.'))), (1, 1, 1))
+
+    def test_apple_touch_icon_is_a_real_png_with_its_advertised_size(self):
         attrs=next(attrs for tag,attrs in self.tags if tag=='link' and attrs.get('rel')=='apple-touch-icon')
         path=urlsplit(attrs['href']).path
         self.assertEqual(Path(path).suffix,'.png')
+        self.assertEqual(attrs['sizes'], '180x180')
         self.assertEqual(png_size(WEB/path.removeprefix('./')),(180,180))
 
     def test_open_graph_and_twitter_share_the_same_real_1200x630_png(self):
@@ -37,13 +47,16 @@ class NotisondaAssetsTests(unittest.TestCase):
         url=meta['og:image']
         self.assertEqual(meta['twitter:image'],url)
         self.assertEqual(urlsplit(url).netloc,'medinacaj.github.io')
-        self.assertTrue(urlsplit(url).path.startswith('/notisonda/'))
+        self.assertTrue(urlsplit(url).path.startswith('/radar-rss/'))
         self.assertEqual(Path(urlsplit(url).path).suffix,'.png')
         self.assertEqual(meta.get('og:image:type'),'image/png')
         self.assertEqual(png_size(WEB/Path(urlsplit(url).path).name),(1200,630))
 
     def test_installable_icons_include_real_png_sizes_and_maskable(self):
         manifest=json.loads((WEB/'manifest.webmanifest').read_text())
+        self.assertEqual(manifest['short_name'], 'Radar-RSS')
+        self.assertTrue(manifest['name'].startswith('Radar-RSS'))
+        self.assertEqual(manifest['start_url'], './#inicio')
         icons=[i for i in manifest['icons'] if i.get('type')=='image/png']
         self.assertTrue(any(i['sizes']=='192x192' and i['purpose']=='any' for i in icons))
         self.assertTrue(any(i['sizes']=='512x512' and i['purpose']=='any' for i in icons))

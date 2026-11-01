@@ -196,7 +196,7 @@
   function exportCalendar(rows){
     const confirmed=rows.filter(row=>row.status==='scheduled'&&day(row.start_date)&&zone(row.timezone));
     if(!confirmed.length)return;
-    const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Notisonda//Agenda//ES','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
+    const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Radar-RSS//Agenda//ES','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
     const generated=new Date(documentData.generated_at).toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
     // Dates are deliberately all-day: source times are not part of this contract.
     for(const row of confirmed){
@@ -208,7 +208,7 @@
     }
     lines.push('END:VCALENDAR');
     const blob=new Blob([lines.map(foldLine).join('\r\n')+'\r\n'],{type:'text/calendar;charset=utf-8'}), href=URL.createObjectURL(blob), anchor=mk('a');
-    anchor.href=href;anchor.download='notisonda-agenda.ics';document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(href),1000);
+    anchor.href=href;anchor.download='radar-rss-agenda.ics';document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(href),1000);
     actionStatus.textContent=`Exportadas ${confirmed.length} actividades con fecha confirmada. Verifica posibles cambios en la fuente.`;
   }
   exportButton.addEventListener('click',()=>exportCalendar(visibleRows));

@@ -1,5 +1,5 @@
 "use strict";
-// Notisonda: interfaz pública sin autenticación y sin HTML sin sanear de fuentes externas.
+// Radar-RSS: interfaz pública sin autenticación y sin HTML sin sanear de fuentes externas.
 const $ = (id) => document.getElementById(id);
 const format = new Intl.NumberFormat('es-CL');
 function storeGet(key) { try { return localStorage.getItem(key); } catch { return null; } }
@@ -213,7 +213,7 @@ function setTheme(theme, explicit=false) {
   $('themeGlyph').replaceChildren(svgIcon(light?'moon':'sun'));
   $('themeToggle').setAttribute('aria-label',light?'Cambiar a modo oscuro':'Cambiar a modo claro');
   $('themeToggle').title=light?'Modo oscuro':'Modo claro';
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content',light?'#f6f5f2':'#19181f');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content',light?'#f3f7f7':'#111e29');
   if(explicit){
     try{localStorage.setItem('radar-theme',state.theme);localStorage.setItem(THEME_EXPLICIT_KEY,'true');}catch{}
   }
@@ -477,18 +477,18 @@ function initSettingsHandlers(){
   for(const id of ['settingsSourceVisibility','settingsSourceStatus','settingsSourceType'])$(id).addEventListener('change',()=>renderSettingsSources());
   $('showAllSources').addEventListener('click',()=>{state.hiddenSources.clear();persist('radar-hidden-sources',state.hiddenSources);state.page=1;refreshFeedUI();renderSettingsSources();});
   $('exportOPML').addEventListener('click',()=>{
-    downloadText('notisonda-mis-fuentes.opml',RadarSourceTools.buildOPML(settingsSourceGroups(),state.sources,state.hiddenSources),'application/xml;charset=utf-8');
+    downloadText('radar-rss-mis-fuentes.opml',RadarSourceTools.buildOPML(settingsSourceGroups(),state.sources,state.hiddenSources),'application/xml;charset=utf-8');
   });
   $('exportSourceCatalog').addEventListener('click',()=>{
     const groups=settingsSourceGroups(),health=new Map(state.health.map(row=>[row.id,row]));
     const rows=state.sources.map(source=>({id:source.id,name:source.name,rss:source.url,website:source.website,
       folders:groups.filter(group=>group.ids.includes(source.id)).map(group=>group.name).join(' | ')||'Sin carpeta',
       visible:!state.hiddenSources.has(source.id),type:RadarSourceTools.sourceKind(source)==='radar'?'RADAR · Google Noticias':'RSS directo',status:RadarSourceTools.healthState(health.get(source.id))}));
-    downloadText('notisonda-catalogo.csv',RadarSourceTools.buildCSV(rows),'text/csv;charset=utf-8');
+    downloadText('radar-rss-catalogo.csv',RadarSourceTools.buildCSV(rows),'text/csv;charset=utf-8');
   });
   $('exportData').addEventListener('click',()=>{
     const data={format:'radar-rss-settings-v2',exported_at:new Date().toISOString(),preferences:{theme:state.theme,layout:state.layout,columns:state.columns,density:state.density,pageSize:state.pageSize,maxAge:state.maxAge,fontSize:state.fontSize,cardTitleSize:state.cardTitleSize,showImages:state.showImages,showSummaries:state.showSummaries,hideRead:state.hideRead,newTab:state.newTab,sort:state.sort,startMode:state.startMode,mutedKeywords:state.mutedKeywords},hiddenSources:[...state.hiddenSources],saved:[...state.saved],read:[...state.read]};
-    downloadText('notisonda-preferencias.json',JSON.stringify(data,null,2),'application/json;charset=utf-8');
+    downloadText('radar-rss-preferencias.json',JSON.stringify(data,null,2),'application/json;charset=utf-8');
     $('dataNotice').textContent='Archivo de respaldo generado.';
   });
   $('importData').addEventListener('change',async e=>{
@@ -507,7 +507,7 @@ function initSettingsHandlers(){
       }
       for(const [key,value] of [['layout',state.layout],['columns',state.columns],['theme',state.theme],['density',state.density],['font',state.fontSize],['card-title-size',state.cardTitleSize],['page-size',state.pageSize],['max-age',state.maxAge],['show-images',state.showImages],['show-summaries',state.showSummaries],['hide-read',state.hideRead],['new-tab',state.newTab],['sort',state.sort],['start-mode',state.startMode],['keywords',state.mutedKeywords]])savePref(key,value);
       state.mode=state.startMode;state.page=1;setTheme(state.theme,true);applyDisplaySettings();refreshFeedUI();syncSettings();selectedTab('data');$('dataNotice').textContent='Preferencias y datos importados correctamente.';
-    }catch{$('dataNotice').textContent='No se pudo importar. Utiliza un respaldo JSON generado por Notisonda.';}
+    }catch{$('dataNotice').textContent='No se pudo importar. Utiliza un respaldo JSON generado por Radar-RSS.';}
   });
   $('clearRead').addEventListener('click',()=>{if(confirm('¿Borrar el historial de lectura de este navegador?')){state.read.clear();persist('radar-read',state.read);state.page=1;render();updateDataCounts();$('dataNotice').textContent='Historial borrado.';}});
   $('clearSaved').addEventListener('click',()=>{if(confirm('¿Vaciar los artículos guardados en este navegador?')){state.saved.clear();persist('radar-saved',state.saved);state.page=1;render();updateDataCounts();$('dataNotice').textContent='Guardadas vaciadas.';}});
@@ -1450,7 +1450,7 @@ function publishNewRSSNews(previousIds=null){
     }catch{known=null;}
   }
   try{localStorage.setItem(NEWS_SNAPSHOT_KEY,JSON.stringify(current.map(item=>item.id)));}
-  catch(error){console.warn('Notisonda: instantánea local no disponible.',error);}
+  catch(error){console.warn('Radar-RSS: instantánea local no disponible.',error);}
   if(!known||!known.size||!current.length)return;
   const added=current.filter(item=>!known.has(item.id));
   if(!added.length)return;
@@ -1477,7 +1477,7 @@ function freshnessLabel(){
 function updateScheduleProgress(){
   $('lastUpdate').textContent=feedRefreshBusy?'Buscando novedades…':freshnessLabel();
   const exact=state.generated?' Última recopilación: '+shortDate(state.generated)+'.':'';
-  const description='Notisonda busca noticias nuevas cada 15 minutos; los medios se recopilan aproximadamente cada 3 horas.'+exact;
+  const description='Radar-RSS busca noticias nuevas cada 15 minutos; los medios se recopilan aproximadamente cada 3 horas.'+exact;
   $('refreshCycle').title=description;
   $('lastUpdate').title=description;
   $('refreshNow').disabled=feedRefreshBusy||bootBusy;

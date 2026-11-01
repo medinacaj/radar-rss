@@ -27,7 +27,7 @@ class NotisondaPublicationTests(unittest.TestCase):
             return io.BytesIO(b'{"version":2,"total_articles":5000}')
         with patch.object(check_public_health,'urlopen',fetch):
             result=check_public_health.read_json('meta.json')
-        self.assertEqual(urls,['https://medinacaj.github.io/notisonda/data/meta.json'])
+        self.assertEqual(urls,['https://medinacaj.github.io/radar-rss/data/meta.json'])
         self.assertEqual(result['total_articles'],5000)
 
     def test_news_recovery_downloads_both_documents_from_current_path(self):
@@ -40,7 +40,7 @@ class NotisondaPublicationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory,patch.object(recover_history,'urlopen',fetch),redirect_stdout(io.StringIO()):
             recover_history.restore(Path(directory))
             self.assertEqual(json.loads((Path(directory)/'articles.json').read_text()),docs['articles.json'])
-        self.assertEqual(urls,['https://medinacaj.github.io/notisonda/data/articles.json','https://medinacaj.github.io/notisonda/data/status.json'])
+        self.assertEqual(urls,['https://medinacaj.github.io/radar-rss/data/articles.json','https://medinacaj.github.io/radar-rss/data/status.json'])
 
     def test_agenda_download_uses_current_path(self):
         urls=[]
@@ -49,7 +49,7 @@ class NotisondaPublicationTests(unittest.TestCase):
             return io.BytesIO(b'{"version":1,"items":[],"pending":[]}')
         with patch.object(recover_events,'urlopen',fetch):
             result=recover_events.download('events.json')
-        self.assertEqual(urls,['https://medinacaj.github.io/notisonda/data/events.json'])
+        self.assertEqual(urls,['https://medinacaj.github.io/radar-rss/data/events.json'])
         self.assertEqual(result['pending'],[])
 
     def test_generated_rss_uses_new_identity_and_preserves_story_identity_and_attribution(self):
@@ -61,8 +61,8 @@ class NotisondaPublicationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             folder=Path(directory)
             write_feeds(folder,[article],[{'id':'original','category':category}],now)
-            for name,title,link in [('mas-cubierto.xml','Notisonda · Lo más cubierto','https://medinacaj.github.io/notisonda/'),
-                                    ('ciencia.xml','Notisonda · Ciencia','https://medinacaj.github.io/notisonda/#categoria/01%20-%20Ciencia')]:
+            for name,title,link in [('mas-cubierto.xml','Radar-RSS · Lo más cubierto','https://medinacaj.github.io/radar-rss/'),
+                                    ('ciencia.xml','Radar-RSS · Ciencia','https://medinacaj.github.io/radar-rss/#categoria/01%20-%20Ciencia')]:
                 channel=ET.parse(folder/name).getroot().find('channel')
                 self.assertEqual(channel.findtext('title'),title)
                 self.assertEqual(channel.findtext('link'),link)
@@ -70,7 +70,7 @@ class NotisondaPublicationTests(unittest.TestCase):
                 self.assertEqual(item.findtext('guid'),'radar-story-1')
                 self.assertEqual(item.findtext('link'),'https://publisher.example/story')
                 self.assertEqual(item.findtext('source'),'Medio original')
-                self.assertEqual(item.find('source').get('url'),'https://medinacaj.github.io/notisonda/')
+                self.assertEqual(item.find('source').get('url'),'https://medinacaj.github.io/radar-rss/')
 
     @unittest.skipUnless(shutil.which('node'),'Node no disponible')
     def test_cache_migration_behavior(self):

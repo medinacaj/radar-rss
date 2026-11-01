@@ -266,8 +266,8 @@ body.lite *{animation:none!important;transition:none!important}
 }
 @media(prefers-reduced-motion:reduce){body.radar-hybrid .radar-sweep{animation:none;display:none}}
 
-/* El texto «en otra pestaña» del botón principal debe leerse sobre el naranja. */
-body.radar-hybrid .reader-primary .reader-open-hint{color:#fff;opacity:.95;font-size:12px}
+/* La indicación de apertura hereda el contraste del botón en ambos temas. */
+body.radar-hybrid .reader-primary .reader-open-hint{color:inherit;opacity:1;font-size:12px}
 body.radar-hybrid .thread-body{display:grid;gap:2px}
 @media(max-width:600px){
   body.radar-hybrid .since-visit{padding:12px}

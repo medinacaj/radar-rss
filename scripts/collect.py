@@ -32,7 +32,7 @@ import requests
 from insights import independent_publishers, trending_topics, write_feeds
 
 # Agente identificable (convención "compatible" de lectores y buscadores) con enlace de contacto.
-AGENT = "Mozilla/5.0 (compatible; RadarRSS/1.1; +https://github.com/medinacaj/radar-rss-publico)"
+AGENT = "Mozilla/5.0 (compatible; RadarRSS/1.1; +https://github.com/medinacaj/radar-rss)"
 # Feeds de Substack y similares incluyen artículos completos y superan con frecuencia 2,5 MB.
 MAX_BYTES = 8_000_000
 HEADERS = {"User-Agent": AGENT,

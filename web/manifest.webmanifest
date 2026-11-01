@@ -1,22 +1,41 @@
 {
-  "name": "Notisonda — Noticias en un solo lugar",
-  "short_name": "Notisonda",
+  "name": "Radar-RSS — Noticias con perspectiva",
+  "short_name": "Radar-RSS",
   "description": "Lector público de noticias por RSS: lo más cubierto, temas en alza y resumen del día",
   "lang": "es",
   "start_url": "./#inicio",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#19181f",
-  "theme_color": "#19181f",
+  "background_color": "#111e29",
+  "theme_color": "#16394a",
   "icons": [
-    {"src": "./notisonda-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-    {"src": "./notisonda-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
-    {"src": "./notisonda-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"},
-    {"src": "./favicon.svg?v=5", "sizes": "any", "type": "image/svg+xml", "purpose": "any"},
-    {"src": "./icon-maskable.svg?v=5", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable"}
+    {
+      "src": "./radar-rss-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./radar-rss-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./radar-rss-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ],
   "shortcuts": [
-    {"name": "Resumen del día", "url": "./#resumen"},
-    {"name": "Todas las noticias", "url": "./#noticias"}
+    {
+      "name": "Resumen del día",
+      "url": "./#resumen"
+    },
+    {
+      "name": "Todas las noticias",
+      "url": "./#noticias"
+    }
   ]
 }

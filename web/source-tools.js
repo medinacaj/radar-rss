@@ -30,7 +30,7 @@
     const byId=new Map(sources.map(source=>[source.id,source]));
     const assigned=new Set(groups.flatMap(group=>group.ids));
     const allGroups=[...groups,{name:'Sin carpeta',ids:sources.filter(s=>!assigned.has(s.id)).map(s=>s.id)}];
-    const lines=['<?xml version="1.0" encoding="UTF-8"?>','<opml version="2.0"><head><title>Mis fuentes Notisonda</title></head><body>'];
+    const lines=['<?xml version="1.0" encoding="UTF-8"?>','<opml version="2.0"><head><title>Mis fuentes Radar-RSS</title></head><body>'];
     for(const group of allGroups){
       const feeds=[...new Set(group.ids)].map(id=>byId.get(id)).filter(source=>source&&!hiddenIds.has(source.id)&&feedKey(source.url));
       if(!feeds.length)continue;

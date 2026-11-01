@@ -12,7 +12,7 @@
   const title=mk('h4','', 'Herramientas de lectura');
   title.id='v13GuideTitle';
   const description=mk('p','setting-hint',
-    'Accesos a funciones disponibles en Notisonda. También puedes usarlas desde el lector.');
+    'Accesos a funciones disponibles en Radar-RSS. También puedes usarlas desde el lector.');
   const actions=mk('div','settings-reading-actions');
   function addAction(label,hint,callback){
     const button=mk('button','settings-reading-action');

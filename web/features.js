@@ -315,7 +315,7 @@
   function siteLink() { return location.origin + location.pathname + '#resumen'; }
   function briefingText(data, perSection = 2) {
     const date = new Intl.DateTimeFormat('es-CL', { day: 'numeric', month: 'long' }).format(new Date());
-    const lines = [`📡 Notisonda · Resumen del ${date}`, ''];
+    const lines = [`📡 Radar-RSS · Resumen del ${date}`, ''];
     for (const s of data.sections) {
       lines.push(`*${s.label}*`);
       s.items.slice(0, perSection).forEach((x, i) => {
@@ -381,7 +381,7 @@
     const data = briefingData();
     const voices = speechSynthesis.getVoices();
     const voice = voices.find(v => /^es[-_](CL|419|US|MX)/i.test(v.lang)) || voices.find(v => /^es/i.test(v.lang)) || null;
-    const parts = ['Resumen del día de Notisonda.'];
+    const parts = ['Resumen del día de Radar-RSS.'];
     for (const s of data.sections) {
       parts.push(`${s.label}.`);
       s.items.forEach((x, i) => parts.push(`${['Primero', 'Segundo', 'Tercero'][i] || ''}: ${plain(x.title)}. Fuente: ${sourceLabel(x.publisher || x.source)}.`));

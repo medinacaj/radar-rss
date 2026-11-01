@@ -231,11 +231,13 @@ class AgendaToolsRegressions(unittest.TestCase):
         with self.page.expect_download() as download_info:
             self.page.locator('#agendaExport').click()
         download = download_info.value
-        self.assertTrue(download.suggested_filename.endswith('.ics'))
+        self.assertEqual(download.suggested_filename, 'radar-rss-agenda.ics')
         raw = Path(download.path()).read_bytes()
         self.assertTrue(raw.endswith(b'END:VCALENDAR\r\n'))
         self.assertTrue(all(len(line) <= 75 for line in raw.split(b'\r\n')))
         value = raw.decode().replace('\r\n ', '')
+        self.assertIn('PRODID:-//Radar-RSS//Agenda//ES\r\n', value)
+        self.assertIn('UID:ics@agenda.radar-rss\r\n', value)
         self.assertEqual(value.count('BEGIN:VEVENT'), 1)
         self.assertIn('DTSTART;VALUE=DATE:20261025\r\n', value)
         self.assertIn('DTEND;VALUE=DATE:20261028\r\n', value)

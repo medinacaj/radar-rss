@@ -1,4 +1,4 @@
-# Notisonda · Plataforma de monitoreo informativo
+# Radar-RSS · Plataforma de monitoreo informativo
 
 **Versión pública operativa · octubre 2026:** recopilación y publicación automáticas, monitoreo, historial paginado, tendencias, lectura responsive y pruebas multiplataforma.
 
@@ -91,12 +91,12 @@ Las imágenes se **enlazan al editor original** (no se descargan, republican ni 
 
 ## Cómo publicar un fork en GitHub (una sola vez)
 
-1. Crear un **repositorio público** en GitHub llamado, por ejemplo, `notisonda`. No añadir archivos iniciales al crearlo si subirás esta carpeta completa.
+1. Crear un **repositorio público** en GitHub llamado, por ejemplo, `radar-rss`. No añadir archivos iniciales al crearlo si subirás esta carpeta completa.
 2. Subir **todos los archivos y carpetas**, incluidos `.github/workflows/deploy.yml`, `scripts`, `sources` y `web`. Es importante conservar rutas y estructura.
 3. Asegurarse de que la rama principal sea `main`.
 4. En el repositorio, abrir **Settings → Pages → Build and deployment → Source → GitHub Actions**.
 5. Abrir **Actions → Actualizar noticias y publicar → Run workflow** (si no se ha ejecutado automáticamente por el primer commit). La acción descargará los RSS, generará los JSON y publicará el sitio.
-6. Cuando el flujo termine correctamente, el sitio estará normalmente en `https://TU-USUARIO.github.io/notisonda/`. GitHub muestra la URL real en Settings → Pages.
+6. Cuando el flujo termine correctamente, el sitio estará normalmente en `https://TU-USUARIO.github.io/radar-rss/`. GitHub muestra la URL real en Settings → Pages.
 7. Si se distribuye un fork, revisar enlaces de identidad, `SITE_URL` y el origen de recuperación para evitar mezclar datos con la instancia pública original.
 
 **Opción mediante Git local (después de descomprimir):**
@@ -105,8 +105,8 @@ Las imágenes se **enlazan al editor original** (no se descargan, republican ni 
 git init
 git branch -M main
 git add .
-git commit -m "Versión inicial de Notisonda"
-git remote add origin https://github.com/TU-USUARIO/notisonda.git
+git commit -m "Versión inicial de Radar-RSS"
+git remote add origin https://github.com/TU-USUARIO/radar-rss.git
 git push -u origin main
 ```
 
@@ -114,8 +114,8 @@ Requiere tener Git instalado y autenticado. No pegues contraseñas ni tokens en 
 
 ## Estado de calidad y mantenimiento
 
-- **Sitio:** https://medinacaj.github.io/notisonda/
-- **PR y estado vivo:** https://github.com/medinacaj/notisonda/pulls y `/issues`.
+- **Sitio:** https://medinacaj.github.io/radar-rss/
+- **PR y estado vivo:** https://github.com/medinacaj/radar-rss/pulls y `/issues`.
 - **CI Python/Node:** `.github/workflows/ci.yml`; se ejecuta en PR y `main`.
 - **Navegadores:** `.github/workflows/responsive.yml` ejecuta siete tamaños en Chromium, Firefox y WebKit usando fixtures RSS y HTTPS local, con capturas descargables en los artifacts de CI. WebKit no equivale a un iPhone físico.
 - **Accesibilidad:** incluye controles automáticos de estructura, idioma, encabezados y nombres accesibles; falta contrastar la experiencia completa con VoiceOver/TalkBack y dispositivos reales.
@@ -167,7 +167,7 @@ Abrir `http://localhost:8000` (no abrir el archivo HTML haciendo doble clic: `fe
 ## Estructura
 
 ```text
-notisonda/
+radar-rss/
 ├── .github/workflows/deploy.yml
 ├── sources/feeds.opml
 ├── scripts/collect.py
