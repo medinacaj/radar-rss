@@ -51,12 +51,15 @@ class WorldCatalogTests(unittest.TestCase):
 
     def test_all_276_previous_records_are_preserved(self):
         new_urls = {row['feed'] for row in self.record['sources']}
-        original = [s for s in self.sources if s['url'] not in new_urls]
+        # This snapshot predates the dedicated ElevenLabs coverage channel.
+        before_elevenlabs = [s for s in self.sources if s['name'] != 'RADAR — ElevenLabs | video y herramientas IA']
+        original = [s for s in before_elevenlabs if s['url'] not in new_urls]
         digest = hashlib.sha256(json.dumps(original, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
         self.assertEqual(digest, 'd9bf71a2ce407a7757574c815ffc4e783d48041d91dfe9dcaeb6316a4baa1c59')
-        self.assertEqual(len(self.sources), 311)
-        self.assertEqual(len({s['url'] for s in self.sources}), 311)
-        self.assertEqual(len({s['id'] for s in self.sources}), 311)
+        self.assertEqual(len(before_elevenlabs), 311)
+        self.assertEqual(len(self.sources), 312)
+        self.assertEqual(len({s['url'] for s in self.sources}), 312)
+        self.assertEqual(len({s['id'] for s in self.sources}), 312)
         self.assertEqual(len({s['category'] for s in self.sources}), 8)
 
     def test_regions_topics_and_native_mit_are_present(self):
