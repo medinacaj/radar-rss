@@ -31,7 +31,7 @@ class V12ReviewTests(unittest.TestCase):
         self.assertNotIn("folderNav.append(section)",self.script)
         self.assertNotIn("row.classList.add('v12-hidden-category')",self.script)
         self.assertIn("const railBase = renderTopicRail",self.script)
-        self.assertIn("v12.js?v=1.3.1",self.html)
+        self.assertIn("v12.js?v=6.0.0",self.html)
 
     def test_all_news_context_and_coverage_have_separate_responsibilities(self):
         library=(ROOT/'web/library.js').read_text(encoding='utf8')

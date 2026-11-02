@@ -16,7 +16,7 @@ SW = (ROOT / "web" / "sw.js").read_text(encoding="utf-8")
 
 class EditorialTechDesignTests(unittest.TestCase):
     def test_single_active_theme_in_the_existing_stylesheet(self):
-        self.assertEqual(HTML.count('href="./dimension.css?v=5.0.0"'), 1)
+        self.assertEqual(HTML.count('href="./dimension.css?v=6.0.0"'), 1)
         self.assertNotIn('href="./editorial-tech.css"', HTML)
         self.assertEqual(CSS.count("Editorial + tecnológico — capa de diseño principal"), 1)
         self.assertIn("--radar-content-width:1450px", CSS)
@@ -85,7 +85,7 @@ class EditorialTechDesignTests(unittest.TestCase):
         self.assertRegex(CSS, r"font-size:var\(--radar-reading-title-size\)!important")
 
     def test_pwa_cache_changes_atomically_with_theme(self):
-        self.assertIn("const CACHE = 'radar-rss-v59'", SW)
+        self.assertIn("const CACHE = 'radar-rss-v60'", SW)
         self.assertIn("'./dimension.css'", SW)
         self.assertIn('<meta name="theme-color" content="#101724">', HTML)
 

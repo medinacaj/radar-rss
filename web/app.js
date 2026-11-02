@@ -527,7 +527,7 @@ function initSettingsHandlers(){
 function buildNav() {
   const nav=$('categoryNav');
   nav.replaceChildren();
-  const core=[{id:'home',label:'Inicio'},{id:'all',label:'Noticias'},{id:'agenda',label:'Agenda'}];
+  const core=[{id:'home',label:'Ahora'},{id:'all',label:'Noticias'},{id:'agenda',label:'Agenda'}];
   const folders=state.categories.map(id=>({id,label:categoryLabel(id)}));
   const sourceFolderNav=document.getElementById('libraryFolderNav');
   if(sourceFolderNav)sourceFolderNav.replaceChildren();
@@ -633,7 +633,7 @@ function decodeRouteHash(raw=window.location.hash){
 function navigateFromHash(){
   closeColumnsMenu();closeCardMenu();setNavOpen(false,false);
   const hash=decodeRouteHash();
-  state.pageView=(!hash||hash==='inicio')?'dashboard':hash==='resumen'?'briefing':hash==='agenda'?'agenda':'feed';
+  state.pageView=(!hash||hash==='inicio'||hash==='ahora')?'dashboard':hash==='resumen'?'briefing':hash==='agenda'?'agenda':'feed';
   state.category=hash.startsWith('categoria/')&&state.categories.includes(hash.slice(10))?hash.slice(10):'all';
   state.feed='';
   state.page=1;progressiveLoads=0;
@@ -688,7 +688,7 @@ function updateSourceCounts(){
 function updateHeader() {
   const name = state.category === 'all' ? 'Todas las noticias' : categoryLabel(state.category);
   $('feedHeading').textContent = name;
-  $('topbarSection').textContent = state.pageView === 'dashboard' ? 'Inicio' : state.pageView === 'agenda' ? 'Agenda' : state.pageView === 'briefing' ? 'Resumen del día' : name;
+  $('topbarSection').textContent = state.pageView === 'dashboard' ? 'Ahora' : state.pageView === 'agenda' ? 'Agenda' : state.pageView === 'briefing' ? 'Resumen del día' : name;
   $('sectionEyebrow').textContent = state.category === 'all' ? 'SELECCIÓN EDITORIAL' : 'EXPLORAR CATEGORÍA';
   $('feedDescription').textContent = state.category === 'all' ? 'Titulares y novedades de todas las fuentes.' : `Noticias recientes de ${name}.`;
 }
@@ -818,14 +818,14 @@ function applyFilters(mode=state.mode) {
 
 // La portada utiliza las noticias realmente recopiladas. No inventa puntuaciones
 // de popularidad ni presenta la recencia como una clasificación editorial.
-function dashboardEligible(){
+function dashboardEligible({personalized=true}={}){
   const words=state.mutedKeywords.split(',').map(w=>stripAccents(w.trim())).filter(w=>w.length>1).slice(0,30);
   return state.items.filter(item=>{
     if(!(item.source_ids||[]).some(id=>!state.hiddenSources.has(id)))return false;
-    if(window.RadarV12 && !window.RadarV12.dashboardMatch(item))return false;
+    if(personalized&&window.RadarV12 && !window.RadarV12.dashboardMatch(item))return false;
     if(state.maxAge){
-      const date=new Date(item.published_at).getTime();
-      if(!Number.isFinite(date)||(Date.now()-date)>state.maxAge*86400000)return false;
+      const date=personalized?new Date(item.published_at).getTime():nowItemTime(item);
+      if(!date||!Number.isFinite(date)||(Date.now()-date)>state.maxAge*86400000)return false;
     }
     const text=stripAccents([item.title,item.summary,item.publisher,item.source].join(' '));
     return !words.some(word=>text.includes(word));
@@ -887,26 +887,57 @@ function selectInternationalLead(items,now=Date.now()){
   return recent.reduce((best,item)=>!best||coverage(item)>coverage(best)||
     coverage(item)===coverage(best)&&storyTime(item)>storyTime(best)?item:best,null);
 }
+function nowItemTime(item,now=Date.now()){
+  for(const value of [item?.published_at,item?.first_seen_at]){
+    const stamp=typeof value==='string'?Date.parse(value):NaN;
+    if(Number.isFinite(stamp)&&stamp>0&&stamp<=now)return stamp;
+  }
+  return 0;
+}
+function nowActivityTime(item,now=Date.now()){
+  return Math.max(nowItemTime(item,now),...(Array.isArray(item.also_in)?item.also_in:[]).map(alt=>nowItemTime(alt,now)));
+}
+function selectNowItems(items,{view='now',zone='',categories=[],now=Date.now(),limit=36}={}){
+  const seen=new Set();
+  return items.filter(item=>{
+    if(!item||!item.id||seen.has(item.id))return false;
+    seen.add(item.id);
+    if(view==='zone'&&(!zone||!(item.categories||[]).includes(zone)))return false;
+    if(view==='mine'&&!(item.categories||[]).some(cat=>categories.includes(cat)))return false;
+    if(view==='developing'){
+      const alternatives=Array.isArray(item.also_in)?item.also_in:[];
+      if(!alternatives.some(alt=>alt.url&&alt.url!==item.url)||nowActivityTime(item,now)<now-86400000)return false;
+    }
+    return true;
+  }).sort((a,b)=>(view==='developing'?nowActivityTime(b,now)-nowActivityTime(a,now):nowItemTime(b,now)-nowItemTime(a,now))||String(a.id).localeCompare(String(b.id)))
+    .slice(0,Math.max(0,limit));
+}
+function nowHeadline(item){
+  const row=card(item,{compact:true});row.classList.add('now-story');return row;
+}
+let nowView='now',nowLimit=36;
+let nowZone=storeGet('radar-now-zone')||'';
 function renderDashboard(){
   const feature=$('dashboardFeature'),recent=$('dashboardRecent');
   if(!feature||!recent)return;
-  const items=dashboardEligible(),chosen=[],seenCategories=new Set();
-  // Keep an international lead only among sources/categories the reader allows.
-  const international=selectInternationalLead(items);
-  if(international){chosen.push(international);seenCategories.add((international.categories||[])[0]||'');}
-  for(const item of items){
-    const category=(item.categories||[])[0]||'';
-    if(chosen.some(row=>row.id===item.id)||seenCategories.has(category))continue;
-    chosen.push(item);seenCategories.add(category);
-    if(chosen.length>=8)break;
+  const zones=state.categories.filter(cat=>/^0[45678]\s*-/.test(cat));
+  const zone=$('nowZone');
+  if(zone){
+    if(!zones.includes(nowZone))nowZone=zones[0]||'';
+    zone.replaceChildren(...zones.map(cat=>{const opt=document.createElement('option');opt.value=cat;opt.textContent=categoryLabel(cat);return opt;}));
+    zone.value=nowZone;zone.closest('label').hidden=nowView!=='zone';
   }
-  for(const item of items){
-    if(chosen.length>=8)break;
-    if(!chosen.some(row=>row.id===item.id))chosen.push(item);
-  }
-  $('homeLatest').hidden=chosen.length<2;
-  feature.replaceChildren(chosen.length?card(chosen[0]):mk('p','dashboard-empty','No hay noticias con tus preferencias actuales.'));
-  recent.replaceChildren(...chosen.slice(1).map(homepageHeadline));
+  const categories=window.RadarV12?.nowInterests?.()||[];
+  const all=selectNowItems(dashboardEligible({personalized:false}),{view:nowView,zone:nowZone,categories,limit:state.items.length});
+  const items=all.slice(0,nowLimit);
+  $('homeLatest').hidden=items.length<2;
+  const empty=nowView==='mine'?'Elige tus intereses para ver noticias en Mi Radar.':nowView==='zone'?'No hay noticias de esta zona en la publicación disponible.':nowView==='developing'?'No hay historias recientes con varias publicaciones agrupadas.':'No hay noticias con tus preferencias actuales.';
+  feature.replaceChildren(items.length?nowHeadline(items[0]):mk('p','dashboard-empty',empty));
+  recent.replaceChildren(...items.slice(1).map(nowHeadline));
+  if($('nowMore'))$('nowMore').hidden=all.length<=nowLimit;
+  if($('nowCount'))$('nowCount').textContent=items.length?`${format.format(items.length)} de ${format.format(all.length)} noticias disponibles`:'';
+  if($('nowViewHint'))$('nowViewHint').textContent=nowView==='developing'?'Publicaciones relacionadas de las últimas 24 h; agrupación automática, no confirmación de un suceso activo.':nowView==='zone'?'La zona se elige por carpeta, sin acceder a tu ubicación.':nowView==='mine'?'Noticias de los intereses que has elegido en Configuración.':'Ordenadas por publicación del medio. La hora de detección indica cuándo llegaron a Radar RSS.';
+  for(const button of document.querySelectorAll('[data-now-view]'))button.setAttribute('aria-pressed',String(button.dataset.nowView===nowView));
 }
 
 function emptyState(filtered) {
@@ -1117,11 +1148,11 @@ function editorialCover(item) {
 }
 // Tarjeta: el título y la imagen abren la vista previa; Guardar queda a mano y
 // el resto de acciones vive en un menú "⋯" para no repetir cuatro botones por tarjeta.
-function card(item) {
+function card(item,{compact=false}={}) {
   const isRead=state.read.has(item.id);
-  const hasImage=Boolean(safeURL(item.image))&&!state.lite&&state.showImages;
+  const hasImage=!compact&&Boolean(safeURL(item.image))&&!state.lite&&state.showImages;
   const el=mk('article','article-card '+(isRead?'read-article':'unread-card')+(hasImage?'':' no-cover'));el.dataset.articleId=item.id;
-  const allowPreview=!state.lite&&state.showImages;
+  const allowPreview=!compact&&!state.lite&&state.showImages;
   if(hasImage){
     const cover=mk('a','cover'); cover.href=safeURL(item.url)||'#';cover.target=state.newTab?'_blank':'_self';cover.rel='noopener noreferrer external';cover.referrerPolicy='no-referrer';
     cover.tabIndex=-1;cover.setAttribute('aria-hidden','true');
@@ -1169,7 +1200,18 @@ function card(item) {
   const meta=mk('div','article-meta');
   const kind=kindBadge(item);
   if(kind)meta.append(kind);
-  meta.append(mk('span','publisher',sourceLabel(item.publisher||item.source)),timeNode(item.published_at));
+  meta.append(mk('span','publisher',sourceLabel(item.publisher||item.source)));
+  if(compact){
+    const now=Date.now();
+    for(const [label,value] of [['Publicado',item.published_at],['Detectado',item.first_seen_at]]){
+      const stamp=typeof value==='string'?Date.parse(value):NaN;
+      if(!Number.isFinite(stamp)||stamp<=0||stamp>now)continue;
+      const time=document.createElement('time');time.dateTime=new Date(stamp).toISOString();
+      time.textContent=label+' '+new Intl.DateTimeFormat('es',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(stamp);
+      time.title=label+' '+new Date(stamp).toLocaleString();meta.append(time);
+    }
+    if(!nowItemTime(item,now))meta.append(mk('span','','Fecha no informada'));
+  }else meta.append(timeNode(item.published_at));
   const actions=mk('div','article-actions');
   actions.setAttribute('role','group');actions.setAttribute('aria-label','Acciones de esta noticia');
   const saved=state.saved.has(item.id);
@@ -1460,9 +1502,9 @@ function publishNewRSSNews(previousIds=null){
   )));
 }
 
-// Comprobación LOCAL de publicaciones nuevas: cada 15 min.
-// La recopilación de RSS de origen sigue cada tres horas por GitHub Actions.
-const CHECK_INTERVAL_MS=15*60*1000;
+// Comprobación de metadata publicada cada minuto, solo en primer plano.
+// La recopilación RSS está programada cada 15 minutos; Actions puede retrasarse.
+const CHECK_INTERVAL_MS=60*1000;
 let nextCheckAt=Date.now()+CHECK_INTERVAL_MS;
 let checkStartedAt=Date.now();
 let checkTimer=null;
@@ -1477,7 +1519,7 @@ function freshnessLabel(){
 function updateScheduleProgress(){
   $('lastUpdate').textContent=feedRefreshBusy?'Buscando novedades…':freshnessLabel();
   const exact=state.generated?' Última recopilación: '+shortDate(state.generated)+'.':'';
-  const description='Radar RSS busca noticias nuevas cada 15 minutos; los medios se recopilan aproximadamente cada 3 horas.'+exact;
+  const description='Radar RSS comprueba publicaciones cada minuto; la recopilación está programada cada 15 minutos y puede retrasarse.'+exact;
   $('refreshCycle').title=description;
   $('lastUpdate').title=description;
   $('refreshNow').disabled=feedRefreshBusy||bootBusy;
@@ -1633,6 +1675,10 @@ function initHandlers() {
   scheduleNextCheck();
   $('refreshNow').addEventListener('click',()=>{void refreshPublishedData({manual:true});});
   $('publicationApply').addEventListener('click',applyPendingPublication);
+  for(const button of document.querySelectorAll('[data-now-view]'))button.addEventListener('click',()=>{nowView=button.dataset.nowView;nowLimit=36;renderDashboard();});
+  $('nowZone')?.addEventListener('change',event=>{nowZone=event.target.value;savePref('now-zone',nowZone);nowLimit=36;renderDashboard();});
+  $('nowMore')?.addEventListener('click',()=>{const count=nowLimit;nowLimit+=36;renderDashboard();const row=$('dashboardRecent')?.children[count-1];const target=row?.querySelector('.article-title a');target?.focus({preventScroll:true});});
+  $('nowPreferences')?.addEventListener('click',()=>{$('settingsButton').click();selectedTab('reading');if($('v12MineDetails'))$('v12MineDetails').open=true;$('v12MyRadar')?.scrollIntoView({block:'center'});});
   window.addEventListener('focus',()=>{if(document.visibilityState==='visible'&&Date.now()>=nextCheckAt){void refreshPublishedData();}});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(Date.now()>=nextCheckAt){void refreshPublishedData();}else{updateScheduleProgress();}}});
   // Resolver la función en cada cambio: library.js y features.js la amplían después de cargar app.js.

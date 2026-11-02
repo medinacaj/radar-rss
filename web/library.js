@@ -755,8 +755,8 @@ applyFilters=function(mode=state.mode){
   return filtered;
 };
 const oldCard=card;
-card=function(item){
-  const el=oldCard(item);
+card=function(item,...args){
+  const el=oldCard(item,...args);
   const prev=el.querySelector('.article-save');
   if(prev){
     const replacement=prev.cloneNode(true);

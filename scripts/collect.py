@@ -114,10 +114,10 @@ def is_public_host(host: str) -> bool:
         return False
 
 
-def get_feed(url: str) -> bytes:
+def get_feed(url: str, validators: dict | None = None) -> bytes | None:
     """Descarga con un reintento ante errores transitorios (429, 5xx, red)."""
     try:
-        return _get_feed_once(url)
+        return _get_feed_once(url) if validators is None else _get_feed_once(url, validators)
     except requests.HTTPError as exc:
         status = exc.response.status_code if exc.response is not None else None
         if status not in RETRY_STATUS:
@@ -126,16 +126,22 @@ def get_feed(url: str) -> bytes:
         pass
     # Jitter spreads simultaneous retries across hosts and protects providers.
     time.sleep(min(RETRY_MAX_WAIT_SECONDS, RETRY_WAIT_SECONDS * (1 + random.random())))
-    return _get_feed_once(url)
+    return _get_feed_once(url) if validators is None else _get_feed_once(url, validators)
 
 
-def _get_feed_once(url: str) -> bytes:
+def _get_feed_once(url: str, validators: dict | None = None) -> bytes | None:
     target = url
     for _ in range(5):
         parsed = urlsplit(target)
         if parsed.scheme not in ('https', 'http') or not parsed.hostname or not is_public_host(parsed.hostname):
             raise ValueError('Destino RSS no público / no autorizado')
-        response = requests.get(target, headers=HEADERS, stream=True, timeout=(5, 14), allow_redirects=False)
+        headers = dict(HEADERS)
+        if validators is not None and target == url and validators.get('http_url') == url:
+            for field, header in [('http_etag', 'If-None-Match'), ('http_last_modified', 'If-Modified-Since')]:
+                value = validators.get(field)
+                if isinstance(value, str) and value and len(value) <= 512 and not any(c in value for c in '\r\n'):
+                    headers[header] = value
+        response = requests.get(target, headers=headers, stream=True, timeout=(5, 14), allow_redirects=False)
         try:
             if response.status_code in (301, 302, 303, 307, 308):
                 redirect = response.headers.get('Location')
@@ -144,6 +150,10 @@ def _get_feed_once(url: str) -> bytes:
                 from urllib.parse import urljoin
                 target = urljoin(target, redirect)
                 continue
+            if response.status_code == 304:
+                if not any(name in headers for name in ('If-None-Match', 'If-Modified-Since')):
+                    raise ValueError('Respuesta 304 sin validación condicional')
+                return None
             response.raise_for_status()
             parts = []
             total = 0
@@ -152,6 +162,16 @@ def _get_feed_once(url: str) -> bytes:
                 if total > MAX_BYTES:
                     raise ValueError('Documento RSS demasiado grande')
                 parts.append(part)
+            if validators is not None:
+                validators.clear()
+                validators['http_url'] = url
+                # Redirected resources are fetched normally: do not associate the
+                # destination's opaque validator with the original redirect URL.
+                if target == url:
+                    for header, field in [('ETag', 'http_etag'), ('Last-Modified', 'http_last_modified')]:
+                        value = response.headers.get(header)
+                        if isinstance(value, str) and value and len(value) <= 512 and not any(c in value for c in '\r\n'):
+                            validators[field] = value
             return b''.join(parts)
         finally:
             response.close()
@@ -506,11 +526,21 @@ def make_item(entry, source: dict, now: datetime) -> dict | None:
     }
 
 
-def get_one(source: dict, now: datetime, per_feed: int) -> tuple[list[dict], dict]:
+def get_one(source: dict, now: datetime, per_feed: int, previous_status: dict | None = None) -> tuple[list[dict], dict]:
     status = {'id': source['id'], 'name': source['name'], 'category': source['category'], 'state': 'error',
               'count': 0, 'last_published_at': None, 'last_success_at': None, 'error': None}
     try:
-        raw = get_feed(source['url'])
+        validators = {key: value for key, value in (previous_status or {}).items()
+                      if key in ('http_url', 'http_etag', 'http_last_modified') and (previous_status or {}).get('state') != 'error'}
+        raw = get_feed(source['url']) if previous_status is None else get_feed(source['url'], validators)
+        status['last_checked_at'] = iso(now)
+        if raw is None:
+            status.update(validators)
+            last = story_instant({'published_at': (previous_status or {}).get('last_published_at')})
+            count = (previous_status or {}).get('count', 0)
+            status.update(state='stale' if last and last < now-timedelta(days=365) else 'ok' if count else 'empty',
+                          count=count, last_published_at=iso(last), last_success_at=iso(now), http_not_modified=True)
+            return [], status
         parsed = feedparser.parse(raw)
         if parsed.get('bozo') and not parsed.entries:
             raise ValueError('RSS/Atom no válido o sin datos interpretables')
@@ -520,6 +550,8 @@ def get_one(source: dict, now: datetime, per_feed: int) -> tuple[list[dict], dic
         last = max(dates) if dates else None
         status.update(state='ok' if items else 'empty', count=len(items),
                       last_published_at=iso(last), last_success_at=iso(now))
+        # Commit validators only after the document was successfully interpreted.
+        status.update(validators)
         if last and last < now - timedelta(days=365):
             status['state'] = 'stale'  # Revisión humana: no eliminar automáticamente.
         return items, status
@@ -655,7 +687,7 @@ def publish_partitioned(out: Path, articles: list[dict], generated: str) -> None
                                'total_articles':len(articles),'latest_count':len(latest),
                                'archive_files':filenames})
 
-def collect(opml: Path, out: Path, days: int, workers: int, max_per_feed: int, *, image_fallback: bool = False) -> dict:
+def collect(opml: Path, out: Path, days: int, workers: int, max_per_feed: int, *, image_fallback: bool = False, conditional: bool = False) -> dict:
     now = NOW()
     sources = parse_opml(opml)
     if not sources:
@@ -665,7 +697,11 @@ def collect(opml: Path, out: Path, days: int, workers: int, max_per_feed: int, *
     current_items: list[dict] = []
     fresh_status: dict[str, dict] = {}
     with ThreadPoolExecutor(max_workers=workers) as pool:
-        pending = {pool.submit(get_one, feed, now, max_per_feed): feed for feed in sources}
+        cached_ids = {sid for article in prior_articles for sid in article.get('source_ids', [])}
+        pending = {pool.submit(get_one, feed, now, max_per_feed,
+                               prior_status.get(feed['id'], {}) if feed['id'] in cached_ids else {}): feed
+                   for feed in sources} if conditional else {
+                       pool.submit(get_one, feed, now, max_per_feed): feed for feed in sources}
         for future in as_completed(pending):
             feed = pending[future]
             items, st = future.result()
@@ -772,6 +808,7 @@ if __name__ == '__main__':
     parser.add_argument('--max-per-feed', type=int, default=12)
     parser.add_argument('--image-fallback', action='store_true',
                         help='Recuperar imágenes OG de un máximo de 36 noticias recientes (respetando robots.txt)')
+    parser.add_argument('--conditional', action='store_true', help='Reutilizar ETag/Last-Modified cuando existe historial')
     opts = parser.parse_args()
     collect(opts.opml, opts.out, min(max(opts.days, 1), 365), min(max(opts.workers, 1), 12),
-            min(max(opts.max_per_feed, 1), 50), image_fallback=opts.image_fallback)
+            min(max(opts.max_per_feed, 1), 50), image_fallback=opts.image_fallback, conditional=opts.conditional)

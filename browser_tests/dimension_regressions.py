@@ -94,13 +94,16 @@ class DimensionRegressions(unittest.TestCase):
 
     def test_home_uses_direct_sections_without_retired_panels(self):
         expect(self.page.locator('#dashboardTitle')).to_be_visible()
-        expect(self.page.locator('#dashboardTitle')).to_have_text('Inicio')
+        expect(self.page.locator('#dashboardTitle')).to_have_text('Ahora')
         expect(self.page.locator('#newsroomColumns,#dashboardFolders,#dashboardSavedPanel')).to_have_count(0)
         order=self.page.locator('#dashboardView > section').evaluate_all('nodes=>nodes.map(n=>n.id)')
-        self.assertEqual(order,['sinceVisit','homeHeadlines','homeLatest','coverageTools'])
+        self.assertEqual(order,['sinceVisit','homeHeadlines','homeLatest'])
         for width in (320,768,1440):
             self.page.set_viewport_size({'width':width,'height':1000})
+            expect(self.page.locator('#radarFigure')).to_be_hidden()
+            self.page.locator('#nowContext').evaluate('node=>node.open=true')
             expect(self.page.locator('#radarFigure')).to_be_visible()
+            self.page.locator('#nowContext').evaluate('node=>node.open=false')
             self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth+2'))
         self.page.evaluate("goTo('all')")
         expect(self.page.locator('#dashboardView')).to_be_hidden()
@@ -119,6 +122,7 @@ class DimensionRegressions(unittest.TestCase):
                 }""",sidebar)
                 for target,selector in (('home','#dashboardView'),('all','#feedView'),('agenda','#agendaView'),('briefing','#briefingView')):
                     self.page.evaluate('(target)=>goTo(target)',target)
+                    if target=='home':self.page.locator('#nowContext').evaluate('node=>node.open=true')
                     expect(self.page.locator(selector)).to_be_visible()
                     bounds=self.page.evaluate("""selector=>{
                         const rect=s=>{const r=document.querySelector(s).getBoundingClientRect();return {left:r.left,right:r.right,width:r.width};};
@@ -154,11 +158,13 @@ class DimensionRegressions(unittest.TestCase):
         self.assertGreaterEqual(len(ids),4)
         self.assertEqual(len(ids),len(set(ids)))
         expect(self.page.locator('#dashboardSavedPanel')).to_have_count(0)
+        expect(self.page.locator('#dashboardView #coverageTools')).to_be_hidden()
+        self.page.locator('#nowContext').evaluate('node=>node.open=true')
         expect(self.page.locator('#dashboardView #coverageTools')).to_be_visible()
         self.page.evaluate("goTo('briefing')")
         expect(self.page.locator('#coverageTools')).to_be_hidden()
 
-    def test_home_prioritizes_recent_world_coverage_and_respects_hidden_sources(self):
+    def test_home_prioritizes_recency_and_respects_hidden_sources(self):
         self.page.wait_for_load_state('networkidle')
         source_id=self.page.evaluate("""() => {
             const world=state.items.find(x=>x.categories.some(c=>c.startsWith('03 -')));
@@ -167,10 +173,10 @@ class DimensionRegressions(unittest.TestCase):
             state.items=[
                 {...world,id:'fresh-minor',title:'Un titular reciente de un solo medio',coverage:1,published_at:new Date(now-60000).toISOString()},
                 {...world,id:'covered-world',title:'Una noticia mundial cubierta por varios medios',coverage:6,published_at:new Date(now-8*3600000).toISOString()},
-                {...local,id:'fallback-local',coverage:1}
+                {...local,id:'fallback-local',coverage:1,published_at:new Date(now-2*3600000).toISOString()}
             ];render();return world.source_ids[0];
         }""")
-        expect(self.page.locator('#dashboardFeature > .article-card')).to_have_attribute('data-article-id','covered-world')
+        expect(self.page.locator('#dashboardFeature > .article-card')).to_have_attribute('data-article-id','fresh-minor')
         ids=self.page.locator('#dashboardFeature > [data-article-id],#dashboardRecent > [data-article-id]').evaluate_all('nodes=>nodes.map(n=>n.dataset.articleId)')
         self.assertEqual(len(ids),len(set(ids)))
         self.page.evaluate('(id)=>{state.hiddenSources.add(id);render();}',source_id)
@@ -289,7 +295,7 @@ class DimensionRegressions(unittest.TestCase):
         document['items']=[event('lectura',start=fixtures.STAMP[:10],timezone='UTC',title='Una actividad con nombre extenso para leer con comodidad')]
         self.page.route('**/data/events.json*',lambda route:route.fulfill(content_type='application/json',body=json.dumps(document)))
         self.page.reload()
-        targets={'home':['#dashboardFeature .article-title','#dashboardRecent .dashboard-recent-title','#coveredList .covered-title'],
+        targets={'home':['#dashboardFeature .article-title','#dashboardRecent .article-title','#coveredList .covered-title'],
                  'all':['#articleGrid .article-title','#articleGrid .article-excerpt'],
                  'agenda':['.agenda-item-title','.agenda-meta'],
                  'briefing':['.briefing-title','.briefing-summary']}
@@ -298,6 +304,7 @@ class DimensionRegressions(unittest.TestCase):
             self.page.set_viewport_size({'width':width,'height':900})
             for target,selectors in targets.items():
                 self.page.evaluate('(target)=>goTo(target)',target)
+                if target=='home':self.page.locator('#nowContext').evaluate('node=>node.open=true')
                 for selector in selectors:
                     node=self.page.locator(selector).first
                     expect(node).to_be_visible()
@@ -311,6 +318,7 @@ class DimensionRegressions(unittest.TestCase):
             self.page.set_viewport_size({'width':width,'height':900})
             for target,selectors in targets.items():
                 self.page.evaluate('(target)=>goTo(target)',target)
+                if target=='home':self.page.locator('#nowContext').evaluate('node=>node.open=true')
                 for selector in selectors:
                     self.assertGreater(self.page.locator(selector).first.evaluate('n=>parseFloat(getComputedStyle(n).fontSize)'),normal[width,selector],selector)
                 self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth+2'),(width,target))
@@ -355,6 +363,8 @@ class DimensionRegressions(unittest.TestCase):
         self.page.route('**/data/trends.json*',lambda route:route.fulfill(content_type='application/json',body=json.dumps(trends)))
         # Reload for a direct entry with no earlier route warming the trend cache.
         self.page.reload()
+        expect(self.page.locator('#dashboardView #coverageTools')).to_be_hidden()
+        self.page.locator('#nowContext').evaluate('node=>node.open=true')
         expect(self.page.locator('#dashboardView #coverageTools')).to_be_visible()
         expect(self.page.locator('#coveredList > li').first).to_be_visible()
         expect(self.page.locator('#trendsPanel')).to_be_visible()
@@ -422,7 +432,7 @@ class DimensionRegressions(unittest.TestCase):
         self.assertFalse(failures,failures)
 
     def test_category_symbols_are_distinct_and_custom_folders_have_a_symbol(self):
-        expect(self.page.locator('#dashboardTitle')).to_have_text('Inicio')
+        expect(self.page.locator('#dashboardTitle')).to_have_text('Ahora')
         self.assertTrue(self.page.locator('.brand-mark img').evaluate('n=>n.complete&&n.naturalWidth>0'))
         brand=self.page.locator('.brand-mark img').bounding_box()
         self.assertEqual((brand['width'],brand['height']),(24,24))
@@ -459,6 +469,7 @@ class DimensionRegressions(unittest.TestCase):
                 self.page.set_viewport_size({'width':width,'height':900})
                 for target in ('home','all','agenda','briefing'):
                     self.page.evaluate('(target)=>goTo(target)',target)
+                    if target=='home':self.page.locator('#nowContext').evaluate('node=>node.open=true')
                     self.page.wait_for_function('(target)=>state.pageView===target',arg={'home':'dashboard','all':'feed','agenda':'agenda','briefing':'briefing'}[target])
                     self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth+2'))
                 if width<=950:

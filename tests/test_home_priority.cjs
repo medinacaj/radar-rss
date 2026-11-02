@@ -9,7 +9,7 @@ const clockStart = source.indexOf('function storyTime(');
 const clockEnd = source.indexOf('\n}', clockStart) + 2;
 const context = vm.createContext({ Date, Number });
 vm.runInContext(source.slice(clockStart, clockEnd), context);
-if (start >= 0) vm.runInContext(source.slice(start, source.indexOf('\nfunction renderDashboard', start)), context);
+if (start >= 0) vm.runInContext(source.slice(start, source.indexOf('\nfunction nowItemTime', start)), context);
 const NOW = Date.parse('2026-10-28T12:00:00Z');
 const HOUR = 3600000;
 const story = (id, hours, coverage, category = '03 - Internacionales') => ({

@@ -44,6 +44,7 @@
   function persistPrefs() { save(KEY, prefs); }
   function myCats() { return prefs.categories.filter(cat => state.categories.includes(cat)); }
   window.RadarV12 = Object.freeze({
+    nowInterests(){return [...myCats()];},
     getFeedGeo(){return {id:geo,label:regionName[geo]};},
     dashboardMatch(item, {useSavedCategories=false}={}) {
       // The independently loaded agenda must honor Mi Radar before the catalog.
@@ -112,7 +113,7 @@
   };
   const eligibleBase = dashboardEligible;
   dashboardEligible = function(...args) {
-    return eligibleBase(...args).filter(window.RadarV12.dashboardMatch);
+    return args[0]?.personalized===false ? eligibleBase(...args) : eligibleBase(...args).filter(window.RadarV12.dashboardMatch);
   };
   function syncGeoSources() {
     const select = $('sourceSelect');
@@ -239,9 +240,9 @@
     section.setAttribute('aria-labelledby','v12MyRadarTitle');
     const heading=mk('div','v12-settings-myradar-head');
     const description=mk('div','');
-    const title=display('Personalizar portada','v12-settings-myradar-title','h4');
+    const title=display('Intereses de Mi Radar','v12-settings-myradar-title','h4');
     title.id='v12MyRadarTitle';
-    description.append(title,display('Opcional: selecciona qué secciones aparecen en Inicio. Las carpetas de fuentes no cambian.','v12-settings-myradar-hint','p'));
+    description.append(title,display('Elige las secciones de la vista Mi Radar. Ahora conserva todas tus fuentes visibles.','v12-settings-myradar-hint','p'));
     const mode=mk('button','v12-secondary','Activar selección');mode.id='v12MineToggle';mode.type='button';
     mode.addEventListener('click',()=>{
       prefs.mine=!prefs.mine;
@@ -251,9 +252,9 @@
     heading.append(description,mode);
     const details=mk('details','v12-settings-myradar-details');
     details.id='v12MineDetails';
-    const summary=mk('summary','', 'Elegir categorías de portada');
+    const summary=mk('summary','', 'Elegir intereses');
     const choices=mk('div','v12-myradar-choices');choices.id='v12MineCategories';
-    choices.setAttribute('role','group');choices.setAttribute('aria-label','Categorías de portada');
+    choices.setAttribute('role','group');choices.setAttribute('aria-label','Intereses de Mi Radar');
     details.append(summary,choices);
     section.append(heading,details);
     grid.after(section);
@@ -263,7 +264,7 @@
     if(!panel)return;
     panel.classList.toggle('is-active',prefs.mine);
     const mode=$('v12MineToggle');
-    mode.textContent=prefs.mine?'Usar portada general':'Activar selección';
+    mode.textContent=prefs.mine?'No filtrar cobertura y resumen':'Aplicar también a cobertura y resumen';
     mode.setAttribute('aria-pressed',String(prefs.mine));
     const list=$('v12MineCategories');list.replaceChildren();
     const selected=new Set(myCats());

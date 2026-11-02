@@ -6,11 +6,17 @@ Proyecto público sin backend ni cuentas. El catálogo contiene 311 suscripcione
 
 **Gestor de fuentes:** Configuración muestra RSS/web, permite buscar por dominio o URL, filtrar visibilidad/estado/tipo, mover fuentes y exportar el catálogo completo como CSV. El OPML conserva carpetas personales y se puede importar con vista previa desde Feedly u otro lector: activa/reorganiza las fuentes reconocidas y detalla las que todavía no están en el catálogo. [Uso, correcciones y límites](docs/gestion-fuentes-2026-10-28.md).
 
+## Ahora: actualidad continua
+
+La portada **Ahora** reúne titulares en orden de publicación y distingue la hora del medio de la primera detección por Radar RSS. Las vistas **En desarrollo** (publicaciones agrupadas de las últimas 24 horas), **Mi zona** y **Mi Radar** permiten explorar cobertura, carpetas regionales e intereses. Las agrupaciones son automáticas y no certifican un suceso activo; no se etiqueta una noticia como urgente automáticamente. Cobertura, tendencias y mapa permanecen disponibles en un bloque desplegable.
+
+El navegador revisa publicaciones cada minuto en primer plano. Las noticias nuevas se anuncian y solo sustituyen el listado al pulsar «Mostrar noticias». El servidor está programado cada 15 minutos; el RSS de cada medio, la duración de la recopilación y las demoras de GitHub pueden ampliar ese plazo. No se promete tiempo real. Las solicitudes condicionales ETag/Last-Modified evitan descargar documentos sin cambios cuando el medio las admite y existe historial válido.
+
 ## Arquitectura
 
 ```mermaid
 flowchart LR
-  A[OPML: 311 feeds] --> B[GitHub Actions: cada 3 horas]
+  A[OPML: 311 feeds] --> B[GitHub Actions: cada 15 minutos]
   B --> C[Python: RSS/Atom y deduplicación]
   C --> D[JSON estáticos]
   D --> E[GitHub Pages]
@@ -140,7 +146,7 @@ Abrir `http://localhost:8000` (no abrir el archivo HTML haciendo doble clic: `fe
 
 ## Actualización y edición
 
-- **Automática:** aproximadamente cada tres horas mediante cron UTC `17 */3 * * *`. GitHub puede retrasar u omitir alguna ejecución; en repos públicos, la programación puede desactivarse por inactividad prolongada. El flujo también puede iniciarse manualmente.
+- **Automática:** aproximadamente cada 15 minutos mediante cron UTC `7,22,37,52 * * * *`. GitHub puede retrasar u omitir alguna ejecución; en repos públicos, la programación puede desactivarse por inactividad prolongada. El flujo también puede iniciarse manualmente.
 - **Modificar fuentes:** editar `sources/feeds.opml`, confirmar y esperar el siguiente flujo. No existe límite fijo de fuentes en la aplicación, pero más fuentes incrementan consumo de Actions y tiempo de recopilación.
 - **Número de artículos:** 12 por feed por ciclo, hasta 5.000 noticias en caché y un máximo de 45 días por defecto. Ajustable en `deploy.yml` / `collect.py`.
 - **Sitio sin noticias después de publicar:** revisar los detalles de `Actions` y `data/status.json`. La aplicación no inventa noticias ni reemplaza automáticamente feeds problemáticos.
@@ -215,7 +221,7 @@ El tema sigue la configuración del sistema por defecto; una selección manual p
 
 La portada muestra un destacado y un carrusel de titulares distintos. La agenda tiene su propia vista en el lateral (`#agenda`). Sus filtros permiten consultar hoy o los próximos 7, 30 y 90 días. Una actividad permanece visible hasta el final de su último día en la zona horaria del lugar; sin fecha de término explícita se conserva sólo el día de inicio. La fecha del anuncio se muestra por separado.
 
-La recopilación revisa hasta 50 entradas por cada una de las diez fuentes RSS locales configuradas en [sources/events.json](sources/events.json), en Concepción/Biobío y Monagas, con hasta 12 consultas adicionales a páginas de los mismos medios por ejecución. Sigue la actualización de noticias cada tres horas. El horizonte de 90 días limita lo que se muestra, no la antigüedad del anuncio ni la conservación de futuras actividades ya detectadas. No es una búsqueda exhaustiva de todos los eventos de esas regiones.
+La recopilación revisa hasta 50 entradas por cada una de las diez fuentes RSS locales configuradas en [sources/events.json](sources/events.json), en Concepción/Biobío y Monagas, con hasta 12 consultas adicionales a páginas de los mismos medios por ejecución. Sigue la actualización de noticias cada 15 minutos. El horizonte de 90 días limita lo que se muestra, no la antigüedad del anuncio ni la conservación de futuras actividades ya detectadas. No es una búsqueda exhaustiva de todos los eventos de esas regiones.
 
 La agenda ofrece lista y calendario mensual, filtros por ciudad, carpeta, tipo y precio cuando la fuente los informa, actividades guardadas en este navegador, compartir y exportación `.ics` de las confirmadas visibles. Los eventos sin precio explícito muestran «Por confirmar»; los pendientes y cancelados no se exportan al calendario. El respaldo JSON incluye los IDs de actividades guardadas y la vista elegida; restablecer preferencias conserva los guardados y existe una acción separada para vaciarlos.
 
@@ -229,7 +235,7 @@ Los contadores completan el historial en segundo plano y muestran las cifras rea
 
 ### Continuidad de lectura
 
-Los filtros activos se muestran como chips removibles; en móvil, «Filtros» reúne fuente y acciones sin duplicar selectores. El lector permite anterior/siguiente, marcar sin leer y volver al artículo o posición cercanos. Las marcas masivas ofrecen «Deshacer» y conservan modificaciones posteriores. Las nuevas publicaciones se anuncian sin reemplazar el listado ni moverlo: «Actualizar» aplica la generación completa cuando el lector lo decide. No cambia la recopilación cada tres horas ni los límites de noticias de 45 días/5000 entradas.
+Los filtros activos se muestran como chips removibles; en móvil, «Filtros» reúne fuente y acciones sin duplicar selectores. El lector permite anterior/siguiente, marcar sin leer y volver al artículo o posición cercanos. Las marcas masivas ofrecen «Deshacer» y conservan modificaciones posteriores. Las nuevas publicaciones se anuncian sin reemplazar el listado ni moverlo: «Actualizar» aplica la generación completa cuando el lector lo decide. No cambia la recopilación cada 15 minutos ni los límites de noticias de 45 días/5000 entradas.
 
 ### Interfaz Dimension y organización
 

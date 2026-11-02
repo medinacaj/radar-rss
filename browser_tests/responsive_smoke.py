@@ -301,8 +301,10 @@ def main():
                     try:
                         page.goto(base + "#inicio", wait_until="load")
                         page.locator("#dashboardView:not([hidden])").wait_for(timeout=15000)
-                        page.locator("#dashboardRecent .dashboard-recent-row").first.wait_for(timeout=15000)
+                        page.locator("#dashboardRecent .now-story").first.wait_for(timeout=15000)
                         # El radar tiene su propia ficha, separada del listado "Lo más cubierto".
+                        expect(page.locator('#radarFigure')).to_be_hidden()
+                        page.locator('#nowContext>summary').click()
                         radar_card=page.locator("#coverageTools .radar-standalone-card")
                         covered_card=page.locator("#coverageTools .covered-standalone-card")
                         expect(radar_card).to_be_visible()
@@ -338,9 +340,9 @@ def main():
                           radius:getComputedStyle(document.querySelector('#dashboardFeature .article-card')).borderTopLeftRadius,
                           shadow:getComputedStyle(document.querySelector('#dashboardFeature .article-card')).boxShadow
                         })""")
-                        assert visual['radius']=='14px' and visual['shadow']!='none',visual
+                        assert visual['radius']=='10px' and visual['shadow']=='none',visual
                         light_background=visual['bg']
-                        assert page.locator('#dashboardTitle').inner_text() == 'Inicio'
+                        assert page.locator('#dashboardTitle').inner_text() == 'Ahora'
                         expect(page.locator('#dashboardFeature')).to_be_visible()
                         expect(page.locator('#dashboardFeature > .article-card')).to_have_count(1)
                         page.evaluate("document.body.classList.remove('light')")
@@ -433,8 +435,8 @@ def main():
                         page.locator("#closeSettings").click()
                         expect(page.locator("#settingsDialog")).to_be_hidden()
                         check_visible_boxes(page, [".topbar", ".topbar-caption", ".topbar-actions",
-                            "#dashboardView", ".homepage-latest .dashboard-panel-head", "#dashboardFeature",
-                            "#dashboardRecent .dashboard-recent-row"], f"portada {width}px")
+                            "#dashboardView", ".now-controls", "#dashboardFeature",
+                            "#dashboardRecent .now-story"], f"portada {width}px")
                         # Inicio and Agenda have one purpose each, with no repeated news IDs.
                         expect(page.locator('#dashboardFeature')).to_be_visible()
                         expect(page.locator('#newsroomColumns,#dashboardFolders')).to_have_count(0)

@@ -17,8 +17,8 @@ on:
         required: false
         type: string
   schedule:
-    # Cada 3 horas (UTC); GitHub puede retrasar ejecuciones programadas.
-    - cron: "17 */3 * * *"
+    # Cada 15 minutos (UTC); no garantiza ejecución puntual ni tiempo real.
+    - cron: "7,22,37,52 * * * *"
 
 permissions:
   contents: read
@@ -104,7 +104,7 @@ jobs:
           node tests/test_reader_ux.cjs
           node tests/test_reading_state.cjs
       - name: Obtener noticias
-        run: python scripts/collect.py --opml sources/feeds.opml --out web/data --days 45 --workers 8 --image-fallback
+        run: python scripts/collect.py --opml sources/feeds.opml --out web/data --days 45 --workers 8 --image-fallback --conditional
       - name: Obtener actividades de los próximos 90 días
         run: |
           python scripts/collect_events.py --catalog sources/feeds.opml --config sources/events.json --direct-config sources/events-direct.json --out web/data/events.json --generation-from web/data/meta.json

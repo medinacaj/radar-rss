@@ -38,14 +38,14 @@
   <link rel="stylesheet" href="./v12.css?v=1.2.3">
   <link rel="stylesheet" href="./v13.css?v=7.1.1">
   <link rel="stylesheet" href="./usability.css?v=1.0.1">
-  <link rel="stylesheet" href="./homepage.css?v=1.0.2">
+  <link rel="stylesheet" href="./homepage.css?v=6.0.0">
   <link rel="stylesheet" href="./agenda.css?v=1.1.0">
   <link rel="stylesheet" href="./reader-layout.css?v=1.0.0">
   <link rel="stylesheet" href="./reading-ux.css?v=1.0.0">
-  <link rel="stylesheet" href="./dimension.css?v=5.0.0">
+  <link rel="stylesheet" href="./dimension.css?v=6.0.0">
   <title>Radar RSS — Noticias con perspectiva</title>
 </head>
-<body class="radar-hybrid dimension" data-columns="auto">
+<body class="radar-hybrid dimension" data-columns="auto" data-home="now">
   <div class="app-shell">
     <aside class="sidebar" id="appSidebar" aria-label="Menú de fuentes">
       <div class="sidebar-brand-row">
@@ -65,7 +65,7 @@
         </section>
       </div>
       <div class="sidebar-bottom">
-          <div class="topbar-refresh" id="refreshCycle" role="group" aria-label="Actualización de noticias" title="Radar RSS busca noticias nuevas cada 15 minutos. Los medios se recopilan aproximadamente cada 3 horas.">
+          <div class="topbar-refresh" id="refreshCycle" role="group" aria-label="Actualización de noticias" title="Radar RSS comprueba publicaciones cada minuto. Recopilación programada cada 15 minutos; puede retrasarse.">
             <span class="update-label" id="lastUpdate">Sin sincronizar</span>
             <button id="refreshNow" class="refresh-now" type="button" title="Buscar y cargar las novedades ya publicadas" aria-label="Comprobar novedades ahora" aria-describedby="refreshStatus"><span data-icon="refresh" class="ui-icon-slot" aria-hidden="true"></span><span id="refreshNowLabel">Actualizar</span></button>
             <span id="refreshStatus" class="refresh-status" role="status" aria-live="polite" aria-atomic="true"></span>
@@ -112,8 +112,8 @@
         <div id="publicationNotice" class="publication-notice" role="status" hidden><span id="publicationMessage"></span><button id="publicationApply" type="button">Mostrar noticias</button></div>
         <section id="dashboardView" class="dashboard-view" aria-labelledby="dashboardTitle" hidden>
           <header class="home-heading">
-            <h1 id="dashboardTitle">Inicio</h1>
-            <p>Lo reciente y los temas del día.</p>
+            <h1 id="dashboardTitle">Ahora</h1>
+            <p>Las noticias más recientes, con fuente y hora.</p>
           </header>
           <section class="since-visit" id="sinceVisit" aria-labelledby="sinceVisitTitle" hidden>
             <div class="since-visit-text"><span class="since-visit-icon" aria-hidden="true" data-icon="sparkle"></span><div><h2 id="sinceVisitTitle">Mientras no estabas</h2><p id="sinceVisitText"></p></div></div>
@@ -121,13 +121,23 @@
             <div class="since-visit-actions"><button type="button" id="sinceVisitShow" class="since-visit-primary">Ver solo las nuevas</button><button type="button" id="sinceVisitDismiss" class="since-visit-dismiss" aria-label="Ocultar aviso de novedades"><span data-icon="x" class="ui-icon-slot" aria-hidden="true"></span></button></div>
           </section>
           <section class="dashboard-panel dashboard-feature-panel newsroom-lead-stories" id="homeHeadlines" aria-labelledby="homeHeadlinesTitle">
-            <div class="dashboard-panel-head"><h2 id="homeHeadlinesTitle" title="Prioriza noticias internacionales recientes cubiertas por varios medios">En portada</h2></div>
+            <div class="now-controls" role="group" aria-label="Vistas de actualidad">
+              <button type="button" data-now-view="now" aria-pressed="true">Ahora</button>
+              <button type="button" data-now-view="developing" aria-pressed="false">En desarrollo</button>
+              <button type="button" data-now-view="zone" aria-pressed="false">Mi zona</button>
+              <button type="button" data-now-view="mine" aria-pressed="false">Mi Radar</button>
+            </div>
+            <div class="now-options"><label hidden>Mi zona <select id="nowZone" aria-label="Elegir zona"></select></label><button type="button" id="nowPreferences" class="minimal-button">Elegir intereses</button><span id="nowCount"></span></div>
+            <h2 id="homeHeadlinesTitle" class="sr-only">Noticias más recientes</h2>
+            <p id="nowViewHint" class="now-hint"></p>
             <div class="dashboard-feature" id="dashboardFeature"></div>
           </section>
-          <section class="dashboard-panel newsroom-lead-latest" id="homeLatest" aria-labelledby="dashboardRecentTitle">
-            <div class="dashboard-panel-head"><h2 id="dashboardRecentTitle">En un vistazo</h2></div>
+          <section class="dashboard-panel newsroom-lead-latest homepage-latest" id="homeLatest" aria-labelledby="dashboardRecentTitle">
+            <div class="dashboard-panel-head"><h2 id="dashboardRecentTitle" class="sr-only">Más noticias recientes</h2></div>
             <div class="dashboard-recent" id="dashboardRecent"></div>
           </section>
+          <div class="now-more"><button type="button" id="nowMore" class="settings-secondary" hidden>Ver más noticias</button><a href="#noticias">Explorar el archivo completo</a></div>
+          <details id="nowContext"><summary>Cobertura, tendencias y mapa de noticias</summary>
           <section class="coverage-tools" id="coverageTools" aria-label="Radar de noticias y cobertura">
             <div class="newsroom-discovery-aside">
               <section class="dashboard-panel radar-panel radar-standalone-card" aria-labelledby="radarTitle">
@@ -154,6 +164,7 @@
               </section>
             </div>
           </section>
+          </details>
         </section>
         <section id="agendaView" class="agenda-view" aria-labelledby="agendaPageTitle" hidden>
           <header class="page-heading"><span class="dimension-kicker">TU CALENDARIO</span><h1 id="agendaPageTitle">Agenda</h1><p>Actividades, fechas por confirmar y cambios, en un solo lugar.</p></header>
@@ -188,7 +199,7 @@
             </div>
           </header>
           <div class="briefing-sections" id="briefingSections"></div>
-          <p class="briefing-note">Ordenado por cobertura (número de medios distintos), no por clics. Se actualiza con cada recopilación, aproximadamente cada 3 horas.</p>
+          <p class="briefing-note">Ordenado por cobertura (número de medios distintos), no por clics. Se actualiza con cada recopilación, aproximadamente cada 15 minutos.</p>
         </section>
         <section class="feed-area" id="feedView" aria-labelledby="feedHeading">
           <div class="section-heading"><div><span class="section-eyebrow" id="sectionEyebrow">SELECCIÓN EDITORIAL</span><h1 id="feedHeading">Todas las noticias</h1><p id="feedDescription">Titulares y novedades de tus medios favoritos.</p></div><span class="count-label" id="visibleCount" role="status" aria-live="polite" aria-atomic="true">0 ARTÍCULOS</span></div>
@@ -211,7 +222,7 @@
                     </button>
                     <div id="columnsMenu" class="columns-menu-popup" role="menu" aria-label="Número de columnas de tarjetas" hidden>
                       <span class="columns-menu-caption">Columnas de noticias</span>
-                      <button type="button" role="menuitemradio" aria-checked="true" data-columns="auto">Automático</button>
+                      <button type="button" role="menuitemradio" aria-checked="true" data-columns="auto" data-home="now">Automático</button>
                       <button type="button" role="menuitemradio" aria-checked="false" data-columns="2">2 columnas</button>
                       <button type="button" role="menuitemradio" aria-checked="false" data-columns="3">3 columnas</button>
                       <button type="button" role="menuitemradio" aria-checked="false" data-columns="4">4 columnas</button>
@@ -273,7 +284,7 @@
   </dialog>
   <dialog id="aboutDialog" class="about-dialog"><div class="dialog-head"><h2>Acerca de Radar RSS</h2><button type="button" id="closeAbout" aria-label="Cerrar"><span data-icon="x" class="ui-icon-slot" aria-hidden="true"></span></button></div>
     <p>Radar RSS reúne titulares, extractos breves y enlaces a noticias de medios y blogs externos. Cada artículo enlaza al sitio original y sus derechos siguen perteneciendo a sus respectivos autores.</p>
-    <p>Las fuentes se organizan en carpetas a partir del catálogo OPML. Los contenidos se recopilan mediante GitHub Actions y se publican de forma estática. La frecuencia programada es de aproximadamente tres horas, sujeta a disponibilidad de GitHub y de cada feed.</p>
+    <p>Las fuentes se organizan en carpetas a partir del catálogo OPML. Los contenidos se recopilan mediante GitHub Actions y se publican de forma estática. La frecuencia programada es de aproximadamente 15 minutos, sujeta a disponibilidad de GitHub y de cada feed.</p>
     <p>Los artículos guardados y marcados como leídos se conservan <strong>solo en este navegador</strong>; no hay cuentas, sincronización entre dispositivos ni seguimiento personal desde esta aplicación. Las imágenes externas pueden realizar solicitudes a los sitios de sus editores.</p>
     <p>Un RSS con error o sin noticias recientes no implica necesariamente que el periódico haya cerrado. La revisión editorial es necesaria antes de retirar una fuente.</p>
     <h3 class="about-subtitle">Sigue esta selección en tu lector</h3>
@@ -400,7 +411,7 @@
         <section class="settings-pane" data-settings-pane="health" aria-label="Estado de las fuentes RSS" hidden>
           <h3>Estado de RSS</h3><p class="setting-hint">Medios que no se pudieron leer en la última revisión automática. Que un medio no esté disponible no significa que haya dejado de publicar.</p>
           <div id="healthSummary" class="health-summary"></div><div id="healthFeedList" class="health-list"></div>
-          <p class="setting-admin">El intervalo de actualización del servidor está definido en <a href="https://github.com/medinacaj/radar-rss/blob/main/.github/workflows/deploy.yml" rel="noopener noreferrer" target="_blank">GitHub Actions</a> (aproximadamente cada tres horas). Un visitante no puede cambiarlo desde la web pública.</p>
+          <p class="setting-admin">El intervalo de actualización del servidor está definido en <a href="https://github.com/medinacaj/radar-rss/blob/main/.github/workflows/deploy.yml" rel="noopener noreferrer" target="_blank">GitHub Actions</a> (aproximadamente cada 15 minutos). Un visitante no puede cambiarlo desde la web pública.</p>
         </section>
       </div>
     </div>
@@ -414,15 +425,15 @@
   <button id="backTop" class="back-to-top" type="button" aria-label="Volver arriba" title="Volver arriba" hidden><span data-icon="arrow-up" class="ui-icon-slot" aria-hidden="true"></span></button>
   <div id="actionToast" class="action-toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
   <script src="./source-tools.js?v=5.0.0" defer></script>
-  <script src="./app.js?v=5.0.0" defer></script>
-  <script src="./library.js?v=5.0.0" defer></script>
+  <script src="./app.js?v=6.0.0" defer></script>
+  <script src="./library.js?v=6.0.0" defer></script>
   <script src="./sidebar-layout.js?v=1.2.3" defer></script>
   <script src="./news-effects.js?v=1.0.0" defer></script>
   <script src="./features.js?v=5.0.0" defer></script>
-  <script src="./v12.js?v=1.3.1" defer></script>
+  <script src="./v12.js?v=6.0.0" defer></script>
   <script src="./v13.js?v=5.0.0" defer></script>
   <script src="./usability.js?v=1.1.1" defer></script>
-  <script src="./homepage.js?v=1.3.0" defer></script>
+  <script src="./homepage.js?v=6.0.0" defer></script>
   <script src="./agenda.js?v=1.1.2" defer></script>
   <script src="./feed-ux.js?v=1.0.0" defer></script>
   <script src="./reader-ux.js?v=1.0.0" defer></script>
