@@ -54,8 +54,8 @@ class NotisondaAssetsTests(unittest.TestCase):
 
     def test_installable_icons_include_real_png_sizes_and_maskable(self):
         manifest=json.loads((WEB/'manifest.webmanifest').read_text())
-        self.assertEqual(manifest['short_name'], 'Radar-RSS')
-        self.assertTrue(manifest['name'].startswith('Radar-RSS'))
+        self.assertEqual(manifest['short_name'], 'Radar RSS')
+        self.assertTrue(manifest['name'].startswith('Radar RSS'))
         self.assertEqual(manifest['start_url'], './#inicio')
         icons=[i for i in manifest['icons'] if i.get('type')=='image/png']
         self.assertTrue(any(i['sizes']=='192x192' and i['purpose']=='any' for i in icons))

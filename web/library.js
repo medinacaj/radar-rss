@@ -499,7 +499,7 @@ function showSourceDetails(source){
  }
  dialog.replaceChildren();
  const heading=mk('h2','',sourceLabel(source.name));heading.id='sourceDetailsTitle';dialog.setAttribute('aria-labelledby',heading.id);
- const description=mk('p','', 'Información del catálogo público de Radar-RSS.');
+ const description=mk('p','', 'Información del catálogo público de Radar RSS.');
  const close=mk('button','settings-secondary','Cerrar');close.type='button';close.addEventListener('click',()=>dialog.close());
  const health=state.health.find(row=>row.id===source.id),kind=RadarSourceTools.sourceKind(source);
  const entries=[['Nombre en catálogo',source.name],['Categoría original',categoryLabel(source.category)],['Carpetas asignadas',sourceFolderNames(source).join(', ')||'Sin carpeta'],['Identificador',source.id],['Tipo de canal',kind==='radar'?'RADAR · Google Noticias (intermediario)':'RSS directo'],['Estado',RadarSourceTools.statusLabels[RadarSourceTools.healthState(health)]],['Último chequeo',state.healthCheckedAt?shortDate(state.healthCheckedAt):'Sin fecha disponible'],['Última lectura correcta',health?.last_success_at?shortDate(health.last_success_at):'Sin fecha disponible'],['Dirección RSS',source.url],['Sitio del medio',source.website]];

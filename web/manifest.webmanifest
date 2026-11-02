@@ -1,13 +1,13 @@
 {
-  "name": "Radar-RSS — Noticias con perspectiva",
-  "short_name": "Radar-RSS",
+  "name": "Radar RSS — Noticias con perspectiva",
+  "short_name": "Radar RSS",
   "description": "Lector público de noticias por RSS: lo más cubierto, temas en alza y resumen del día",
   "lang": "es",
   "start_url": "./#inicio",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#111e29",
-  "theme_color": "#16394a",
+  "background_color": "#101724",
+  "theme_color": "#2456cf",
   "icons": [
     {
       "src": "./radar-rss-icon-192.png",

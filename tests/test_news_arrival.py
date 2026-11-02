@@ -37,6 +37,6 @@ class RSSArrivalTests(unittest.TestCase):
         self.assertIn('@media(prefers-reduced-motion:reduce)',self.style)
 
     def test_assets_load_after_library(self):
-        self.assertIn('news-effects.css?v=1.0.0',self.html)
+        self.assertIn('news-effects.css?v=5.0.0',self.html)
         self.assertIn('news-effects.js?v=1.0.0',self.html)
         self.assertLess(self.html.index('library.js?v='),self.html.index('news-effects.js?v='))

@@ -186,7 +186,7 @@ body .source-folders-section .folder-restore .ui-icon{width:15px;height:15px}
 .folder-dialog-buttons{display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--line);padding-top:13px}
 .folder-dialog-cancel,.folder-dialog-save{padding:9px 14px;min-height:39px;border-radius:9px;border:1px solid var(--line);font-size:13px;font-weight:650}
 .folder-dialog-cancel{background:var(--surface2);color:var(--text)}
-.folder-dialog-save{background:var(--accent);border-color:var(--accent);color:#fff}
+.folder-dialog-save{background:var(--action-lime,var(--accent));border-color:var(--accent);color:var(--action-ink,#fff)}
 .folder-source-count{font-size:12px;color:var(--muted);margin:10px 0}
 .folder-source-choices{max-height:min(48dvh,430px);overflow:auto;border:1px solid var(--line);border-radius:10px}
 .folder-source-row-option{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}

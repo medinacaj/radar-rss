@@ -60,6 +60,23 @@ class DimensionRegressions(unittest.TestCase):
         from cache_upgrade_fixture import check_failed_upgrade
         check_failed_upgrade(self.browser, self.server.socket.context)
 
+    def test_folder_save_contrast_in_both_themes(self):
+        self.page.get_by_role('button',name='Crear carpeta de fuentes',exact=True).click()
+        button=self.page.locator('#folderDialog .folder-dialog-save')
+        expect(button).to_be_visible()
+        for theme in ('light','dark'):
+            self.page.evaluate('(theme)=>setTheme(theme,true)',theme)
+            ratio=button.evaluate(r"""node=>{
+                const c=getComputedStyle(node);
+                const lum=s=>{
+                    const rgb=s.match(/[\d.]+/g).slice(0,3).map(Number).map(x=>x/255);
+                    return rgb.map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4).reduce((a,x,i)=>a+x*[.2126,.7152,.0722][i],0);
+                };
+                const a=lum(c.color),b=lum(c.backgroundColor);
+                return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+            }""")
+            self.assertGreaterEqual(ratio,4.5,(theme,ratio))
+
     def test_destinations_are_separate_and_agenda_is_reloadable(self):
         expect(self.page.locator('#dashboardView')).to_be_visible()
         expect(self.page.locator('#agendaSection')).to_be_hidden()
@@ -173,8 +190,8 @@ class DimensionRegressions(unittest.TestCase):
 
     def test_editorial_tech_palette_surface_depth_hover_and_reduced_motion(self):
         # Real computed-style contract: both themes and user motion preferences.
-        for theme, bg, accent in (('dark', '#10151d', '#ff8968'),
-                                  ('light', '#edf1f5', '#b5422a')):
+        for theme, bg, accent in (('dark', '#101724', '#a1bcff'),
+                                  ('light', '#f5f7fb', '#2456cf')):
             self.page.evaluate('(theme)=>setTheme(theme,true)', theme)
             tokens=self.page.evaluate("""() => {
                 const style=getComputedStyle(document.body);
@@ -199,7 +216,7 @@ class DimensionRegressions(unittest.TestCase):
         card.hover()
         self.page.wait_for_timeout(550)
         transformed=card.evaluate('node=>getComputedStyle(node).transform')
-        self.assertNotIn(transformed, ('none','matrix(1, 0, 0, 1, 0, 0)'))
+        self.assertIn(transformed, ('none','matrix(1, 0, 0, 1, 0, 0)'))
         self.page.emulate_media(reduced_motion='reduce')
         self.assertEqual(card.evaluate('node=>getComputedStyle(node).transform'),'none')
         self.assertEqual(card.evaluate('node=>getComputedStyle(node).transitionDuration'),'0s')
@@ -465,12 +482,12 @@ class DimensionRegressions(unittest.TestCase):
     def test_exports_keep_legacy_backup_format_and_use_current_identity(self):
         self.open_source_settings()
         self.page.locator('#settingsSources .library-source-details-trigger').first.click()
-        expect(self.page.locator('#librarySourceDetailsDialog')).to_contain_text('catálogo público de Radar-RSS')
+        expect(self.page.locator('#librarySourceDetailsDialog')).to_contain_text('catálogo público de Radar RSS')
         self.page.locator('#librarySourceDetailsDialog button').last.click()
         self.page.evaluate('()=>{window.brandDownloads=[];downloadText=(name,body,mime)=>window.brandDownloads.push({name,body,mime});}')
         self.page.locator('#exportOPML').click()
         xml=self.page.evaluate('window.brandDownloads.at(-1).body')
-        self.assertIn('<title>Mis fuentes Radar-RSS</title>',xml)
+        self.assertIn('<title>Mis fuentes Radar RSS</title>',xml)
         self.page.locator('[data-settings-tab="data"]').click()
         self.page.locator('#exportData').click()
         backup=self.page.evaluate('window.brandDownloads.at(-1)')

@@ -1,5 +1,5 @@
 "use strict";
-// Radar-RSS: interfaz pública sin autenticación y sin HTML sin sanear de fuentes externas.
+// Radar RSS: interfaz pública sin autenticación y sin HTML sin sanear de fuentes externas.
 const $ = (id) => document.getElementById(id);
 const format = new Intl.NumberFormat('es-CL');
 function storeGet(key) { try { return localStorage.getItem(key); } catch { return null; } }
@@ -507,7 +507,7 @@ function initSettingsHandlers(){
       }
       for(const [key,value] of [['layout',state.layout],['columns',state.columns],['theme',state.theme],['density',state.density],['font',state.fontSize],['card-title-size',state.cardTitleSize],['page-size',state.pageSize],['max-age',state.maxAge],['show-images',state.showImages],['show-summaries',state.showSummaries],['hide-read',state.hideRead],['new-tab',state.newTab],['sort',state.sort],['start-mode',state.startMode],['keywords',state.mutedKeywords]])savePref(key,value);
       state.mode=state.startMode;state.page=1;setTheme(state.theme,true);applyDisplaySettings();refreshFeedUI();syncSettings();selectedTab('data');$('dataNotice').textContent='Preferencias y datos importados correctamente.';
-    }catch{$('dataNotice').textContent='No se pudo importar. Utiliza un respaldo JSON generado por Radar-RSS.';}
+    }catch{$('dataNotice').textContent='No se pudo importar. Utiliza un respaldo JSON generado por Radar RSS.';}
   });
   $('clearRead').addEventListener('click',()=>{if(confirm('¿Borrar el historial de lectura de este navegador?')){state.read.clear();persist('radar-read',state.read);state.page=1;render();updateDataCounts();$('dataNotice').textContent='Historial borrado.';}});
   $('clearSaved').addEventListener('click',()=>{if(confirm('¿Vaciar los artículos guardados en este navegador?')){state.saved.clear();persist('radar-saved',state.saved);state.page=1;render();updateDataCounts();$('dataNotice').textContent='Guardadas vaciadas.';}});
@@ -1450,7 +1450,7 @@ function publishNewRSSNews(previousIds=null){
     }catch{known=null;}
   }
   try{localStorage.setItem(NEWS_SNAPSHOT_KEY,JSON.stringify(current.map(item=>item.id)));}
-  catch(error){console.warn('Radar-RSS: instantánea local no disponible.',error);}
+  catch(error){console.warn('Radar RSS: instantánea local no disponible.',error);}
   if(!known||!known.size||!current.length)return;
   const added=current.filter(item=>!known.has(item.id));
   if(!added.length)return;
@@ -1477,7 +1477,7 @@ function freshnessLabel(){
 function updateScheduleProgress(){
   $('lastUpdate').textContent=feedRefreshBusy?'Buscando novedades…':freshnessLabel();
   const exact=state.generated?' Última recopilación: '+shortDate(state.generated)+'.':'';
-  const description='Radar-RSS busca noticias nuevas cada 15 minutos; los medios se recopilan aproximadamente cada 3 horas.'+exact;
+  const description='Radar RSS busca noticias nuevas cada 15 minutos; los medios se recopilan aproximadamente cada 3 horas.'+exact;
   $('refreshCycle').title=description;
   $('lastUpdate').title=description;
   $('refreshNow').disabled=feedRefreshBusy||bootBusy;

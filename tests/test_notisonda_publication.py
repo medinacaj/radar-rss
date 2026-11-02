@@ -61,8 +61,8 @@ class NotisondaPublicationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             folder=Path(directory)
             write_feeds(folder,[article],[{'id':'original','category':category}],now)
-            for name,title,link in [('mas-cubierto.xml','Radar-RSS · Lo más cubierto','https://medinacaj.github.io/radar-rss/'),
-                                    ('ciencia.xml','Radar-RSS · Ciencia','https://medinacaj.github.io/radar-rss/#categoria/01%20-%20Ciencia')]:
+            for name,title,link in [('mas-cubierto.xml','Radar RSS · Lo más cubierto','https://medinacaj.github.io/radar-rss/'),
+                                    ('ciencia.xml','Radar RSS · Ciencia','https://medinacaj.github.io/radar-rss/#categoria/01%20-%20Ciencia')]:
                 channel=ET.parse(folder/name).getroot().find('channel')
                 self.assertEqual(channel.findtext('title'),title)
                 self.assertEqual(channel.findtext('link'),link)

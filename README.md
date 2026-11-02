@@ -1,4 +1,4 @@
-# Radar-RSS · Plataforma de monitoreo informativo
+# Radar RSS · Plataforma de monitoreo informativo
 
 **Versión pública operativa · octubre 2026:** recopilación y publicación automáticas, monitoreo, historial paginado, tendencias, lectura responsive y pruebas multiplataforma.
 
@@ -105,7 +105,7 @@ Las imágenes se **enlazan al editor original** (no se descargan, republican ni 
 git init
 git branch -M main
 git add .
-git commit -m "Versión inicial de Radar-RSS"
+git commit -m "Versión inicial de Radar RSS"
 git remote add origin https://github.com/TU-USUARIO/radar-rss.git
 git push -u origin main
 ```

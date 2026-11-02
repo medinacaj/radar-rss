@@ -37,12 +37,13 @@ def export():
                 const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
                 const ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
                 if(kind!=='transparent'&&kind!=='social'){
-                    ctx.fillStyle='#f4f7f6';
+                    ctx.fillStyle=kind==='maskable'?'#2456cf':'#f5f7fb';
                     if(kind==='rounded'){ctx.beginPath();ctx.roundRect(0,0,width,height,width*.21);ctx.fill();}
                     else ctx.fillRect(0,0,width,height);
                 }
                 const inset=kind==='maskable'?width*.1:0;
-                ctx.drawImage(image,inset,inset,width-inset*2,height-inset*2);
+                if(kind==='social') ctx.drawImage(image,0,0,width,height);
+                else ctx.drawImage(image,120,136,1016,1012,inset,inset,width-inset*2,height-inset*2);
                 return canvas.toDataURL('image/png').split(',')[1];
             }''', {'source': social if kind == 'social' else logo,
                    'width': width, 'height': height, 'kind': kind})

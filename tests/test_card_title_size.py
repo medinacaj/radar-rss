@@ -39,6 +39,9 @@ class NewsCardDisplayTests(unittest.TestCase):
         self.assertIn("height:96px;min-height:96px;max-height:96px;flex-basis:96px",self.css)
         self.assertIn(".article-grid.list-view>.article-card.no-cover>.article-cover-placeholder",self.css)
 
+    def test_normal_title_size_matches_the_slider(self):
+        self.assertIn("--radar-reading-title-size:calc(var(--radar-card-title-size) * var(--radar-title-scale))",self.css)
+
     def test_card_title_size_does_not_resize_article_body(self):
         for size in range(14,23):
             self.assertIn(f'[data-card-title-size="{size}"]',self.css)

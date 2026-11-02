@@ -1,13 +1,9 @@
-# Radar-RSS: identidad editorial
+# Radar RSS: activos de marca
 
-Paleta aprobada: petróleo `#16394A`, turquesa `#238A90` y coral `#E77B65`, con colores de interfaz adaptados al contraste de cada tema.
+Identidad actual: símbolo RSS blanco sobre azul y nombre visible **Radar RSS**. El símbolo maestro fue generado con image_gen para este proyecto. No se afirma exclusividad jurídica del símbolo RSS.
 
-Los dos PNG maestros se generaron para este proyecto mediante `image_gen`: símbolo RSS/radar transparente y tarjeta social editorial. No se afirma exclusividad de marca o certificación jurídica. Se conservan los activos anteriores del repositorio.
+`radar-rss-symbol-master.png` es el original de 1280×1280 con transparencia. El exportador recorta su caja útil (120,136,1016,1012), sin redibujar el símbolo. `radar-rss-social-master.png` compone el mismo símbolo con tipografía local en una superficie de 1200×630.
 
-Los tamaños de navegador e instalación se exportan desde los maestros con el renderer del navegador, sin alterar su dibujo:
+Desde la raíz: `RADAR_CHROMIUM_EXECUTABLE=/usr/bin/chromium python3 browser_tests/export_radar_brand.py`. Exporta PNG de marca, favicon, instalación 192/512, maskable 512, Apple 180 y tarjeta social 1200×630. El maskable deja margen adicional para proteger el símbolo central en recortes circulares.
 
-```sh
-python browser_tests/export_radar_brand.py
-```
-
-El comando usa el entorno de desarrollo con Playwright; no añade dependencias a producción. `RADAR_CHROMIUM_EXECUTABLE` permite seleccionar Chromium ya instalado. Exporta la marca de 128 píxeles, favicon de 64, iconos de 192/512, maskable de 512, Apple de 180 y tarjeta social de 1200×630. El área segura del icono maskable incluye margen adicional; todos los archivos activos usan el prefijo `radar-rss-`.
+Los maestros anteriores se conservan en `archive/`; los iconos históricos de otras identidades conservan sus archivos originales. Las referencias activas usan `radar-rss-`.

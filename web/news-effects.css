@@ -3,10 +3,10 @@ body.radar-hybrid .source-folders-section .folder-entry{
   position:relative;
 }
 body.radar-hybrid .source-folders-section .folder-entry.radar-folder-arrived>.nav-link{
-  animation:radar-rss-folder-new 1.65s ease-out both;
+  animation:radar-rss-folder-new .18s ease-out both;
 }
 body.radar-hybrid .source-folders-section .folder-entry.radar-folder-arrived .nav-count{
-  animation:radar-rss-number-new 1.4s cubic-bezier(.22,1,.36,1);
+  animation:radar-rss-number-new .18s ease-out both;
 }
 body.radar-hybrid .source-folders-section .folder-entry.radar-folder-arrived::after{
   content:attr(data-radar-new);
@@ -16,17 +16,17 @@ body.radar-hybrid .source-folders-section .folder-entry.radar-folder-arrived::af
   color:var(--accent);border-radius:7px;padding:2px 5px;
   font-size:10px;font-weight:750;line-height:1.2;
   box-shadow:0 3px 9px rgba(0,0,0,.08);
-  animation:radar-rss-float-new 1.6s ease-out both;
+  animation:radar-rss-float-new .18s ease-out both;
 }
 body.radar-hybrid .article-card.radar-news-arrived{
-  animation:radar-rss-card-new 1.05s cubic-bezier(.2,.75,.3,1) both;
-  animation-delay:var(--radar-news-delay,0ms);
+  animation:radar-rss-card-new .18s ease-out both;
+  animation-delay:0ms;
 }
 body.radar-hybrid #categoryNav>.nav-link.radar-all-arrived .nav-count{
-  animation:radar-rss-number-new 1.5s cubic-bezier(.22,1,.36,1);
+  animation:radar-rss-number-new .18s ease-out both;
 }
 body.radar-hybrid .topbar-refresh.radar-refresh-arrived .topbar-refresh-time{
-  animation:radar-rss-number-new 1.35s ease-out;
+  animation:radar-rss-number-new .18s ease-out both;
 }
 @keyframes radar-rss-folder-new{
   0%{background:var(--surface2);box-shadow:inset 0 0 0 1px var(--accent);}
@@ -34,19 +34,19 @@ body.radar-hybrid .topbar-refresh.radar-refresh-arrived .topbar-refresh-time{
   100%{box-shadow:none;}
 }
 @keyframes radar-rss-number-new{
-  0%{color:var(--accent);transform:scale(1);}
-  25%{color:var(--accent);transform:scale(1.16);}
-  100%{color:inherit;transform:scale(1);}
+  0%{color:var(--accent);}
+  25%{color:var(--accent);}
+  100%{color:inherit;}
 }
 @keyframes radar-rss-float-new{
-  0%{transform:translateY(7px);opacity:0;}
-  22%{transform:translateY(0);opacity:1;}
+  0%{opacity:0;}
+  22%{opacity:1;}
   72%{opacity:1;}
-  100%{transform:translateY(-10px);opacity:0;}
+  100%{opacity:0;}
 }
 @keyframes radar-rss-card-new{
-  0%{opacity:.55;transform:translateY(9px);}
-  100%{opacity:1;transform:translateY(0);}
+  0%{opacity:.55;}
+  100%{opacity:1;}
 }
 @media(prefers-reduced-motion:reduce){
   body.radar-hybrid .radar-folder-arrived,
