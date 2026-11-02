@@ -26,14 +26,21 @@ body.radar-hybrid.dimension {
 body.radar-hybrid.dimension.light {
   color-scheme:light;
   --brand-petrol:#1a2835; --brand-teal:#16785d; --brand-coral:#2456cf;
-  --bg:#f5f7fb; --surface:#ffffff; --surface2:#fafbfe; --card:var(--surface);
-  --text:#17243a; --muted:#58677d; --dim:#58677d; --line:#e0e6ef;
+  --bg:#e5edf7; --surface:#f4f8ff; --surface2:#d2def0; --card:var(--surface);
+  --text:#17243a; --muted:#485b73; --dim:#485b73; --line:#b9cbe3;
   --accent:#2456cf; --blue:#2456cf; --hover:#edf2ff; --shadow:#12243526;
   --nav-selected:#edf2ff; --error:#a32f23; --control-line:#778b9f;
   --glass-shadow:0 2px 8px #0000000a;
   --glass-shine:#ffffff;
   --action-lime:#2456cf; --action-ink:#ffffff;
   --agenda-accent:#2456cf; --agenda-on-accent:#ffffff;
+}
+/* The light theme has a blue navigation header and a quieter reading canvas. */
+body.radar-hybrid.dimension.light .topbar {
+  --surface:#203c65; --surface2:#294a79; --bg:#203c65;
+  --text:#f5f8ff; --muted:#d0def3; --line:#53719a;
+  --blue:#b9d1ff; --accent:#b9d1ff; --hover:#294a79;
+  --control-line:#7895bc;
 }
 body.dimension [hidden] { display:none !important; }
 body.dimension :is(button,input,select,textarea) {font-family:var(--font-ui);}

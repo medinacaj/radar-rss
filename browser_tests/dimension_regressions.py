@@ -197,7 +197,7 @@ class DimensionRegressions(unittest.TestCase):
     def test_editorial_tech_palette_surface_depth_hover_and_reduced_motion(self):
         # Real computed-style contract: both themes and user motion preferences.
         for theme, bg, accent in (('dark', '#101724', '#a1bcff'),
-                                  ('light', '#f5f7fb', '#2456cf')):
+                                  ('light', '#e5edf7', '#2456cf')):
             self.page.evaluate('(theme)=>setTheme(theme,true)', theme)
             tokens=self.page.evaluate("""() => {
                 const style=getComputedStyle(document.body);
