@@ -571,6 +571,9 @@ function renderTopicRail(){
 }
 const MOBILE_NAV=window.matchMedia('(max-width: 950px)');
 const SIDEBAR_COLLAPSED_KEY='radar-sidebar-collapsed';
+function sidebarStartsCollapsed(value){
+  return value!=='false';
+}
 function setNavOpen(open,restoreFocus=true,persistDesktop=false){
   const sidebar=$('appSidebar'),page=document.querySelector('.page');
   if(!sidebar||!page)return;
@@ -579,11 +582,12 @@ function setNavOpen(open,restoreFocus=true,persistDesktop=false){
     try{localStorage.setItem(SIDEBAR_COLLAPSED_KEY,String(!open));}catch{}
     document.body.classList.toggle('sidebar-collapsed',!open);
   }else if(!mobile){
-    document.body.classList.toggle('sidebar-collapsed',storeGet(SIDEBAR_COLLAPSED_KEY)==='true');
+    document.body.classList.toggle('sidebar-collapsed',sidebarStartsCollapsed(storeGet(SIDEBAR_COLLAPSED_KEY)));
   }
   const visible=mobile?Boolean(open):!document.body.classList.contains('sidebar-collapsed');
   document.body.classList.toggle('nav-open',mobile&&visible);
   $('menuToggle').setAttribute('aria-expanded',String(visible));
+  $('pulsoSources')?.setAttribute('aria-expanded',String(visible));
   $('menuToggle').setAttribute('aria-label',visible?'Ocultar menú':'Mostrar menú');
   $('sidebarBackdrop').hidden=!(mobile&&visible);
   sidebar.inert=!visible;
@@ -686,6 +690,11 @@ function updateSourceCounts(){
   }
 }
 function updateHeader() {
+  const destination=state.pageView==='dashboard'?'#inicio':state.pageView==='agenda'?'#agenda':state.pageView==='briefing'?'#resumen':'#noticias';
+  for(const anchor of document.querySelectorAll('.pulso-nav a')){
+    if(anchor.getAttribute('href')===destination)anchor.setAttribute('aria-current','page');
+    else anchor.removeAttribute('aria-current');
+  }
   const name = state.category === 'all' ? 'Todas las noticias' : categoryLabel(state.category);
   $('feedHeading').textContent = name;
   $('topbarSection').textContent = state.pageView === 'dashboard' ? 'Ahora' : state.pageView === 'agenda' ? 'Agenda' : state.pageView === 'briefing' ? 'Resumen del día' : name;
@@ -1678,6 +1687,7 @@ function initHandlers() {
   for(const button of document.querySelectorAll('[data-now-view]'))button.addEventListener('click',()=>{nowView=button.dataset.nowView;nowLimit=36;renderDashboard();});
   $('nowZone')?.addEventListener('change',event=>{nowZone=event.target.value;savePref('now-zone',nowZone);nowLimit=36;renderDashboard();});
   $('nowMore')?.addEventListener('click',()=>{const count=nowLimit;nowLimit+=36;renderDashboard();const row=$('dashboardRecent')?.children[count-1];const target=row?.querySelector('.article-title a');target?.focus({preventScroll:true});});
+  $('pulsoSources')?.addEventListener('click',()=>{setNavOpen(true,true,true);if(!MOBILE_NAV.matches)$('sidebarNavigationToggle')?.focus({preventScroll:true});});
   $('nowPreferences')?.addEventListener('click',()=>{$('settingsButton').click();selectedTab('reading');if($('v12MineDetails'))$('v12MineDetails').open=true;$('v12MyRadar')?.scrollIntoView({block:'center'});});
   window.addEventListener('focus',()=>{if(document.visibilityState==='visible'&&Date.now()>=nextCheckAt){void refreshPublishedData();}});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(Date.now()>=nextCheckAt){void refreshPublishedData();}else{updateScheduleProgress();}}});

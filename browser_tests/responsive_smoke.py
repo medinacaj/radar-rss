@@ -340,9 +340,9 @@ def main():
                           radius:getComputedStyle(document.querySelector('#dashboardFeature .article-card')).borderTopLeftRadius,
                           shadow:getComputedStyle(document.querySelector('#dashboardFeature .article-card')).boxShadow
                         })""")
-                        assert visual['radius']=='10px' and visual['shadow']=='none',visual
+                        assert visual['radius']=='0px' and visual['shadow']=='none',visual
                         light_background=visual['bg']
-                        assert page.locator('#dashboardTitle').inner_text() == 'Ahora'
+                        assert ' '.join(page.locator('#dashboardTitle').text_content().split()) == 'Lo que pasa. Ahora.'
                         expect(page.locator('#dashboardFeature')).to_be_visible()
                         expect(page.locator('#dashboardFeature > .article-card')).to_have_count(1)
                         page.evaluate("document.body.classList.remove('light')")

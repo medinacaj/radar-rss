@@ -1,0 +1,7 @@
+# Pulso editorial
+
+El usuario elige la opción 1 del tablero de tres propuestas: Pulso editorial. Autoriza sustituir el estilo de tarjetas azules por una identidad de periódico contemporáneo: papel cálido, negro/naranja, tipografía condensada, titulares numerados, reglas editoriales y navegación horizontal. El lateral de fuentes permanece disponible mediante el menú; de inicio estará cerrado cuando no exista una preferencia explícita. Las elecciones guardadas de visibilidad/ancho se preservan.
+
+La cabecera usa una marca grande Radar RSS y símbolo RSS naranja. La portada muestra «Lo que pasa. Ahora.», controles de Ahora/En desarrollo/Mi zona/Mi Radar y noticias cronológicas con números. El listado se dispone en dos columnas a partir de 1100 px y una en móvil; no altera el orden DOM/lector. Se conservan fuente, fechas, guardados, lectura y preferencias. El naranja vivo se usa con texto oscuro y un naranja más oscuro para enlaces sobre papel. Existe equivalente nocturno cálido. Sin decoración animada continua ni grandes promesas de tiempo real.
+
+Anton se sirve localmente con su licencia OFL desde el repositorio oficial de Google Fonts, sin peticiones de fuentes externas del lector. La tipografía de texto y el tamaño configurable de titulares se conservan. Iconos y tarjeta social adoptan naranja; fuentes históricas de marca archivadas. Caché atómica y versiones renovadas. No cambia la cadencia ni la ingesta ya implementadas. No se publica automáticamente.

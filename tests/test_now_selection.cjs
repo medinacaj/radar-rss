@@ -27,3 +27,11 @@ test('regional and personal views filter explicit categories; duplicates and lim
  assert.equal(select([a,b],{view:'mine',categories:[]}).length,0);
  assert.equal(select([a,a,b],{limit:1}).length,1);
 });
+test('editorial sidebar starts closed only when no explicit preference exists',()=>{
+ const src=fs.readFileSync('web/app.js','utf8'),start=src.indexOf('function sidebarStartsCollapsed(');
+ assert(start>=0,'sidebar default policy missing');
+ const c=vm.createContext({});vm.runInContext(src.slice(start,src.indexOf('\n}',start)+2),c);
+ assert.equal(c.sidebarStartsCollapsed(null),true);
+ assert.equal(c.sidebarStartsCollapsed('false'),false);
+ assert.equal(c.sidebarStartsCollapsed('true'),true);
+});

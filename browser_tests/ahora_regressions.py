@@ -12,8 +12,24 @@ class AhoraRegressions(unittest.TestCase):
     def setUp(self):baseline.DimensionRegressions.setUp(self)
     def tearDown(self):baseline.DimensionRegressions.tearDown(self)
 
+    def test_pulso_default_navigation_and_saved_sidebar_choice(self):
+        expect(self.page.locator('#menuToggle')).to_have_attribute('aria-expanded','false')
+        expect(self.page.locator('.pulso-nav')).to_be_visible()
+        self.page.locator('.pulso-nav a[href="#agenda"]').click()
+        expect(self.page.locator('.pulso-nav a[href="#agenda"]')).to_have_attribute('aria-current','page')
+        self.page.locator('.pulso-nav a[href="#inicio"]').click()
+        expect(self.page.locator('.pulso-nav a[href="#inicio"]')).to_have_attribute('aria-current','page')
+        self.page.locator('#pulsoSources').click()
+        expect(self.page.locator('#sidebarNavigationToggle')).to_be_focused()
+        expect(self.page.locator('#menuToggle')).to_have_attribute('aria-expanded','true')
+        self.page.reload();self.page.wait_for_function('()=>state.ready')
+        expect(self.page.locator('#menuToggle')).to_have_attribute('aria-expanded','true')
+        self.page.locator('#menuToggle').click()
+        self.page.reload();self.page.wait_for_function('()=>state.ready')
+        expect(self.page.locator('#menuToggle')).to_have_attribute('aria-expanded','false')
+
     def test_compact_home_chronology_dates_and_reader(self):
-        expect(self.page.locator('#dashboardTitle')).to_have_text('Ahora')
+        expect(self.page.locator('#dashboardTitle')).to_have_text('Lo que pasa. Ahora.')
         self.page.evaluate("""()=>{
           const base=state.items[0],now=Date.now();
           state.items=[{...base,id:'old',coverage:20,published_at:new Date(now-7200000).toISOString()},
@@ -106,6 +122,7 @@ class AhoraRegressions(unittest.TestCase):
             for width in (320,390,768,1440):
                 self.page.set_viewport_size({'width':width,'height':900})
                 self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth+2'))
+                expect(self.page.locator('.topbar-brand strong')).to_be_visible()
                 for button in self.page.locator('[data-now-view]').all():self.assertGreaterEqual(button.bounding_box()['height'],44)
         self.page.set_viewport_size({'width':1440,'height':1000})
         expect(self.page.locator('#radarFigure')).to_be_hidden()

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Radar RSS: noticias actualizadas de inteligencia artificial, tecnología, Chile, Venezuela, Latinoamérica y el mundo.">
-  <meta name="theme-color" content="#101724">
+  <meta name="theme-color" content="#f3ecdf">
   <link rel="canonical" href="https://medinacaj.github.io/radar-rss/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Radar RSS">
@@ -23,10 +23,10 @@
   <meta name="twitter:image" content="https://medinacaj.github.io/radar-rss/radar-rss-social-card.png">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https: data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
-  <link rel="icon" href="./radar-rss-favicon-64.png?v=5.0.0" type="image/png">
-  <link rel="apple-touch-icon" href="./radar-rss-apple-touch-icon.png?v=5.0.0" sizes="180x180">
+  <link rel="icon" href="./radar-rss-favicon-64.png?v=7.0.0" type="image/png">
+  <link rel="apple-touch-icon" href="./radar-rss-apple-touch-icon.png?v=7.0.0" sizes="180x180">
   <link rel="alternate" type="application/rss+xml" title="Radar RSS · Lo más cubierto" href="./feeds/mas-cubierto.xml">
-  <link rel="manifest" href="./manifest.webmanifest?v=5.0.0">
+  <link rel="manifest" href="./manifest.webmanifest?v=7.0.0">
   <link rel="stylesheet" href="./styles.css?v=5.2.0">
   <link rel="stylesheet" href="./library.css?v=1.8.1">
   <link rel="stylesheet" href="./sidebar-layout.css?v=1.0.3">
@@ -42,10 +42,11 @@
   <link rel="stylesheet" href="./agenda.css?v=1.1.0">
   <link rel="stylesheet" href="./reader-layout.css?v=1.0.0">
   <link rel="stylesheet" href="./reading-ux.css?v=1.0.0">
-  <link rel="stylesheet" href="./dimension.css?v=6.1.0">
+  <link rel="stylesheet" href="./dimension.css?v=7.0.0">
+  <link rel="preload" href="./fonts/Anton-Regular.ttf" as="font" type="font/ttf" crossorigin>
   <title>Radar RSS — Noticias con perspectiva</title>
 </head>
-<body class="radar-hybrid dimension" data-columns="auto" data-home="now">
+<body class="radar-hybrid dimension" data-columns="auto" data-home="now" data-design="pulso">
   <div class="app-shell">
     <aside class="sidebar" id="appSidebar" aria-label="Menú de fuentes">
       <div class="sidebar-brand-row">
@@ -88,7 +89,7 @@
     <div class="page">
       <header class="topbar">
         <button type="button" id="menuToggle" class="menu-toggle" aria-label="Abrir menú" aria-controls="appSidebar" aria-expanded="false" title="Menú"><span data-icon="menu" class="ui-icon-slot" aria-hidden="true"></span></button>
-        <div class="topbar-caption"><a class="brand topbar-brand" id="brandHome" href="#inicio" aria-label="Radar RSS: ir al inicio"><span class="brand-mark" aria-hidden="true"><img src="./radar-rss-mark.png?v=5.0.0" width="24" height="24" alt=""></span><strong>Radar RSS</strong></a><span id="topbarSection" class="sr-only">Actualidad</span></div>
+        <div class="topbar-caption"><a class="brand topbar-brand" id="brandHome" href="#inicio" aria-label="Radar RSS: ir al inicio"><span class="brand-mark" aria-hidden="true"><img src="./radar-rss-mark.png?v=7.0.0" width="24" height="24" alt=""></span><strong>Radar RSS</strong></a><span id="topbarSection" class="sr-only">Actualidad</span></div>
         <button type="button" id="searchToggle" class="search-toggle icon-button" aria-label="Buscar noticias" aria-controls="topbarSearch" aria-expanded="false" title="Buscar"><span data-icon="search" class="ui-icon-slot" aria-hidden="true"></span></button>
         <div class="topbar-search" id="topbarSearch" role="search">
           <label class="search-wrap"><span class="sr-only">Buscar en todas las noticias</span><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg><input id="searchInput" type="search" placeholder="Buscar noticias…" autocomplete="off" enterkeyhint="search" aria-keyshortcuts="/"><kbd class="search-shortcut" aria-hidden="true">/</kbd></label>
@@ -99,6 +100,7 @@
           <button id="themeToggle" class="icon-button" type="button" aria-label="Cambiar tema" title="Cambiar modo claro u oscuro"><span id="themeGlyph"></span></button>
         </div>
       </header>
+      <nav class="pulso-nav" aria-label="Secciones principales"><a href="#inicio">Ahora</a><a href="#noticias">Todas las noticias</a><a href="#agenda">Agenda</a><a href="#resumen">Resumen del día</a><button type="button" id="pulsoSources" aria-controls="appSidebar" aria-expanded="false">Fuentes y carpetas</button></nav>
       <nav class="topic-rail" id="topicRail" aria-label="Secciones de noticias" hidden></nav>
       <main class="main" id="mainContent">
         <div id="statusBanner" class="status-banner" role="status" hidden>
@@ -112,8 +114,8 @@
         <div id="publicationNotice" class="publication-notice" role="status" hidden><span id="publicationMessage"></span><button id="publicationApply" type="button">Mostrar noticias</button></div>
         <section id="dashboardView" class="dashboard-view" aria-labelledby="dashboardTitle" hidden>
           <header class="home-heading">
-            <h1 id="dashboardTitle">Ahora</h1>
-            <p>Las noticias más recientes, con fuente y hora.</p>
+            <h1 id="dashboardTitle">Lo que pasa.<br> Ahora.</h1>
+            <p>La actualidad, desde distintas miradas.</p>
           </header>
           <section class="since-visit" id="sinceVisit" aria-labelledby="sinceVisitTitle" hidden>
             <div class="since-visit-text"><span class="since-visit-icon" aria-hidden="true" data-icon="sparkle"></span><div><h2 id="sinceVisitTitle">Mientras no estabas</h2><p id="sinceVisitText"></p></div></div>
@@ -222,7 +224,7 @@
                     </button>
                     <div id="columnsMenu" class="columns-menu-popup" role="menu" aria-label="Número de columnas de tarjetas" hidden>
                       <span class="columns-menu-caption">Columnas de noticias</span>
-                      <button type="button" role="menuitemradio" aria-checked="true" data-columns="auto" data-home="now">Automático</button>
+                      <button type="button" role="menuitemradio" aria-checked="true" data-columns="auto" data-home="now" data-design="pulso">Automático</button>
                       <button type="button" role="menuitemradio" aria-checked="false" data-columns="2">2 columnas</button>
                       <button type="button" role="menuitemradio" aria-checked="false" data-columns="3">3 columnas</button>
                       <button type="button" role="menuitemradio" aria-checked="false" data-columns="4">4 columnas</button>
@@ -425,7 +427,7 @@
   <button id="backTop" class="back-to-top" type="button" aria-label="Volver arriba" title="Volver arriba" hidden><span data-icon="arrow-up" class="ui-icon-slot" aria-hidden="true"></span></button>
   <div id="actionToast" class="action-toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
   <script src="./source-tools.js?v=5.0.0" defer></script>
-  <script src="./app.js?v=6.0.0" defer></script>
+  <script src="./app.js?v=7.0.0" defer></script>
   <script src="./library.js?v=6.0.0" defer></script>
   <script src="./sidebar-layout.js?v=1.2.3" defer></script>
   <script src="./news-effects.js?v=1.0.0" defer></script>

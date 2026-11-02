@@ -37,7 +37,7 @@ def export():
                 const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
                 const ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
                 if(kind!=='transparent'&&kind!=='social'){
-                    ctx.fillStyle=kind==='maskable'?'#2456cf':'#f5f7fb';
+                    ctx.fillStyle=kind==='maskable'?'#191613':'#f3ecdf';
                     if(kind==='rounded'){ctx.beginPath();ctx.roundRect(0,0,width,height,width*.21);ctx.fill();}
                     else ctx.fillRect(0,0,width,height);
                 }

@@ -51,6 +51,8 @@ class DimensionRegressions(unittest.TestCase):
         self.page.route('**/data/**',fixtures.make_route)
         self.page.goto(self.base+'#inicio')
         self.page.wait_for_function('() => state.ready')
+        # Legacy source-management scenarios explicitly start with the source panel open.
+        if type(self) is DimensionRegressions:self.page.evaluate('setNavOpen(true,false,true)')
 
     def tearDown(self):
         self.assertFalse(self.errors)
@@ -94,7 +96,7 @@ class DimensionRegressions(unittest.TestCase):
 
     def test_home_uses_direct_sections_without_retired_panels(self):
         expect(self.page.locator('#dashboardTitle')).to_be_visible()
-        expect(self.page.locator('#dashboardTitle')).to_have_text('Ahora')
+        expect(self.page.locator('#dashboardTitle')).to_have_text('Lo que pasa. Ahora.')
         expect(self.page.locator('#newsroomColumns,#dashboardFolders,#dashboardSavedPanel')).to_have_count(0)
         order=self.page.locator('#dashboardView > section').evaluate_all('nodes=>nodes.map(n=>n.id)')
         self.assertEqual(order,['sinceVisit','homeHeadlines','homeLatest'])
@@ -196,8 +198,8 @@ class DimensionRegressions(unittest.TestCase):
 
     def test_editorial_tech_palette_surface_depth_hover_and_reduced_motion(self):
         # Real computed-style contract: both themes and user motion preferences.
-        for theme, bg, accent in (('dark', '#101724', '#a1bcff'),
-                                  ('light', '#e5edf7', '#2456cf')):
+        for theme, bg, accent in (('dark', '#191613', '#ffac87'),
+                                  ('light', '#f3ecdf', '#af2e08')):
             self.page.evaluate('(theme)=>setTheme(theme,true)', theme)
             tokens=self.page.evaluate("""() => {
                 const style=getComputedStyle(document.body);
@@ -432,10 +434,10 @@ class DimensionRegressions(unittest.TestCase):
         self.assertFalse(failures,failures)
 
     def test_category_symbols_are_distinct_and_custom_folders_have_a_symbol(self):
-        expect(self.page.locator('#dashboardTitle')).to_have_text('Ahora')
+        expect(self.page.locator('#dashboardTitle')).to_have_text('Lo que pasa. Ahora.')
         self.assertTrue(self.page.locator('.brand-mark img').evaluate('n=>n.complete&&n.naturalWidth>0'))
         brand=self.page.locator('.brand-mark img').bounding_box()
-        self.assertEqual((brand['width'],brand['height']),(24,24))
+        self.assertEqual((brand['width'],brand['height']),(36,36))
         categories=[*fixtures.CATEGORIES,'08 - Monagas']
         self.page.evaluate('(categories)=>{state.categories=categories;buildNav()}',categories)
         symbols=self.page.locator('#libraryFolderNav .system-folder-link .nav-glyph svg').evaluate_all('nodes=>nodes.map(n=>n.innerHTML)')

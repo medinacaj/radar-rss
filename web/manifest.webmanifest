@@ -6,8 +6,8 @@
   "start_url": "./#inicio",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#101724",
-  "theme_color": "#2456cf",
+  "background_color": "#191613",
+  "theme_color": "#ff4b13",
   "icons": [
     {
       "src": "./radar-rss-icon-192.png",

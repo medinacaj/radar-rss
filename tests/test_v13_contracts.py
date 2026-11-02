@@ -27,7 +27,7 @@ class V13Contracts(unittest.TestCase):
         self.assertIn("target===\'all\'?\'#noticias\'",self.app)
 
     def test_home_starts_with_news_not_promotional_copy(self):
-        self.assertIn('<h1 id="dashboardTitle">Ahora</h1>',self.html)
+        self.assertIn('<h1 id="dashboardTitle">Lo que pasa.<br> Ahora.</h1>',self.html)
         self.assertNotIn('Noticias para estar al día.',self.html)
         self.assertNotIn('Una lectura clara de la actualidad',self.html)
         self.assertNotIn('class="dashboard-head"',self.html)

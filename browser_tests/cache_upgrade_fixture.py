@@ -120,7 +120,7 @@ def check_failed_upgrade(browser, tls_context):
                     offline_page.evaluate('location.reload()')
                 offline_page.wait_for_function('() => typeof state !== "undefined" && state.ready')
                 assert offline_page.evaluate('state.items.length') == len(fixtures.ITEMS), (failed_path, 'offline news lost', registration)
-                expect(offline_page.locator('#dashboardTitle')).to_have_text('Ahora')
+                expect(offline_page.locator('#dashboardTitle')).to_have_text('Lo que pasa. Ahora.')
                 assert offline_page.locator('.topbar').evaluate('node => getComputedStyle(node).display') == 'flex'
                 navigation = offline_page.evaluate("""async () => {
                     const response = await caches.match(new URL('__navigation', location.href).href);
