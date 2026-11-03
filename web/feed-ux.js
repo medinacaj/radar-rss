@@ -58,7 +58,24 @@
     return active;
   }
 
-  // Mobile uses the existing source, tag and advanced controls, preserving events.
+  // Reuse the same controls and listeners in the header and mobile panel.
+  const headerControls=mk('div','feed-header-controls');headerControls.id='feedHeaderControls';
+  headerControls.setAttribute('role','group');headerControls.setAttribute('aria-label','Fuentes y presentación de noticias');
+  document.querySelector('.topbar-actions').before(headerControls);
+  const source=get('sourceSelect')?.closest('label');
+  const display=controls.querySelector('.display-controls');
+  if(source)headerControls.append(source);
+  if(display)headerControls.append(display);
+  const advanced=get('feedAdvanced');
+  const reading=document.querySelector('[data-settings-pane="reading"]');
+  if(advanced&&reading){
+    const section=mk('section','settings-feed-actions');
+    section.append(mk('h4','','Filtros y acciones de noticias'));
+    const content=advanced.querySelector('.feed-advanced-content');
+    if(content)section.append(...content.children);
+    reading.prepend(section);advanced.remove();
+  }
+
   const toggle=mk('button','feed-filters-toggle');toggle.id='feedFiltersToggle';toggle.type='button';
   toggle.setAttribute('aria-controls','feedFilterPanel');toggle.setAttribute('aria-expanded','false');
   const toggleLabel=mk('span','','Filtros');
@@ -66,8 +83,7 @@
   const panel=mk('div','feed-filter-panel');panel.id='feedFilterPanel';panel.hidden=true;
   panel.setAttribute('role','group');panel.setAttribute('aria-label','Filtros y acciones de noticias');
   bar.append(toggle);bar.after(panel);
-  const advanced=get('feedAdvanced');
-  const movable=[get('sourceSelect')?.closest('label'),get('libraryTagFilter')?.closest('label'),advanced].filter(Boolean);
+  const movable=[source,display,get('libraryTagFilter')?.closest('label')].filter(Boolean);
   const homes=movable.map(element=>{
     const anchor=mk('span','feed-control-anchor');anchor.hidden=true;element.before(anchor);
     return {element,anchor};
@@ -135,6 +151,7 @@
     el.append(heading,hint,actions);return el;
   };
   function update(){
+    headerControls.hidden=state.pageView!=='feed';
     const active=filters();chips.replaceChildren();
     for(const item of active){
       const button=mk('button','feed-filter-chip'+(item.preference?' is-preference':''),item.label+(item.preference?' · Ajustar':' ×'));

@@ -10,6 +10,7 @@ class Element {
   set textContent(value){this._text=String(value);this.children.forEach(x=>x.parentNode=null);this.children=[];}
   get classList(){return {contains:c=>this.className.split(/\s+/).includes(c),add:(...cs)=>{this.className=[...new Set([...this.className.split(/\s+/).filter(Boolean),...cs])].join(' ');},remove:(...cs)=>{this.className=this.className.split(/\s+/).filter(c=>!cs.includes(c)).join(' ');},toggle:(c,on)=>{if(on===undefined)on=!this.classList.contains(c);if(on)this.classList.add(c);else this.classList.remove(c);return on;}};}
   append(...nodes){for(const node of nodes){node.remove();node.parentNode=this;this.children.push(node);}}
+  prepend(node){this.insertBefore(node,this.children[0]);}
   insertBefore(node,before){if(!before)return this.append(node);node.remove();const i=this.children.indexOf(before);assert.ok(i>=0);node.parentNode=this;this.children.splice(i,0,node);}
   after(node){this.parentNode.insertBefore(node,this.parentNode.children[this.parentNode.children.indexOf(this)+1]);}
   before(node){this.parentNode.insertBefore(node,this);}
@@ -22,7 +23,7 @@ class Element {
   click(){this.dispatch('click');}
   focus(){document.activeElement=this;}
   scrollIntoView(){}
-  matches(selector){if(selector.startsWith('#'))return this.id===selector.slice(1);if(selector.startsWith('.'))return this.classList.contains(selector.slice(1));return this.tagName.toLowerCase()===selector;}
+  matches(selector){if(selector==='[data-settings-pane="reading"]')return this.dataset.settingsPane==='reading';if(selector.startsWith('#'))return this.id===selector.slice(1);if(selector.startsWith('.'))return this.classList.contains(selector.slice(1));return this.tagName.toLowerCase()===selector;}
   closest(selector){return this.matches(selector)?this:this.parentNode?.closest(selector);}
   querySelectorAll(selector){const selectors=selector.split(',').map(x=>x.trim());return this.children.flatMap(node=>[...(selectors.some(s=>node.matches(s))?[node]:[]),...node.querySelectorAll(selector)]);}
   querySelector(selector){return this.querySelectorAll(selector)[0]||null;}
@@ -31,6 +32,7 @@ class Element {
 const body=new Element('body');
 const document={body,activeElement:null,createElement:tag=>new Element(tag),getElementById:id=>body.querySelector('#'+id),querySelector:selector=>body.querySelector(selector),addEventListener(){}};
 const node=(tag,id,cls,text='')=>{const el=new Element(tag);el.id=id;el.className=cls||'';el.textContent=text;return el;};
+const header=node('header',null,'topbar'),actions=node('div',null,'topbar-actions');header.append(actions);body.append(header);
 const feed=node('section','feedView');body.append(feed);
 const bar=node('div',null,'filter-bar'),controls=node('div',null,'filter-controls');bar.append(controls);feed.append(bar);
 const source=node('label',null,'source-filter'),sourceSelect=node('select','sourceSelect');source.append(sourceSelect);
@@ -42,7 +44,8 @@ controls.append(source,tag,display,advanced);
 const grid=node('div','articleGrid'),search=node('input','searchInput'),contextNode=node('div','feedContext');
 const onlyNew=node('span','onlyNewChip'),followTopic=node('button','followTopic');followTopic.hidden=true;contextNode.append(onlyNew,followTopic);
 feed.append(grid,contextNode);body.append(search);
-const settings=node('dialog','settingsDialog');settings.showModal=()=>{settings.open=true;};
+const reading=node('section');reading.dataset.settingsPane='reading';
+const settings=node('dialog','settingsDialog');settings.append(reading);settings.showModal=()=>{settings.open=true;};
 for(const id of ['settingAge','settingHideRead','settingKeywords','settingsSourceSearch'])settings.append(node('input',id));body.append(settings);
 const windowListeners={};
 const window={innerWidth:1440,addEventListener(name,fn,options){(windowListeners[name]??=[]).push({fn,once:options?.once});},emit(name,event={}){const list=(windowListeners[name]||[]).slice();windowListeners[name]=(windowListeners[name]||[]).filter(x=>!x.once);list.forEach(x=>x.fn(event));}};
@@ -93,13 +96,15 @@ assert.equal(privateFolder,null);assert.equal(state.search,'sin coincidencia');a
 // Existing listeners and node identities survive mobile placement and desktop restoration.
 let sourceChanges=0;sourceSelect.addEventListener('change',()=>sourceChanges++);
 window.innerWidth=390;window.emit('resize');
-assert.equal(get('feedFiltersToggle').hidden,false);assert.equal(source.parentNode,get('feedFilterPanel'));assert.equal(tag.parentNode,get('feedFilterPanel'));assert.equal(advanced.parentNode,get('feedFilterPanel'));
+assert.equal(get('feedFiltersToggle').hidden,false);assert.equal(source.parentNode,get('feedFilterPanel'));assert.equal(tag.parentNode,get('feedFilterPanel'));assert.equal(display.parentNode,get('feedFilterPanel'));assert.equal(advanced.parentNode,null);
 assert.equal(get('feedFilterPanel').hidden,true);get('feedFiltersToggle').click();
-assert.equal(get('feedFilterPanel').hidden,false);assert.equal(get('feedFiltersToggle').getAttribute('aria-expanded'),'true');assert.equal(advanced.open,true);
+assert.equal(get('feedFilterPanel').hidden,false);assert.equal(get('feedFiltersToggle').getAttribute('aria-expanded'),'true');assert.equal(get('v12Date').closest('.settings-feed-actions').parentNode,reading);
 sourceSelect.dispatch('change');assert.equal(sourceChanges,1);
 get('feedFilterPanel').dispatch('keydown',{key:'Escape'});assert.equal(get('feedFilterPanel').hidden,true);assert.equal(document.activeElement,get('feedFiltersToggle'));
 window.innerWidth=1440;window.emit('resize');
-assert.equal(source.parentNode,controls);assert.equal(tag.parentNode,controls);assert.equal(advanced.parentNode,controls);assert.deepEqual(controls.children.filter(el=>[source,tag,display,advanced].includes(el)),[source,tag,display,advanced]);
+assert.equal(source.parentNode,get('feedHeaderControls'));assert.equal(display.parentNode,get('feedHeaderControls'));assert.equal(tag.parentNode,controls);assert.equal(advanced.parentNode,null);
+state.pageView='dashboard';refresh();assert.equal(get('feedHeaderControls').hidden,true);
+state.pageView='feed';refresh();assert.equal(get('feedHeaderControls').hidden,false);
 assert.equal(get('feedFiltersToggle').hidden,true);sourceSelect.dispatch('change');assert.equal(sourceChanges,2);
 assert.ok(renderCount>0);
 console.log('Feed UX verified: filter chips, scoped reset, contextual empty recovery, mobile controls and desktop restoration.');
