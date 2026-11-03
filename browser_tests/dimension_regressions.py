@@ -122,10 +122,10 @@ class DimensionRegressions(unittest.TestCase):
         self.page.evaluate("goTo('all');chooseColumns('3')")
         title=self.page.locator('#articleGrid .article-title').first
         normal=title.evaluate('n=>parseFloat(getComputedStyle(n).fontSize)')
-        for columns in ('5','6'):
+        for columns in ('auto','2','3','4','5','6'):
             self.page.evaluate('(columns)=>chooseColumns(columns)',columns)
             self.page.evaluate('() => new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))')
-            self.assertLess(title.evaluate('n=>parseFloat(getComputedStyle(n).fontSize)'),normal)
+            if columns in ('5','6'):self.assertLess(title.evaluate('n=>parseFloat(getComputedStyle(n).fontSize)'),normal)
             cards=self.page.locator('#articleGrid>.article-card').evaluate_all("""nodes=>nodes.map(n=>({
                 width:n.getBoundingClientRect().width,height:n.getBoundingClientRect().height,
                 overflow:n.scrollWidth>n.clientWidth+1,
@@ -145,6 +145,25 @@ class DimensionRegressions(unittest.TestCase):
         self.assertGreaterEqual(smaller,14)
         self.page.evaluate("state.cardTitleSize=16;applyDisplaySettings();chooseColumns('3')")
         self.assertEqual(title.evaluate('n=>parseFloat(getComputedStyle(n).fontSize)'),normal)
+
+    def test_all_column_sizes_scale_text_and_sidebar_rows_are_compact(self):
+        self.page.set_viewport_size({'width':1842,'height':1000})
+        self.page.evaluate("goTo('all')")
+        sizes=[]
+        for columns in ('2','3','4','5','6'):
+            self.page.evaluate('(columns)=>chooseColumns(columns)',columns)
+            self.page.evaluate('() => new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))')
+            sizes.append(self.page.locator('#articleGrid .article-title').first.evaluate('n=>parseFloat(getComputedStyle(n).fontSize)'))
+        self.assertTrue(all(a>b for a,b in zip(sizes,sizes[1:])),sizes)
+        for width in (375,1440):
+            self.page.set_viewport_size({'width':width,'height':900})
+            if width==375:self.page.locator('#menuToggle').click()
+            for selector in ('#libraryFolderNav .nav-link','.sidebar-reading .mode-tab'):
+                rows=self.page.locator(selector).evaluate_all('nodes=>nodes.map(n=>({y:n.getBoundingClientRect().y,h:n.getBoundingClientRect().height}))')
+                self.assertGreater(len(rows),1)
+                for a,b in zip(rows,rows[1:]):
+                    self.assertGreaterEqual(a['h'],44)
+                    self.assertLessEqual(b['y']-a['y']-a['h'],2,(width,selector,a,b))
 
     def test_large_text_respects_the_saved_independent_title_size(self):
         for size in (14,22):
