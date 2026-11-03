@@ -1351,3 +1351,24 @@ body.radar-hybrid.dimension .settings-feed-actions .v12-toolbar-age{display:flex
  body.radar-hybrid.dimension .topbar{flex-wrap:wrap}
  body.radar-hybrid.dimension .feed-header-controls{order:6;flex-basis:100%;justify-content:flex-end;padding-bottom:8px}
 }
+
+/* Integrate feed context and reading states into the existing navigation. */
+body.radar-hybrid.dimension .feed-header-title{min-width:0;max-width:240px}
+body.radar-hybrid.dimension .feed-header-title[hidden],
+body.radar-hybrid.dimension .sidebar-reading[hidden]{display:none}
+body.radar-hybrid.dimension .feed-header-title h1{
+ margin:0;font:700 17px/1.25 var(--font-ui);letter-spacing:-.025em;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);
+}
+body.radar-hybrid.dimension .sidebar-reading{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+body.radar-hybrid.dimension .sidebar-reading-title{margin:0 12px 8px;font-size:10px;letter-spacing:.1em;color:var(--muted);font-weight:700}
+body.radar-hybrid.dimension .sidebar-reading .mode-tabs{display:flex;flex-direction:column;gap:4px;width:100%;border:0;padding:0;background:transparent;box-shadow:none}
+body.radar-hybrid.dimension .sidebar-reading .mode-tab{display:flex;align-items:center;justify-content:space-between;width:100%;padding:10px 12px;text-align:left}
+body.radar-hybrid.dimension .sidebar-reading .mode-tab-count{margin-left:auto}
+body.radar-hybrid.dimension .section-heading.sr-only{margin:0}
+body.radar-hybrid.dimension .filter-bar:not(:has(.filter-controls>:not([hidden]):not(.feed-control-anchor))){margin:0}
+@media(max-width:1100px){
+ body.radar-hybrid.dimension .topbar{flex-wrap:wrap}
+ body.radar-hybrid.dimension .feed-header-title{order:5;flex:1 0 100%;max-width:none;padding:0 4px 8px}
+ body.radar-hybrid.dimension .feed-header-title h1{font-size:16px}
+}

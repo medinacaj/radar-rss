@@ -62,6 +62,24 @@
   const headerControls=mk('div','feed-header-controls');headerControls.id='feedHeaderControls';
   headerControls.setAttribute('role','group');headerControls.setAttribute('aria-label','Fuentes y presentación de noticias');
   document.querySelector('.topbar-actions').before(headerControls);
+  const heading=get('feedHeading');
+  const sidebar=get('sidebarCoreContent');
+  const modes=feed.querySelector('.mode-tabs');
+  const headerTitle=mk('div','feed-header-title');
+  if(heading){
+    heading.closest('.section-heading')?.classList.add('sr-only');
+    headerTitle.append(heading);
+    document.querySelector('.topbar-caption').after(headerTitle);
+  }
+  const readingNav=mk('section','sidebar-reading');
+  readingNav.setAttribute('aria-label','Estado de lectura');
+  if(sidebar&&modes){
+    readingNav.append(mk('h3','sidebar-reading-title','LECTURA'),modes);
+    sidebar.append(readingNav);
+    modes.addEventListener('click',event=>{
+      if(event.target.closest('.mode-tab')&&window.innerWidth<=950)setNavOpen(false);
+    });
+  }
   const source=get('sourceSelect')?.closest('label');
   const display=controls.querySelector('.display-controls');
   if(source)headerControls.append(source);
@@ -152,6 +170,8 @@
   };
   function update(){
     headerControls.hidden=state.pageView!=='feed';
+    headerTitle.hidden=state.pageView!=='feed';
+    readingNav.hidden=state.pageView!=='feed';
     const active=filters();chips.replaceChildren();
     for(const item of active){
       const button=mk('button','feed-filter-chip'+(item.preference?' is-preference':''),item.label+(item.preference?' · Ajustar':' ×'));
