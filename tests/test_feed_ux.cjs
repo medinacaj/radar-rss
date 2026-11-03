@@ -32,9 +32,12 @@ class Element {
 const body=new Element('body');
 const document={body,activeElement:null,createElement:tag=>new Element(tag),getElementById:id=>body.querySelector('#'+id),querySelector:selector=>body.querySelector(selector),addEventListener(){}};
 const node=(tag,id,cls,text='')=>{const el=new Element(tag);el.id=id;el.className=cls||'';el.textContent=text;return el;};
-const header=node('header',null,'topbar'),actions=node('div',null,'topbar-actions');header.append(actions);body.append(header);
+const header=node('header',null,'topbar'),actions=node('div',null,'topbar-actions');header.append(node('div',null,'topbar-caption'),actions);body.append(header);
+const sidebar=node('div','sidebarCoreContent');body.append(sidebar);
 const feed=node('section','feedView');body.append(feed);
-const bar=node('div',null,'filter-bar'),controls=node('div',null,'filter-controls');bar.append(controls);feed.append(bar);
+const sectionHeading=node('div',null,'section-heading'),heading=node('h1','feedHeading',null,'Todas las noticias');sectionHeading.append(heading);feed.append(sectionHeading);
+const modes=node('div',null,'mode-tabs');modes.append(node('button',null,'mode-tab','Todas'));
+const bar=node('div',null,'filter-bar'),controls=node('div',null,'filter-controls');bar.append(modes,controls);feed.append(bar);
 const source=node('label',null,'source-filter'),sourceSelect=node('select','sourceSelect');source.append(sourceSelect);
 const tag=node('label',null,'library-tag-filter-wrap'),tagSelect=node('select','libraryTagFilter');tag.append(tagSelect);
 const display=node('div',null,'display-controls');
@@ -66,6 +69,8 @@ vm.runInNewContext(fs.existsSync(scriptPath)?fs.readFileSync(scriptPath,'utf8'):
 const get=id=>document.getElementById(id);
 const chip=name=>get('feedFilterChips')?.querySelectorAll('button').find(el=>el.dataset.filter===name);
 const refresh=()=>context.render();
+assert.equal(heading.parentNode.className,'feed-header-title');assert.ok(header.contains(heading));
+assert.ok(sidebar.contains(modes));assert.ok(sectionHeading.classList.contains('sr-only'));
 assert.ok(get('feedActiveFilters'),'active filters have a visible region');
 assert.equal(get('feedActiveFilters').hidden,true,'no empty toolbar when nothing filters');
 state.search='energía';state.feed='s1';state.maxAge=7;state.mode='unread';state.hideRead=true;
