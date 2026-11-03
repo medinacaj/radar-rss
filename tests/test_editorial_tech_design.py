@@ -16,7 +16,7 @@ SW = (ROOT / "web" / "sw.js").read_text(encoding="utf-8")
 
 class EditorialTechDesignTests(unittest.TestCase):
     def test_single_active_theme_in_the_existing_stylesheet(self):
-        self.assertEqual(HTML.count('href="./dimension.css?v=4.0.0"'), 1)
+        self.assertEqual(len(re.findall(r'href="\./dimension\.css(?:\?v=[^"]+)?"', HTML)), 1)
         self.assertNotIn('href="./editorial-tech.css"', HTML)
         self.assertEqual(CSS.count("Editorial + tecnológico — capa de diseño principal"), 1)
         self.assertIn("--radar-content-width:1450px", CSS)
