@@ -1328,3 +1328,26 @@ body.radar-hybrid.dimension .radar-folder-arrived > .nav-link {
     border:1px solid CanvasText;box-shadow:none;
   }
 }
+
+/* Feed controls share the existing header surfaces and local preferences. */
+body.radar-hybrid.dimension .feed-header-controls{
+ display:flex;align-items:center;gap:8px;min-width:0;flex-shrink:1;
+}
+body.radar-hybrid.dimension .feed-header-controls[hidden]{display:none}
+body.radar-hybrid.dimension .feed-header-controls .source-filter{min-width:0}
+body.radar-hybrid.dimension .feed-header-controls .source-filter select{
+ width:clamp(120px,16vw,220px);min-width:0;max-width:100%;
+}
+body.radar-hybrid.dimension .topbar-search{min-width:0}
+body.radar-hybrid.dimension .settings-feed-actions{
+ display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:20px;
+}
+body.radar-hybrid.dimension .settings-feed-actions h4{flex-basis:100%;margin:0}
+body.radar-hybrid.dimension .settings-feed-actions .v12-toolbar-age{display:flex;align-items:center;gap:8px}
+@media(max-width:640px){
+ body.radar-hybrid.dimension .feed-header-controls{display:none}
+}
+@media(min-width:641px) and (max-width:1100px){
+ body.radar-hybrid.dimension .topbar{flex-wrap:wrap}
+ body.radar-hybrid.dimension .feed-header-controls{order:6;flex-basis:100%;justify-content:flex-end;padding-bottom:8px}
+}
