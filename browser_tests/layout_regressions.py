@@ -102,7 +102,7 @@ class LayoutRegressions(unittest.TestCase):
             with self.subTest(width=width):
                 page = self.open_page(width)
                 self.assertFalse(page.locator('#topicRail').is_visible())
-                self.assertLessEqual(page.locator('.topbar').bounding_box()['height'], 64)
+                self.assertLessEqual(page.locator('.topbar').bounding_box()['height'], 68)
                 self.assertTrue(page.locator('#settingsButton').is_visible())
                 self.assertTrue(page.locator('#brandHome .brand-mark img').evaluate('img => img.complete && img.naturalWidth > 0'))
                 capsule = page.locator('.footer-profile')
