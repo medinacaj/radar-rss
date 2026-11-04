@@ -359,7 +359,8 @@ class DimensionRegressions(unittest.TestCase):
             actions=self.page.locator('#articleGrid > .article-card').first.locator('.article-read-toggle,.article-save,.article-more')
             for node in actions.all():
                 box=node.bounding_box()
-                self.assertGreaterEqual(min(box['width'],box['height']),44)
+                # Firefox may return 43.99997 for a computed 44px target.
+                self.assertGreaterEqual(min(box['width'],box['height']),44-0.001)
         self.page.locator('#searchToggle').click()
         self.assertGreaterEqual(self.page.locator('#searchInput').evaluate('n=>parseFloat(getComputedStyle(n).fontSize)'),16)
         self.page.locator('#settingsButton').click()
