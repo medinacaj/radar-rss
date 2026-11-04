@@ -93,6 +93,7 @@ def check_uniform_card_heights(page, label):
       return {
         rows:[...rows.values()], gridAutoRows:getComputedStyle(grid).gridAutoRows,
         hasImage:covers.length>0, hasNoImage:cards.some(x=>!x.querySelector('.cover')),
+        proportional:[...covers,...placeholders].every(c=>c.getBoundingClientRect().height<=c.getBoundingClientRect().width/2+1),
         maxImageHeight:covers.length?Math.max(...covers.map(c=>c.getBoundingClientRect().height)):0,
         maxPlaceholderHeight:placeholders.length?Math.max(...placeholders.map(c=>c.getBoundingClientRect().height)):0
       };
@@ -105,7 +106,7 @@ def check_uniform_card_heights(page, label):
     for heights in rows:
         if max(heights)-min(heights)>2:
             raise AssertionError(f"{label}: cards in same row differ in height: {result}")
-    if result["maxImageHeight"]>153 or result["maxPlaceholderHeight"]>153:
+    if not result["proportional"] or result["maxImageHeight"]>241 or result["maxPlaceholderHeight"]>241:
         raise AssertionError(f"{label}: image/placeholder unnecessarily tall: {result}")
 
 
