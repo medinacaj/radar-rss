@@ -32,6 +32,19 @@ class MonitorTests(unittest.TestCase):
     def test_alerts_when_latest_deploy_fails(self):
         self.assertTrue(any("failure" in x for x in assess(*docs(), NOW, "failure")))
 
+    def test_rejects_malformed_feed_status_without_crashing(self):
+        for malformed in (None, "unexpected", {}, {"state": ""}, {"state": None}):
+            with self.subTest(malformed=malformed):
+                meta, status = docs()
+                status["feeds"][0] = malformed
+                reports = assess(meta, status, NOW)
+                self.assertTrue(any("sin estado válido" in x for x in reports), reports)
+
+    def test_rejects_boolean_article_count(self):
+        meta, status = docs()
+        meta["total_articles"] = True
+        self.assertTrue(any("Historial público" in x for x in assess(meta, status, NOW)))
+
     def test_rejects_missing_or_inconsistent_metadata(self):
         meta, status = docs()
         del meta["generated_at"]

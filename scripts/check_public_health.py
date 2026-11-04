@@ -47,10 +47,13 @@ def assess(meta: dict, status: dict, now: datetime, deploy_conclusion: str = "")
     if not isinstance(feeds, list) or not feeds:
         warnings.append("Estado RSS sin listado de fuentes.")
     else:
+        malformed = sum(not isinstance(feed, dict) or not isinstance(feed.get("state"), str) or not feed["state"].strip() for feed in feeds)
+        if malformed:
+            warnings.append(f"{malformed} entradas RSS sin estado válido.")
         errors = sum(isinstance(feed, dict) and feed.get("state") == "error" for feed in feeds)
         if errors >= MAX_ERRORS:
             warnings.append(f"{errors} fuentes RSS con errores (umbral {MAX_ERRORS})")
-    if not isinstance(meta.get("total_articles"), int) or meta["total_articles"] < 50:
+    if type(meta.get("total_articles")) is not int or meta["total_articles"] < 50:
         warnings.append("Historial público vacío o incompleto.")
     return warnings
 

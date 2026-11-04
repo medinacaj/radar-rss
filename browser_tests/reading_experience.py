@@ -60,9 +60,10 @@ def exercise(browser, base, width):
             page.locator('#feedFiltersToggle').click()
             expect(page.locator('#sourceSelect')).to_be_visible()
         page.select_option('#sourceSelect', 'medio-0')
-        if width > 640:
-            page.locator('#feedAdvanced > summary').click()
+        page.locator('#settingsButton').click()
+        page.locator('[data-settings-tab="reading"]').click()
         page.select_option('#v12Date', '7')
+        page.locator('#settingsDone').click()
         if not page.locator('#searchInput').is_visible():
             page.locator('#searchToggle').click()
         page.locator('#searchInput').fill('referencia')
@@ -97,12 +98,10 @@ def exercise(browser, base, width):
         page.evaluate("state.read.clear();markRead('noticia-0',true)")
         expect(page.locator('[data-article-id="noticia-0"] .article-read-toggle')).to_have_attribute('aria-pressed', 'true')
         assert page.evaluate("state.read.size===1&&state.read.has('noticia-0')")
-        if width <= 640:
-            if page.locator('#feedFiltersToggle').get_attribute('aria-expanded') != 'true':
-                page.locator('#feedFiltersToggle').click()
-        else:
-            page.locator('#feedAdvanced').evaluate('(node)=>node.open=true')
+        page.locator('#settingsButton').click()
+        page.locator('[data-settings-tab="reading"]').click()
         page.locator('#markAllVisible').click()
+        page.locator('#settingsDone').click()
         expect(page.locator('#actionToast')).to_contain_text('17 noticias')
         page.evaluate("state.read.add('otra-noticia-concurrente')")
         page.get_by_role('button', name='Deshacer', exact=True).click()
