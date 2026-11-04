@@ -84,8 +84,11 @@ class EditorialTechDesignTests(unittest.TestCase):
         self.assertIn("--radar-title-scale", CSS)
         self.assertRegex(CSS, r"font-size:var\(--radar-reading-title-size\)!important")
 
+    def test_title_preference_has_no_hidden_multiplier(self):
+        self.assertNotIn('--radar-card-title-size) * 1.15', CSS)
+
     def test_pwa_cache_changes_atomically_with_theme(self):
-        self.assertIn("const CACHE = 'radar-rss-v58'", SW)
+        self.assertIn("const CACHE = 'radar-rss-v59'", SW)
         self.assertIn("'./dimension.css'", SW)
         self.assertIn('<meta name="theme-color" content="#10151d">', HTML)
 

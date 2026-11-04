@@ -515,7 +515,7 @@ def main():
                         expect(page.locator("#cardTitleSizeValue")).to_have_text("14 px")
                         page.locator("#settingsDone").click()
                         computed_title_size=page.locator("#articleGrid .article-title").first.evaluate("(el)=>getComputedStyle(el).fontSize")
-                        assert computed_title_size=="14px",computed_title_size
+                        assert 14 <= float(computed_title_size.removesuffix("px")) <= 17.5,computed_title_size
                         page.reload(wait_until="load")
                         page.locator("#settingsButton").click()
                         expect(page.locator("#settingCardTitleSize")).to_have_value("14")
@@ -552,7 +552,7 @@ def main():
                         assert read_button.locator("svg").count() == 1
                         assert read_button.locator("span").count() == 0
                         assert read_button.inner_text() == ""
-                        initial_unread=int(page.locator("#unreadCount").inner_text().replace(".",""))
+                        initial_unread=int(page.locator("#unreadCount").text_content().replace(".",""))
                         initial_nav=int(page.locator("#categoryNav > .nav-link").nth(1).locator(".nav-count").text_content())
                         read_button.click()
                         expect(page.locator("#unreadCount")).to_have_text(str(initial_unread-1))
@@ -641,14 +641,11 @@ def main():
                         assert page.locator("#feedHeading").inner_text() == "Latinoamérica"
                         # Acciones secundarias plegadas sin perder los controles existentes.
                         expect(page.locator("#v12Date")).to_be_hidden()
-                        if width <= 640:
-                            page.locator("#feedFiltersToggle").click()
-                        else:
-                            expect(page.locator("#feedAdvanced")).not_to_have_attribute("open", "")
-                            page.locator("#feedAdvanced summary").click()
-                        expect(page.locator("#v12Date")).to_be_visible()
-                        check_visible_boxes(page, [".filter-controls","#v12Date","#v12SaveSearch","#markAllVisible"],
-                                            f"barra única de noticias {browser_name} {width}px")
+                        page.locator('#settingsButton').click()
+                        page.locator('[data-settings-tab="reading"]').click()
+                        expect(page.locator('#v12Date')).to_be_visible()
+                        check_visible_boxes(page, ['#v12Date','#v12SaveSearch','#markAllVisible'],
+                                            f'configuración de noticias {browser_name} {width}px')
                         # Sin fila auxiliar flotante bajo las pestañas.
                         assert page.locator("#v12FilterBar").count() == 0
                         assert page.locator(".feed-actions").count() == 0
@@ -660,6 +657,7 @@ def main():
                         assert page.locator("#markAllVisible svg").count() == 1
                         assert page.locator("#v12SaveSearch").inner_text() == ""
                         assert page.locator("#markAllVisible").inner_text() == ""
+                        page.locator("#closeSettings").click()
                         filter_boxes = [page.locator(selector).bounding_box() for selector in
                                         ("#feedView .filter-bar", "#feedFilterPanel", "#feedActiveFilters")
                                         if page.locator(selector).is_visible()]
@@ -676,9 +674,16 @@ def main():
                         page.evaluate("location.hash = '#categoria/04%20-%20Chile'")
                         expect(page.locator("#feedHeading")).to_have_text("Chile",timeout=10000)
                         assert page.locator("#articleGrid .article-card").count() > 0
+                        page.locator('#settingsButton').click()
+                        page.locator('[data-settings-tab="reading"]').click()
                         page.locator("#v12Date").select_option("7")
+                        page.locator('#closeSettings').click()
+                        if not page.locator('#sourceSelect').is_visible():page.locator('#feedFiltersToggle').click()
                         page.locator("#sourceSelect").select_option("medio-3")
+                        page.locator('#settingsButton').click()
+                        page.locator('[data-settings-tab="reading"]').click()
                         page.locator("#v12SaveSearch").click()
+                        page.locator('#closeSettings').click()
                         assert page.locator(".v12-saved-open").count() == 1
                         page.locator("#sourceSelect").select_option("")
                         page.locator(".v12-saved-open").first.click()

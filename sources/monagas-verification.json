@@ -1,0 +1,375 @@
+{
+  "version": 1,
+  "checked_at": "2026-10-29T12:21:49.340199+00:00",
+  "baseline_source_count": 311,
+  "baseline_sources_sha256": "4e66c2aff0543cd680543ee5109c3c438f0657b814fb71713f927b21d1bfbe5b",
+  "category": "08 - Maturín / Monagas",
+  "previous_local_source_count": 8,
+  "local_source_count": 10,
+  "native_access": {
+    "observed_spec_revision": "8",
+    "custom_hosts_active": 155,
+    "pending_hosts": [
+      "elperiodicodemonagas.com.ve",
+      "laprensademonagas.com",
+      "maturinnews.com",
+      "elpitazo.net",
+      "cronica.uno"
+    ],
+    "note": "Borrador guardado; no aplicado. No encontrar un RSS o no poder acceder no prueba que no exista."
+  },
+  "sources": [
+    {
+      "http_status": 200,
+      "feed_version": "rss20",
+      "feed_language": "es",
+      "bozo": false,
+      "entries_observed": 10,
+      "recent_dated_entries": 10,
+      "last_published_at": "2026-10-28T21:57:59+00:00",
+      "response_sha256": "081176776ad81eeecd391f6c62a51d004c96c240784282755e970d4382509083",
+      "key": "laverdad",
+      "id": "37ca4eb0f9be4cdf",
+      "name": "MEDIO — La Verdad de Monagas | Maturín",
+      "category": "08 - Maturín / Monagas",
+      "feed": "https://laverdaddemonagas.com/maturin/feed/",
+      "website": "https://laverdaddemonagas.com/",
+      "provider": "publisher",
+      "status": "rss_observed",
+      "verified_at": "2026-10-29T12:15:36.870754+00:00",
+      "recency_days": 45,
+      "content_language": "es",
+      "sample_titles": [
+        "Upel Maturín requiere urgente rehabilitación de infraestructura en la sede sur",
+        "La app de Rio Supermarket se abre camino en el E-commerce a nivel nacional",
+        "Mexicana y argentino pernoctan en el parque zoológico La Guaricha",
+        "Alcaldesa Ana Fuentes supervisó trabajos de asfaltado en el eje Paramaconi",
+        "Yessika Yibirín Farah: Ingeniera monaguense que destaca en gestión de infraestructura pública en EE.UU."
+      ]
+    },
+    {
+      "http_status": 200,
+      "feed_version": "rss20",
+      "feed_language": "es-419",
+      "bozo": false,
+      "entries_observed": 14,
+      "recent_dated_entries": 13,
+      "last_published_at": "2026-10-28T02:53:48+00:00",
+      "response_sha256": "fa37f509a1c75b7eb9e9f9122695c63ec5cd1119100a4c275e17c563bf7f1700",
+      "key": "maturinnews",
+      "id": "cb686fda7f99713c",
+      "name": "RADAR — Maturín News | Monagas",
+      "category": "08 - Maturín / Monagas",
+      "feed": "https://news.google.com/rss/search?q=site%3Amaturinnews.com+intitle%3AMonagas+-intitle%3Aarchivos+when%3A45d&hl=es-419&gl=VE&ceid=VE%3Aes-419",
+      "website": "https://maturinnews.com/",
+      "provider": "google_news",
+      "status": "rss_observed",
+      "verified_at": "2026-10-29T12:21:00.683229+00:00",
+      "recency_days": 45,
+      "content_language": "es",
+      "sample_titles": [
+        "New Stratus tiene en la mira el campo petrolero de Monagas y otros estados - Maturín News",
+        "Inician proceso formativo para Defensores Escolares en el eje sur de Monagas - Maturín News",
+        "Advierten que casos de cáncer aumentaron 30 % en Monagas - Maturín News",
+        "Trabajadores petroleros en Monagas se alzan en defensa de sus derechos constitucionales - Maturín News",
+        "Monagas registra un déficit de casi 600 docentes especialistas en planteles públicos - Maturín News"
+      ],
+      "query": "site:maturinnews.com intitle:Monagas -intitle:archivos when:45d"
+    }
+  ],
+  "requests": [
+    {
+      "key": "laverdad",
+      "requested_name": "La Verdad de Monagas",
+      "website": "https://laverdaddemonagas.com/",
+      "status": "added_native_section",
+      "catalog_source_ids": [
+        "2cbe5e1a55cb77b1",
+        "37ca4eb0f9be4cdf"
+      ],
+      "existing_other_folder_ids": [
+        "4b7666fd121e91ac"
+      ],
+      "native_checked_at": "2026-10-29T12:15:36.870754+00:00",
+      "native_checks": [
+        {
+          "url": "https://laverdaddemonagas.com/",
+          "status": "request_error",
+          "error": "ReadTimeout"
+        },
+        {
+          "url": "https://laverdaddemonagas.com/monagas/feed/",
+          "status": "request_error",
+          "error": "ReadTimeout"
+        },
+        {
+          "url": "https://laverdaddemonagas.com/maturin/feed/",
+          "http_status": 200,
+          "content_type": "application/rss+xml; charset=UTF-8",
+          "status": "rss_observed",
+          "response_sha256": "081176776ad81eeecd391f6c62a51d004c96c240784282755e970d4382509083",
+          "raw_file": "raw/081176776ad81eeecd391f6c62a51d004c96c240784282755e970d4382509083.xml",
+          "feed_version": "rss20",
+          "feed_title": "Maturín – La Verdad de Monagas – Alertas",
+          "feed_language": "es",
+          "bozo": false,
+          "entries_observed": 10,
+          "recent_dated_entries": 10,
+          "recency_days": 45,
+          "last_published_at": "2026-10-28T21:57:59+00:00",
+          "samples": [
+            {
+              "title": "Upel Maturín requiere urgente rehabilitación de infraestructura en la sede sur",
+              "url": "https://laverdaddemonagas.com/2026/10/28/upel-maturin-requiere-urgente-rehabilitacion/",
+              "published": "Wed, 28 Oct 2026 21:57:59 +0000",
+              "source": null
+            },
+            {
+              "title": "La app de Rio Supermarket se abre camino en el E-commerce a nivel nacional",
+              "url": "https://laverdaddemonagas.com/2026/10/28/la-app-de-rio-e-commerce/",
+              "published": "Wed, 28 Oct 2026 18:07:11 +0000",
+              "source": null
+            },
+            {
+              "title": "Mexicana y argentino pernoctan en el parque zoológico La Guaricha",
+              "url": "https://laverdaddemonagas.com/2026/10/27/mexicana-y-argentino-parque-la-guaricha/",
+              "published": "Wed, 28 Oct 2026 03:32:53 +0000",
+              "source": null
+            },
+            {
+              "title": "Alcaldesa Ana Fuentes supervisó trabajos de asfaltado en el eje Paramaconi",
+              "url": "https://laverdaddemonagas.com/2026/10/27/asfaltado-en-el-eje-paramaconi/",
+              "published": "Wed, 28 Oct 2026 03:25:08 +0000",
+              "source": null
+            },
+            {
+              "title": "Yessika Yibirín Farah: Ingeniera monaguense que destaca en gestión de infraestructura pública en EE.UU.",
+              "url": "https://laverdaddemonagas.com/2026/10/27/yessika-yibirin-farah-ingeniera-monaguense-que-destaca-en-ee-uu/",
+              "published": "Wed, 28 Oct 2026 02:26:14 +0000",
+              "source": null
+            },
+            {
+              "title": "Ingenieros de Monagas llamados a potenciar la industria petrolera y sectores conexos",
+              "url": "https://laverdaddemonagas.com/2026/10/27/ingenieros-de-monagas-llamados-a-potenciar-la-industria-petrolera/",
+              "published": "Tue, 27 Oct 2026 21:44:13 +0000",
+              "source": null
+            }
+          ]
+        },
+        {
+          "url": "https://laverdaddemonagas.com/feed/",
+          "http_status": 200,
+          "content_type": "application/rss+xml; charset=UTF-8",
+          "status": "rss_observed",
+          "response_sha256": "cea768d8a5ab59857648ca7e4afb4aeb2435ba82c86543d01479c1af0d0a28ec",
+          "raw_file": "raw/cea768d8a5ab59857648ca7e4afb4aeb2435ba82c86543d01479c1af0d0a28ec.xml",
+          "feed_version": "rss20",
+          "feed_title": "La Verdad de Monagas – Alertas",
+          "feed_language": "es",
+          "bozo": false,
+          "entries_observed": 10,
+          "recent_dated_entries": 10,
+          "recency_days": 45,
+          "last_published_at": "2026-10-29T04:34:02+00:00",
+          "samples": [
+            {
+              "title": "¡Cerveceros de Milwaukee conquistan por primera vez la Serie Mundial!",
+              "url": "https://laverdaddemonagas.com/2026/10/29/cerveceros-de-milwaukee-serie-mundial/",
+              "published": "Thu, 29 Oct 2026 04:34:02 +0000",
+              "source": null
+            },
+            {
+              "title": "Upel Maturín requiere urgente rehabilitación de infraestructura en la sede sur",
+              "url": "https://laverdaddemonagas.com/2026/10/28/upel-maturin-requiere-urgente-rehabilitacion/",
+              "published": "Wed, 28 Oct 2026 21:57:59 +0000",
+              "source": null
+            },
+            {
+              "title": "​Monagas Sub-14 pisa firme en la gran final de los Juegos de la FVF en Lara",
+              "url": "https://laverdaddemonagas.com/2026/10/28/monagas-sub-14-final-de-los-juegos-de-la-fvf-lara/",
+              "published": "Wed, 28 Oct 2026 21:18:18 +0000",
+              "source": null
+            },
+            {
+              "title": "Desarrollan jornada recreativa y formativa para niños con TDAH en Punta de Mata",
+              "url": "https://laverdaddemonagas.com/2026/10/28/desarrollan-jornada-para-ninos-con-tdah/",
+              "published": "Wed, 28 Oct 2026 20:40:42 +0000",
+              "source": null
+            },
+            {
+              "title": "Polimaturín abordó dos escuelas de las parroquias Las Cocuizas y San Simón",
+              "url": "https://laverdaddemonagas.com/2026/10/28/polimaturin-abordo-dos-escuelas/",
+              "published": "Wed, 28 Oct 2026 20:22:44 +0000",
+              "source": null
+            },
+            {
+              "title": "Avioneta con misión humanitaria se precipita en la selva de Amazonas: Buscan a tripulantes",
+              "url": "https://laverdaddemonagas.com/2026/10/28/avioneta-con-mision-humanitaria-se-precipita-en-la-selva-de-amazonas-buscan-a-tripulantes/",
+              "published": "Wed, 28 Oct 2026 20:13:06 +0000",
+              "source": null
+            }
+          ]
+        }
+      ],
+      "reason": "Se conserva el RSS general de Venezuela y el RADAR local. Se añade un RSS nativo distinto, dedicado a Maturín, sin mover ni duplicar endpoints."
+    },
+    {
+      "key": "periodico",
+      "requested_name": "El Periódico de Monagas",
+      "website": "https://elperiodicodemonagas.com.ve/",
+      "status": "already_present",
+      "catalog_source_ids": [
+        "c769896465093729"
+      ],
+      "existing_other_folder_ids": [
+        "180e278653ca52bc"
+      ],
+      "native_checked_at": "2026-10-29T12:15:36.870754+00:00",
+      "native_checks": [
+        {
+          "url": "https://elperiodicodemonagas.com.ve/",
+          "status": "not_checked_network_policy"
+        },
+        {
+          "url": "https://elperiodicodemonagas.com.ve/feed/",
+          "status": "not_checked_network_policy"
+        }
+      ],
+      "reason": "Ya existe un RADAR local operativo en Maturín / Monagas; se conserva sin crear otro equivalente. La lectura directa del RSS del editor sigue pendiente por la política de red."
+    },
+    {
+      "key": "prensa",
+      "requested_name": "La Prensa de Monagas",
+      "website": "https://laprensademonagas.com/",
+      "status": "already_present",
+      "catalog_source_ids": [
+        "5ac67196d0ab78e4"
+      ],
+      "existing_other_folder_ids": [
+        "9ed143eedbe4f07d"
+      ],
+      "native_checked_at": "2026-10-29T12:15:36.870754+00:00",
+      "native_checks": [
+        {
+          "url": "https://laprensademonagas.com/",
+          "status": "not_checked_network_policy"
+        },
+        {
+          "url": "https://laprensademonagas.com/feed/",
+          "status": "not_checked_network_policy"
+        }
+      ],
+      "reason": "Ya existe un RADAR local operativo en Maturín / Monagas; se conserva sin crear otro equivalente. La lectura directa del RSS del editor sigue pendiente por la política de red."
+    },
+    {
+      "key": "maturinnews",
+      "requested_name": "Maturín News",
+      "website": "https://maturinnews.com/",
+      "status": "added_radar",
+      "catalog_source_ids": [
+        "cb686fda7f99713c"
+      ],
+      "existing_other_folder_ids": [],
+      "native_checked_at": "2026-10-29T12:15:36.870754+00:00",
+      "native_checks": [
+        {
+          "url": "https://maturinnews.com/",
+          "status": "not_checked_network_policy"
+        },
+        {
+          "url": "https://maturinnews.com/feed/",
+          "status": "not_checked_network_policy"
+        }
+      ],
+      "reason": "Se añade un RADAR de Google Noticias con publicaciones locales recientes; no se presenta como RSS del editor. El RSS nativo sigue sin comprobar por la política de red. La consulta exige Monagas en el título y excluye archivos para evitar páginas de navegación y noticias nacionales ajenas."
+    },
+    {
+      "key": "pitazo",
+      "requested_name": "El Pitazo",
+      "website": "https://elpitazo.net/",
+      "status": "already_present",
+      "catalog_source_ids": [
+        "2d4c289a7b5b0ee3"
+      ],
+      "existing_other_folder_ids": [
+        "32cdeba44449bdd9"
+      ],
+      "native_checked_at": "2026-10-29T12:15:36.870754+00:00",
+      "native_checks": [
+        {
+          "url": "https://elpitazo.net/",
+          "status": "not_checked_network_policy"
+        },
+        {
+          "url": "https://elpitazo.net/tag/monagas/feed/",
+          "status": "not_checked_network_policy"
+        },
+        {
+          "url": "https://elpitazo.net/?s=Monagas&feed=rss2",
+          "status": "not_checked_network_policy"
+        },
+        {
+          "url": "https://elpitazo.net/feed/",
+          "status": "not_checked_network_policy"
+        }
+      ],
+      "reason": "Ya existe un RADAR local operativo en Maturín / Monagas; se conserva sin crear otro equivalente. La lectura directa del RSS del editor sigue pendiente por la política de red."
+    },
+    {
+      "key": "cronica",
+      "requested_name": "Crónica Uno",
+      "website": "https://cronica.uno/",
+      "status": "pending_local_verification",
+      "catalog_source_ids": [],
+      "existing_other_folder_ids": [
+        "ec0a03cccfad36cf"
+      ],
+      "native_checked_at": "2026-10-29T12:15:36.870754+00:00",
+      "native_checks": [
+        {
+          "url": "https://cronica.uno/",
+          "status": "not_checked_network_policy"
+        },
+        {
+          "url": "https://cronica.uno/tag/monagas/feed/",
+          "status": "not_checked_network_policy"
+        },
+        {
+          "url": "https://cronica.uno/?s=Monagas&feed=rss2",
+          "status": "not_checked_network_policy"
+        },
+        {
+          "url": "https://cronica.uno/feed/",
+          "status": "not_checked_network_policy"
+        }
+      ],
+      "reason": "El RSS de búsqueda devuelve una entrada reciente pero no demuestra que trate sobre Monagas/Maturín; no se incorpora a la carpeta local. Su canal nacional de Venezuela se conserva. El RSS local nativo sigue pendiente de acceso por la política de red.",
+      "candidate_observation": {
+        "http_status": 200,
+        "feed_version": "rss20",
+        "feed_language": "es-419",
+        "bozo": false,
+        "entries_observed": 1,
+        "recent_dated_entries": 1,
+        "last_published_at": "2026-10-21T17:42:52+00:00",
+        "response_sha256": "50909daccaf216a6de24d635c32bab12007c40decbfcf36fd1f1ba8e9d0e3bf9",
+        "key": "cronica",
+        "id": "40a516992c34f068",
+        "name": "RADAR — Crónica Uno | Monagas y Maturín",
+        "category": "08 - Maturín / Monagas",
+        "feed": "https://news.google.com/rss/search?q=site%3Acronica.uno+%28Monagas+OR+Matur%C3%ADn+OR+Maturin%29+when%3A45d&hl=es-419&gl=VE&ceid=VE%3Aes-419",
+        "website": "https://cronica.uno/",
+        "provider": "google_news",
+        "status": "rss_observed",
+        "verified_at": "2026-10-29T12:21:00.683229+00:00",
+        "recency_days": 45,
+        "content_language": "es",
+        "sample_titles": [
+          "“Violaron mi fuero, me despidieron en 2019 y se niegan a reengancharme”, sindicalista Starling Bracho - Crónica Uno"
+        ],
+        "query": "site:cronica.uno (Monagas OR Maturín OR Maturin) when:45d"
+      },
+      "local_relevance": "not_confirmed"
+    }
+  ]
+}
