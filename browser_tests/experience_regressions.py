@@ -48,9 +48,12 @@ def exercise(browser, base, width):
         page.goto(base + '#noticias', wait_until='networkidle')
         expect(page.locator('#articleGrid>.article-card')).to_have_count(18)
         assert page.evaluate('window.RadarExperience.getPinnedDestinations()') == []
+        if width <= 950:page.locator('#menuToggle').click()
         if width <= 640:
             page.locator('#feedFiltersToggle').click()
-        if width>640:page.locator('#presentationSummary').click()
+        else:
+            page.locator('#sidebarFeedOptions > summary').click()
+            page.locator('#presentationSummary').click()
         profile = page.locator('#readingProfile')
         expect(profile).to_be_visible()
         for value, layout, images, summaries in [('compact','cards',False,True), ('headlines','list',False,False), ('visual','cards',True,True)]:
@@ -75,7 +78,7 @@ def exercise(browser, base, width):
         else:page.locator('#presentationSummary').click()
 
         # Search operates on existing folder rows; source selection uses the existing feed filter.
-        if width <= 950:
+        if width <= 950 and page.locator('#appSidebar').evaluate('n=>n.inert'):
             page.locator('#menuToggle').click()
         search = page.locator('#sidebarLibrarySearch')
         search.fill('lecturas')
