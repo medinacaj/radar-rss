@@ -588,9 +588,12 @@ def main():
                             page.wait_for_timeout(240)
                             shadow=first_card.evaluate("(node) => getComputedStyle(node).boxShadow")
                             assert shadow != "none", (width,browser_name,shadow)
-                        check_visible_boxes(page, [".topbar", ".topbar-actions", ".filter-bar",
-                            ".filter-controls", ".mode-tabs", "#articleGrid",
+                        check_visible_boxes(page, [".topbar", ".topbar-actions", "#articleGrid",
                             "#articleGrid .article-card"], f"listado {width}px")
+                        assert page.locator('#feedView > .section-heading').evaluate(
+                            'n=>n.classList.contains("sr-only")'), 'No duplicate news heading'
+                        assert page.locator('#feedView > .filter-bar').evaluate(
+                            'n=>getComputedStyle(n).display==="none"'), 'No duplicate news toolbar'
                         ensure_navigation(page)
                         page.keyboard.press("Escape")
                         if width <= 950:
@@ -667,12 +670,13 @@ def main():
                         # intentionally cover scrolled content below the header.
                         page.evaluate("window.scrollTo({top:0,behavior:'instant'})")
                         page.evaluate("() => new Promise(resolve=>requestAnimationFrame(resolve))")
-                        filter_boxes = [page.locator(selector).bounding_box() for selector in
-                                        ("#feedView .filter-bar", "#feedFilterPanel", "#feedActiveFilters")
-                                        if page.locator(selector).is_visible()]
-                        filter_bottom = max(box['y']+box['height'] for box in filter_boxes)
+                        auxiliary = [page.locator(selector).bounding_box() for selector in
+                                     ("#historyProgress", "#feedActiveFilters", "#v12SavedSearches", "#feedContext")
+                                     if page.locator(selector).is_visible()]
+                        feed_top=page.locator("#feedView").bounding_box()['y']
+                        auxiliary_bottom=max([box['y']+box['height'] for box in auxiliary],default=feed_top)
                         news=page.locator("#articleGrid").bounding_box()
-                        assert 0 <= news["y"]-filter_bottom < 45, (width,browser_name,news["y"]-filter_bottom)
+                        assert 0 <= news["y"]-auxiliary_bottom < 45, (width,browser_name,news["y"]-auxiliary_bottom)
                         # El filtro geográfico duplicaba las seis carpetas.
                         assert page.locator("#v12Geo").count() == 0
                         assert page.locator("#v12CountryTabs").count() == 0
@@ -687,17 +691,25 @@ def main():
                         page.locator('[data-settings-tab="reading"]').click()
                         page.locator("#v12Date").select_option("7")
                         page.locator('#closeSettings').click()
-                        if not page.locator('#sourceSelect').is_visible():page.locator('#feedFiltersToggle').click()
+                        if not page.locator('#sourceSelect').is_visible():
+                            if width<=950 and page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuToggle').click()
+                            if width<=640:page.locator('#feedFiltersToggle').click()
+                            elif not page.locator('#sidebarFeedOptions').get_attribute('open'):page.locator('#sidebarFeedOptions > summary').click()
                         page.locator("#sourceSelect").select_option("medio-3")
                         if page.locator("#feedFilterPanel").is_visible():page.locator("#feedFiltersDone").click()
+                        if width<=950 and not page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuClose').click()
                         page.locator('#settingsButton').click()
                         page.locator('[data-settings-tab="reading"]').click()
                         page.locator("#v12SaveSearch").click()
                         page.locator('#closeSettings').click()
                         assert page.locator(".v12-saved-open").count() == 1
-                        if not page.locator("#sourceSelect").is_visible():page.locator("#feedFiltersToggle").click()
+                        if not page.locator("#sourceSelect").is_visible():
+                            if width<=950 and page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuToggle').click()
+                            if width<=640:page.locator('#feedFiltersToggle').click()
+                            elif not page.locator('#sidebarFeedOptions').get_attribute('open'):page.locator('#sidebarFeedOptions > summary').click()
                         page.locator("#sourceSelect").select_option("")
                         if page.locator("#feedFilterPanel").is_visible():page.locator("#feedFiltersDone").click()
+                        if width<=950 and not page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuClose').click()
                         page.locator(".v12-saved-open").first.click()
                         assert page.locator("#v12Date").input_value() == "7"
                         expect(page.locator("#sourceSelect")).to_have_value("medio-3")
