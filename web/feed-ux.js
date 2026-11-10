@@ -58,11 +58,9 @@
     return active;
   }
 
-  // Reuse the same controls and listeners in the header and mobile panel.
+  // One set of controls: compact sidebar disclosure on desktop, existing sheet on mobile.
   const headerControls=mk('div','feed-header-controls');headerControls.id='feedHeaderControls';
   headerControls.setAttribute('role','group');headerControls.setAttribute('aria-label','Fuentes y presentación de noticias');
-  // Keep the global top bar to one row; local controls belong beside the feed.
-  bar.prepend(headerControls);
   const sidebar=get('sidebarCoreContent');
   const modes=feed.querySelector('.mode-tabs');
   const readingNav=mk('section','sidebar-reading');
@@ -74,6 +72,13 @@
       if(event.target.closest('.mode-tab')&&window.innerWidth<=950)setNavOpen(false);
     });
   }
+  const options=mk('details','sidebar-feed-options');options.id='sidebarFeedOptions';
+  const optionsSummary=mk('summary','','Filtros y apariencia');
+  optionsSummary.setAttribute('aria-label','Mostrar filtros y opciones de apariencia');
+  const optionsBody=mk('div','sidebar-feed-options-body');
+  options.append(optionsSummary,optionsBody);
+  optionsBody.append(headerControls);
+  readingNav.append(options);
   const source=get('sourceSelect')?.closest('label');
   const display=controls.querySelector('.display-controls');
   const presentation=mk('details','presentation-control');presentation.id='presentationControl';
@@ -108,7 +113,7 @@
   const fields=mk('div','feed-sheet-fields');fields.id='feedFilterFields';
   const done=mk('button','feed-sheet-done','Ver noticias');done.id='feedFiltersDone';done.type='button';
   panel.append(panelHead,fields,done);
-  bar.append(toggle);document.body.append(panel);
+  readingNav.append(toggle);document.body.append(panel);
   const densityToggle=mk('button','feed-density-toggle','Compacto');
   densityToggle.id='feedDensityToggle';densityToggle.type='button';
   densityToggle.title='Alternar entre espaciado cómodo y compacto';
@@ -122,8 +127,10 @@
     savePref('density',state.density);
     applyDisplaySettings();syncSettings();render();
   });
-  bar.append(densityToggle);
-  const movable=[source,presentation,get('libraryTagFilter')?.closest('label')].filter(Boolean);
+  optionsBody.append(densityToggle);
+  const tag=get('libraryTagFilter')?.closest('label');
+  if(tag)optionsBody.insertBefore(tag,densityToggle);
+  const movable=[source,presentation,tag,densityToggle].filter(Boolean);
   const homes=movable.map(element=>{
     const anchor=mk('span','feed-control-anchor');anchor.hidden=true;element.before(anchor);
     return {element,anchor};
@@ -158,6 +165,7 @@
         expanded=false;
       }
     }
+    options.hidden=mobile;
     toggle.hidden=!mobile;setExpanded(expanded);
   }
   // Keep an empty mobile search field from collapsing between pointerdown
