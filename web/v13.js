@@ -31,9 +31,19 @@
     const dialog=$('settingsDialog');
     if(dialog?.open)dialog.close();
     goTo('all');
-    const focus=()=>$('sourceSelect')?.focus({preventScroll:true});
+    const focus=()=>{
+      // The source selector now lives in the sidebar (or its mobile sheet).
+      const sidebar=$('appSidebar');
+      if(window.innerWidth<=950&&sidebar?.inert)$('menuToggle')?.click();
+      if(window.innerWidth<=640)$('feedFiltersToggle')?.click();
+      else {
+        const options=$('sidebarFeedOptions');
+        if(options)options.open=true;
+        $('sourceSelect')?.focus({preventScroll:true});
+      }
+    };
     if(state.pageView==='feed')focus();
-    else window.addEventListener('hashchange',focus,{once:true});
+    else window.addEventListener('hashchange',()=>requestAnimationFrame(focus),{once:true});
   });
   addAction('Comparar titulares','Contrasta una noticia publicada por varios medios',()=>{
     const dialog=$('settingsDialog');
