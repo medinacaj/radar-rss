@@ -1,0 +1,9 @@
+# Fuentes adicionales para todas las carpetas
+
+Solicitud del usuario: buscar más fuentes para todas las carpetas de Radar RSS. Alcance: las once carpetas existentes, con prioridad a voces editoriales e instituciones adicionales y al español. Baseline: 409 suscripciones; conservar sus nombres, URLs, IDs, categorías y orden.
+
+Selección: preferir RSS/Atom declarados por el editor. Cuando no exista evidencia suficiente del canal nativo, usar un RADAR limitado al dominio del editor, claramente identificado. Exigir evidencia primaria de pertinencia y actividad reciente; Concepción y Monagas necesitan cobertura territorial concreta y filtros de titular si el editor es nacional. La selección final depende de la evidencia, con objetivo de al menos dos canales útiles adicionales por carpeta. No duplicar URLs ni añadir la misma cobertura de un editor dentro de una carpeta.
+
+Las páginas consultadas acreditan declaraciones del editor y actividad, no verificación de cada noticia ni funcionamiento permanente del RSS. Registrar método, momento, fuentes de evidencia y limitaciones de acceso; no inventar códigos HTTP, cantidades, fechas o hashes. El entorno local restringe acceso a los dominios editoriales; no eludir esa política. La ingesta normal publicada informa salud operativa en status.json.
+
+Integración en sources/feeds.opml y registro de descubrimiento. Pruebas sin red garantizan preservación del baseline, cobertura de las once carpetas, URLs/IDs únicos, etiquetas RADAR y correspondencia de evidencias. La comprobación de ingesta se realiza por el flujo normal del sitio. No se añade software de terceros, cuentas ni proveedores de ejecución; respetar límites de archivo, retención, atribución y enlaces directos al medio. Documentar países y licencias sin afirmar permisos adicionales de reproducción. Una rama y un PR, revisión independiente y verificación pública al publicar.
