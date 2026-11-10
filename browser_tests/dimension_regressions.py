@@ -250,8 +250,10 @@ class DimensionRegressions(unittest.TestCase):
         self.page.emulate_media(reduced_motion='no-preference')
         card.hover()
         self.page.wait_for_timeout(550)
-        transformed=card.evaluate('node=>getComputedStyle(node).transform')
-        self.assertNotIn(transformed, ('none','matrix(1, 0, 0, 1, 0, 0)'))
+        hovered=card.evaluate('node=>({transform:getComputedStyle(node).transform,shadow:getComputedStyle(node).boxShadow})')
+        # Editorial: hover changes the edge/shadow without shifting the card.
+        self.assertIn(hovered['transform'],('none','matrix(1, 0, 0, 1, 0, 0)'))
+        self.assertNotEqual(hovered['shadow'],'none')
         self.page.emulate_media(reduced_motion='reduce')
         self.assertEqual(card.evaluate('node=>getComputedStyle(node).transform'),'none')
         self.assertEqual(card.evaluate('node=>getComputedStyle(node).transitionDuration'),'0s')
