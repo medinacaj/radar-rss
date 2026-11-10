@@ -12,6 +12,8 @@ Solicitud: aplicar seis mejoras visuales aprobadas y excluir la expansión de ti
 ## Verificación
 Python316, Node14 y sintaxis frontend. Nuevas pruebas Chromium a320,390,768,1440 y1842px, temas claro/oscuro, Presentación, tamaño elegido, filtros/resize, URL original en nueva/misma pestaña, modificadores, comparación, retorno del foco, altura real de tarjetas y contraste. Se mantienen las regresiones de lectura, editorial, archivo5000, respaldo y responsividad adaptadas a enlaces originales.
 
+Selector de fuentes: conserva el mismo botón y el foco durante redibujos del menú; regresión forzada render→Enter verificada a320–1842px tras detectar una carrera en CI.
+
 Revisión independiente: corregir la identificación accesible del medio, ocultando solo visualmente el texto repetido del pie cuando la cabecera visible tiene aria-hidden. Regresión de snapshot accesible antes/después.
 
 ## Controles y límites

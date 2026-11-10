@@ -189,15 +189,24 @@
       row.classList.toggle('experience-search-hidden',!matches);
       if(matches&&!row.hidden)folders+=1;
     }
-    results.replaceChildren();results.hidden=!query;
+    results.hidden=!query;
     searchStatus.hidden=!query;
-    if(!query)return;
+    if(!query){results.replaceChildren();return;}
     const sources=state.sources.filter(source=>!state.hiddenSources.has(source.id)&&fold(source.name).includes(query));
+    const existing=[...results.children],byId=new Map(existing.map(button=>[button.dataset.sourceId,button])),next=[];
     for(const source of sources.slice(0,30)){
-      const button=mk('button','experience-source-result');button.type='button';
-      button.dataset.sourceId=source.id;
-      button.append(mk('span','',sourceLabel(source.name)),mk('small','','Ver noticias'));
-      button.addEventListener('click',()=>selectSource(source.id));results.append(button);
+      let button=byId.get(source.id);
+      if(!button){
+        button=mk('button','experience-source-result');button.type='button';button.dataset.sourceId=source.id;
+        button.append(mk('span'),mk('small','','Ver noticias'));
+        button.addEventListener('click',()=>selectSource(source.id));
+      }
+      button.querySelector('span').textContent=sourceLabel(source.name);next.push(button);
+    }
+    // Count updates and pin reordering must not replace a keyboard user's target.
+    if(next.length!==existing.length||next.some((button,index)=>button!==existing[index])){
+      const active=document.activeElement;results.replaceChildren(...next);
+      if(next.includes(active))active.focus({preventScroll:true});
     }
     searchStatus.textContent=folders+' '+(folders===1?'carpeta':'carpetas')+' · '+sources.length+' '+(sources.length===1?'fuente':'fuentes')+(sources.length>30?' · Se muestran 30 fuentes. Afina la búsqueda.':'');
   }

@@ -95,6 +95,9 @@ def exercise(browser, base, width):
         assert page.evaluate('window.RadarExperience.getPinnedDestinations()') == ['carpeta/Mis lecturas']
         search.fill('referencia 0')
         expect(page.locator('#sidebarSourceResults button')).to_have_count(1)
+        page.locator('#sidebarSourceResults button').focus()
+        page.evaluate('render()')
+        expect(page.locator('#sidebarSourceResults button')).to_be_focused()
         page.locator('#sidebarSourceResults button').press('Enter')
         expect(page.locator('#sourceSelect')).to_have_value('medio-0')
         expect(page.locator('.feed-filter-chip[data-filter="source"]')).to_be_visible()
