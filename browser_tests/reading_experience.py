@@ -55,12 +55,16 @@ def exercise(browser, base, width):
     try:
         page.goto(base + '#noticias', wait_until='networkidle')
         expect(page.locator('#articleGrid .article-card')).to_have_count(18)
+        if width <= 950:page.locator('#menuToggle').click()
         if width <= 640:
             expect(page.locator('#sourceSelect')).not_to_be_visible()
             page.locator('#feedFiltersToggle').click()
-            expect(page.locator('#sourceSelect')).to_be_visible()
+        else:
+            page.locator('#sidebarFeedOptions > summary').click()
+        expect(page.locator('#sourceSelect')).to_be_visible()
         page.select_option('#sourceSelect', 'medio-0')
         if width<=640:page.locator('#feedFiltersDone').click()
+        if width<=950:page.locator('#menuClose').click()
         page.locator('#settingsButton').click()
         page.locator('[data-settings-tab="reading"]').click()
         page.select_option('#v12Date', '7')
