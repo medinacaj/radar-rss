@@ -13,7 +13,7 @@
   const field = mk('label','editorial-type-field');
   field.append(mk('span','editorial-type-label','Tipo'),select);
   function placeType() {
-    const target = window.innerWidth <= 640 ? $('feedFilterPanel') : $('feedHeaderControls');
+    const target = window.innerWidth <= 640 ? $('feedFilterFields') : $('feedHeaderControls');
     if (target && field.parentNode !== target) target.append(field);
   }
   function clearType() { selectedType = 'all'; select.value = 'all'; }
@@ -65,7 +65,7 @@
     return [...ids].map(id => ({id}));
   }
   const markReadBase = markRead;
-  markRead = function(id,value) { return markReadBase(id,value,expandMembers([{id}]).map(item => item.id)); };
+  markRead = function(id,value,options={}) { return markReadBase(id,value,expandMembers([{id}]).map(item => item.id),options); };
   const markArticlesBase = markArticlesRead;
   markArticlesRead = function(items) { return markArticlesBase(expandMembers(items)); };
   const emptyBase = emptyState;
@@ -133,8 +133,11 @@
     row.dataset.articleId = item.id;
     const category = mk('span','editorial-story-category',categoryLabel((item.categories || [])[0] || ''));
     const title = link(item.url,item.title || 'Sin título','briefing-title');
-    title.addEventListener('click',event=>openSequence(currentDigest.slice(),item,event));
-    row.append(category,title,metadata(item));
+    title.addEventListener('click',event=>visitArticle(item,event));
+    title.addEventListener('auxclick',event=>{if(event.button===1)visitArticle(item,event);});
+    const meta=metadata(item);
+    if(state.read.has(item.id))meta.append(mk('span','experience-read-state','Leída'));
+    row.append(category,title,meta);
     const summary = String(item.summary || '').trim();
     if (state.showSummaries && summary && summary !== String(item.title || '').trim()) {
       row.append(mk('p','briefing-summary',summary.length > 220 ? summary.slice(0,217) + '…' : summary));
@@ -242,7 +245,7 @@
     if (!region || !chips) return;
     const chip = mk('button','feed-filter-chip','Tipo: ' + labels[selectedType] + ' ×'); chip.type = 'button';
     chip.dataset.filter = 'content-type'; chip.setAttribute('aria-label','Quitar filtro: tipo ' + labels[selectedType]);
-    chip.addEventListener('click',()=>{clearType(); state.page = 1; render(); select.focus();});
+    chip.addEventListener('click',()=>{clearType(); state.page = 1; render(); (window.innerWidth<=640?$('feedFiltersToggle'):select).focus();});
     chips.append(chip); region.hidden = false;
     if ($('feedClearFilters')) $('feedClearFilters').hidden = false;
     const count = chips.childElementCount;

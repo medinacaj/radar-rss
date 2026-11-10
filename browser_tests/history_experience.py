@@ -11,8 +11,10 @@ class HistoryExperience(CountRegressions):
         expect(self.page.locator('#historyProgress')).to_be_visible()
         expect(self.page.locator('#historyProgressText')).to_contain_text('300 noticias disponibles')
         row=self.page.locator('#articleGrid .article-card').first
-        row.locator('.article-title a').click();expect(self.page.locator('#articleReaderDialog')).to_be_visible()
-        self.page.locator('#readerClose').click()
+        with self.page.expect_popup() as opened:
+            row.locator('.article-title a').click()
+        opened.value.close()
+        expect(self.page.locator('#articleReaderDialog')).to_be_hidden()
         self.release();self.page.wait_for_function('()=>state.historyLoaded')
         self.assertEqual(self.page.evaluate('state.items.length'),5000)
         expect(self.page.locator('#historyProgress')).to_be_hidden()

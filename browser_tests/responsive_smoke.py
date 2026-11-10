@@ -91,7 +91,7 @@ def check_uniform_card_heights(page, label):
       const covers=cards.map(c=>c.querySelector(':scope > .cover')).filter(Boolean);
       const placeholders=cards.map(c=>c.querySelector(':scope > .article-cover-placeholder')).filter(Boolean);
       return {
-        rows:[...rows.values()], gridAutoRows:getComputedStyle(grid).gridAutoRows,
+        rows:[...rows.values()], gridAutoRows:getComputedStyle(grid).gridAutoRows,alignItems:getComputedStyle(grid).alignItems,
         hasImage:covers.length>0, hasNoImage:cards.some(x=>!x.querySelector('.cover')),
         proportional:[...covers,...placeholders].every(c=>c.getBoundingClientRect().height<=c.getBoundingClientRect().width/2+1),
         maxImageHeight:covers.length?Math.max(...covers.map(c=>c.getBoundingClientRect().height)):0,
@@ -103,9 +103,8 @@ def check_uniform_card_heights(page, label):
         raise AssertionError(f"{label}: fixture lacks mixed images: {result}")
     if result["gridAutoRows"] != "auto":
         raise AssertionError(f"{label}: global equal-height grid creates wasted space: {result}")
-    for heights in rows:
-        if max(heights)-min(heights)>2:
-            raise AssertionError(f"{label}: cards in same row differ in height: {result}")
+    if result["alignItems"] != "start":
+        raise AssertionError(f"{label}: cards should use their content height with aligned row tops: {result}")
     if not result["proportional"] or result["maxImageHeight"]>241 or result["maxPlaceholderHeight"]>241:
         raise AssertionError(f"{label}: image/placeholder unnecessarily tall: {result}")
 
@@ -221,7 +220,7 @@ def check_concepcion_category(page):
         "nodes => nodes.map(node => node.dataset.articleId)")
     assert set(article_ids()) == set(local_ids)
     assert page.locator("#sourceSelect option").evaluate_all("nodes => nodes.map(x => x.value)") == ["", "medio-6"]
-    page.locator("#articleGrid .article-title a").first.click()
+    page.locator("#articleGrid .article-also").first.click()
     expect(page.locator("#articleReaderDialog[open]")).to_be_visible()
     expect(page.locator("#readerCategory")).to_have_text("Concepción")
     page.locator("#readerClose").click()
@@ -688,12 +687,15 @@ def main():
                         page.locator('#closeSettings').click()
                         if not page.locator('#sourceSelect').is_visible():page.locator('#feedFiltersToggle').click()
                         page.locator("#sourceSelect").select_option("medio-3")
+                        if page.locator("#feedFilterPanel").is_visible():page.locator("#feedFiltersDone").click()
                         page.locator('#settingsButton').click()
                         page.locator('[data-settings-tab="reading"]').click()
                         page.locator("#v12SaveSearch").click()
                         page.locator('#closeSettings').click()
                         assert page.locator(".v12-saved-open").count() == 1
+                        if not page.locator("#sourceSelect").is_visible():page.locator("#feedFiltersToggle").click()
                         page.locator("#sourceSelect").select_option("")
+                        if page.locator("#feedFilterPanel").is_visible():page.locator("#feedFiltersDone").click()
                         page.locator(".v12-saved-open").first.click()
                         assert page.locator("#v12Date").input_value() == "7"
                         expect(page.locator("#sourceSelect")).to_have_value("medio-3")
@@ -725,7 +727,7 @@ def main():
                         page.locator(".v12-search-remove").first.click()
                         assert page.locator(".v12-saved-open").count() == 0
                         page.evaluate("location.hash = '#noticias'")
-                        page.locator('#articleGrid [data-article-id="noticia-0"] .article-title a').first.click()
+                        page.locator('#articleGrid [data-article-id="noticia-0"] .article-also').first.click()
                         page.locator("#articleReaderDialog[open]").wait_for()
                         page.locator("#v12CompareSort").select_option("time")
                         assert page.locator(".v12-timeline-item").count() == 2

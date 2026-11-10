@@ -107,6 +107,7 @@ jobs:
           python browser_tests/experience_regressions.py
           python browser_tests/editorial_experience.py
           python browser_tests/history_experience.py
+          python browser_tests/visual_comfort.py
       - name: Guardar capturas para revisión
         if: always()
         uses: actions/upload-artifact@v4
@@ -118,5 +119,6 @@ jobs:
             test-results/agenda-tools/
             test-results/dimension/
             test-results/experience/
+            test-results/visual-comfort/
           if-no-files-found: ignore
           retention-days: 7

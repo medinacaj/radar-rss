@@ -23,6 +23,8 @@ class Element {
   click(){this.dispatch('click');}
   focus(){document.activeElement=this;}
   scrollIntoView(){}
+  showModal(){this.open=true;}
+  close(){this.open=false;this.dispatch("close");}
   matches(selector){if(selector==='[data-settings-pane="reading"]')return this.dataset.settingsPane==='reading';if(selector.startsWith('#'))return this.id===selector.slice(1);if(selector.startsWith('.'))return this.classList.contains(selector.slice(1));return this.tagName.toLowerCase()===selector;}
   closest(selector){return this.matches(selector)?this:this.parentNode?.closest(selector);}
   querySelectorAll(selector){const selectors=selector.split(',').map(x=>x.trim());return this.children.flatMap(node=>[...(selectors.some(s=>node.matches(s))?[node]:[]),...node.querySelectorAll(selector)]);}
@@ -101,13 +103,13 @@ assert.equal(privateFolder,null);assert.equal(state.search,'sin coincidencia');a
 // Existing listeners and node identities survive mobile placement and desktop restoration.
 let sourceChanges=0;sourceSelect.addEventListener('change',()=>sourceChanges++);
 window.innerWidth=390;window.emit('resize');
-assert.equal(get('feedFiltersToggle').hidden,false);assert.equal(source.parentNode,get('feedFilterPanel'));assert.equal(tag.parentNode,get('feedFilterPanel'));assert.equal(display.parentNode,get('feedFilterPanel'));assert.equal(advanced.parentNode,null);
+assert.equal(get('feedFiltersToggle').hidden,false);assert.equal(source.parentNode,get('feedFilterFields'));assert.equal(tag.parentNode,get('feedFilterFields'));assert.equal(display.closest('#presentationControl').parentNode,get('feedFilterFields'));assert.equal(advanced.parentNode,null);
 assert.equal(get('feedFilterPanel').hidden,true);get('feedFiltersToggle').click();
 assert.equal(get('feedFilterPanel').hidden,false);assert.equal(get('feedFiltersToggle').getAttribute('aria-expanded'),'true');assert.equal(get('v12Date').closest('.settings-feed-actions').parentNode,reading);
 sourceSelect.dispatch('change');assert.equal(sourceChanges,1);
 get('feedFilterPanel').dispatch('keydown',{key:'Escape'});assert.equal(get('feedFilterPanel').hidden,true);assert.equal(document.activeElement,get('feedFiltersToggle'));
 window.innerWidth=1440;window.emit('resize');
-assert.equal(source.parentNode,get('feedHeaderControls'));assert.equal(display.parentNode,get('feedHeaderControls'));assert.equal(tag.parentNode,controls);assert.equal(advanced.parentNode,null);
+assert.equal(source.parentNode,get('feedHeaderControls'));assert.equal(display.closest('#presentationControl').parentNode,get('feedHeaderControls'));assert.equal(tag.parentNode,controls);assert.equal(advanced.parentNode,null);
 state.pageView='dashboard';refresh();assert.equal(get('feedHeaderControls').hidden,true);
 state.pageView='feed';refresh();assert.equal(get('feedHeaderControls').hidden,false);
 assert.equal(get('feedFiltersToggle').hidden,true);sourceSelect.dispatch('change');assert.equal(sourceChanges,2);

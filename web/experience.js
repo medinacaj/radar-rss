@@ -63,6 +63,14 @@
   }
   profileLabel.append(profile);
   document.querySelector('.display-controls')?.prepend(profileLabel);
+  const sizeLabel=mk('label','experience-title-size');sizeLabel.append(mk('span','','Tamaño del titular'));
+  const titleSize=mk('select');titleSize.id='presentationTitleSize';titleSize.setAttribute('aria-label','Tamaño de títulos');
+  for(let size=14;size<=22;size++)titleSize.append(new Option(size+' px',String(size)));
+  sizeLabel.append(titleSize);document.querySelector('.display-controls')?.append(sizeLabel);
+  titleSize.addEventListener('change',()=>{
+    const original=get('settingCardTitleSize');original.value=titleSize.value;
+    original.dispatchEvent(new Event('input',{bubbles:true}));
+  });
   const columnStatus=mk('output','experience-column-status');columnStatus.id='effectiveColumns';
   columnStatus.setAttribute('aria-live','polite');columnStatus.setAttribute('aria-atomic','true');
   columnStatus.setAttribute('aria-label','Columnas visibles');
@@ -82,6 +90,7 @@
     state.page=1;applyDisplaySettings();render();syncSettings();
   });
   function syncProfile(){
+    titleSize.value=String(state.cardTitleSize);
     profile.value=Object.entries(profiles).find(([,value])=>
       Object.entries(value).every(([key,setting])=>state[key]===setting))?.[0]||'custom';
     profile.querySelector('[value="custom"]').disabled=true;
@@ -118,6 +127,9 @@
     labelAction(node.querySelector('.article-save'),state.saved.has(node.dataset.articleId)?'Guardada':'Guardar');
     labelAction(node.querySelector('.article-more'),'Más');
     labelAction(node.querySelector('.article-read-toggle'),state.read.has(node.dataset.articleId)?'Sin leer':'Marcar leída');
+    if(state.read.has(node.dataset.articleId)&&!node.querySelector('.experience-read-state')){
+      node.querySelector('.article-kicker')?.append(mk('span','experience-read-state','Leída'));
+    }
     return node;
   }
   const baseCard=card;

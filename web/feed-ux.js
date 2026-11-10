@@ -82,8 +82,16 @@
   }
   const source=get('sourceSelect')?.closest('label');
   const display=controls.querySelector('.display-controls');
+  const presentation=mk('details','presentation-control');presentation.id='presentationControl';
+  const presentationSummary=mk('summary','','Presentación');presentationSummary.id='presentationSummary';
+  const presentationBody=mk('div','presentation-controls-body');
+  presentation.append(presentationSummary,presentationBody);
   if(source)headerControls.append(source);
-  if(display)headerControls.append(display);
+  if(display){presentationBody.append(display);headerControls.append(presentation);}
+  presentation.addEventListener('keydown',event=>{
+    if(window.innerWidth>640&&event.key==='Escape'&&presentation.open){event.preventDefault();event.stopPropagation();closeColumnsMenu(false);presentation.open=false;presentationSummary.focus();}
+  });
+  document.addEventListener('pointerdown',event=>{if(presentation.open&&!presentation.contains(event.target)&&window.innerWidth>640)presentation.open=false;});
   const advanced=get('feedAdvanced');
   const reading=document.querySelector('[data-settings-pane="reading"]');
   if(advanced&&reading){
@@ -98,28 +106,46 @@
   toggle.setAttribute('aria-controls','feedFilterPanel');toggle.setAttribute('aria-expanded','false');
   const toggleLabel=mk('span','','Filtros');
   const count=mk('span','feed-filters-count');count.id='feedFiltersCount';toggle.append(toggleLabel,count);
-  const panel=mk('div','feed-filter-panel');panel.id='feedFilterPanel';panel.hidden=true;
-  panel.setAttribute('role','group');panel.setAttribute('aria-label','Filtros y acciones de noticias');
-  bar.append(toggle);bar.after(panel);
-  const movable=[source,display,get('libraryTagFilter')?.closest('label')].filter(Boolean);
+  const panel=mk('dialog','feed-filter-panel');panel.id='feedFilterPanel';panel.hidden=true;
+  panel.setAttribute('aria-labelledby','feedFiltersTitle');
+  const panelHead=mk('div','feed-sheet-head'),panelTitle=mk('h2','','Filtros de noticias');panelTitle.id='feedFiltersTitle';
+  const panelClose=mk('button','feed-sheet-close','Cerrar');panelClose.id='feedFiltersClose';panelClose.type='button';
+  panelClose.setAttribute('aria-label','Cerrar filtros');panelHead.append(panelTitle,panelClose);
+  const fields=mk('div','feed-sheet-fields');fields.id='feedFilterFields';
+  const done=mk('button','feed-sheet-done','Ver noticias');done.id='feedFiltersDone';done.type='button';
+  panel.append(panelHead,fields,done);
+  bar.append(toggle);document.body.append(panel);
+  const movable=[source,presentation,get('libraryTagFilter')?.closest('label')].filter(Boolean);
   const homes=movable.map(element=>{
     const anchor=mk('span','feed-control-anchor');anchor.hidden=true;element.before(anchor);
     return {element,anchor};
   });
   let mobile=false,expanded=false,desktopAdvancedOpen=Boolean(advanced?.open);
   function setExpanded(value){
-    expanded=value;panel.hidden=!mobile||!expanded;toggle.setAttribute('aria-expanded',String(mobile&&expanded));
+    expanded=Boolean(mobile&&value&&state.pageView==='feed');
+    toggle.setAttribute('aria-expanded',String(expanded));
+    if(expanded){panel.hidden=false;if(!panel.open){presentation.open=true;panel.showModal();panelClose.focus();}}
+    else{if(panel.open)panel.close();panel.hidden=true;}
   }
+  panelClose.addEventListener('click',()=>setExpanded(false));
+  done.addEventListener('click',()=>setExpanded(false));
+  panel.addEventListener('close',()=>{
+    if(panel.open)return;
+    expanded=false;panel.hidden=true;toggle.setAttribute('aria-expanded','false');
+    if(mobile&&state.pageView==='feed')toggle.focus({preventScroll:true});
+  });
   function placeControls(){
     const next=window.innerWidth<=640;
     if(next!==mobile){
       mobile=next;
       if(mobile){
         desktopAdvancedOpen=Boolean(advanced?.open);
-        homes.forEach(({element})=>panel.append(element));
+        homes.forEach(({element})=>fields.append(element));
+        presentation.open=true;
         if(advanced)advanced.open=true;
       }else{
         homes.forEach(({element,anchor})=>anchor.after(element));
+        presentation.open=false;
         if(advanced)advanced.open=desktopAdvancedOpen;
         expanded=false;
       }
@@ -129,7 +155,7 @@
   // Keep an empty mobile search field from collapsing between pointerdown
   // and click and moving this control away from the pointer.
   toggle.addEventListener('pointerdown',event=>{if(event.button===0)event.preventDefault();});
-  toggle.addEventListener('click',()=>{setExpanded(!expanded);toggle.focus({preventScroll:true});});
+  toggle.addEventListener('click',()=>{setExpanded(!expanded);if(!expanded)toggle.focus({preventScroll:true});});
   panel.addEventListener('keydown',event=>{
     if(event.key==='Escape'&&expanded){setExpanded(false);toggle.focus({preventScroll:true});event.stopPropagation();}
   });
@@ -169,6 +195,7 @@
     el.append(heading,hint,actions);return el;
   };
   function update(){
+    if(state.pageView!=='feed'){setExpanded(false);presentation.open=false;}
     headerControls.hidden=state.pageView!=='feed';
     headerTitle.hidden=state.pageView!=='feed';
     readingNav.hidden=state.pageView!=='feed';

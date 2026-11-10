@@ -113,7 +113,7 @@
       if (rank) { const t = svgEl('text', { y: 4, class: 'radar-rank', 'text-anchor': 'middle' }); t.textContent = String(rank); g.append(t); }
       g.addEventListener('pointerenter', () => { showTip(g, item); highlight(item.id, true); });
       g.addEventListener('pointerleave', () => { hideTip(); highlight(item.id, false); });
-      g.addEventListener('click', () => { hideTip(); openArticleReader(item); });
+      g.addEventListener('click', () => { hideTip(); visitArticle(item); });
       dots.append(g);
     }
     svg.append(dots);
@@ -139,7 +139,8 @@
       const rank = mk('span', 'covered-rank', String(i + 1)); rank.setAttribute('aria-hidden', 'true');
       const body = mk('div', 'covered-body');
       const a = link(item.url, plain(item.title) || 'Sin título', 'covered-title');
-      a.addEventListener('click', event => openArticleReader(item, event));
+      a.addEventListener('click', event => visitArticle(item, event));
+      a.addEventListener('auxclick', event => { if(event.button===1)visitArticle(item,event); });
       const meta = mk('div', 'covered-meta');
       const coverage = coverageOf(item);
       const bar = mk('span', 'covered-bar'); bar.style.setProperty('--w', Math.min(100, 12 + coverage * 9) + '%');
@@ -348,7 +349,8 @@
       s.items.forEach(item => {
         const li = mk('li', 'briefing-item' + (state.read.has(item.id) ? ' read-article' : '')); li.dataset.articleId = item.id;
         const a = link(item.url, plain(item.title) || 'Sin título', 'briefing-title');
-        a.addEventListener('click', event => openArticleReader(item, event));
+        a.addEventListener('click', event => visitArticle(item, event));
+      a.addEventListener('auxclick', event => { if(event.button===1)visitArticle(item,event); });
         const meta = mk('div', 'briefing-meta');
         const kind = kindBadge(item); if (kind) meta.append(kind);
         meta.append(mk('span', '', sourceLabel(item.publisher || item.source)), document.createTextNode(' · '), timeNode(item.published_at || item.first_seen_at));
@@ -446,7 +448,7 @@
       if (x.id === item.id) body.append(mk('span', 'thread-title', plain(x.title)), mk('span', 'thread-meta', sourceLabel(x.publisher || x.source) + ' · estás leyendo esta'));
       else {
         const b = mk('button', 'thread-title', plain(x.title)); b.type = 'button';
-        b.addEventListener('click', () => openArticleReader(x));
+        b.addEventListener('click', () => visitArticle(x));
         body.append(b, mk('span', 'thread-meta', sourceLabel(x.publisher || x.source)));
       }
       li.append(when, body); ol.append(li);

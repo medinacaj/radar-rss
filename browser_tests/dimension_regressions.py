@@ -260,6 +260,7 @@ class DimensionRegressions(unittest.TestCase):
         self.page.evaluate("goTo('all')")
         expect(self.page.locator('#columnsCurrent')).to_have_text('Auto')
         self.assertGreaterEqual(self.page.locator('#articleGrid > .article-card').first.bounding_box()['width'],280)
+        self.page.locator('#presentationSummary').click()
         self.page.locator('#columnsToggle').click()
         self.page.locator('#columnsMenu [data-columns="2"]').click()
         self.page.reload()
@@ -350,7 +351,7 @@ class DimensionRegressions(unittest.TestCase):
                     self.assertGreater(self.page.locator(selector).first.evaluate('n=>parseFloat(getComputedStyle(n).fontSize)'),normal[width,selector],selector)
                 self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth+2'),(width,target))
             self.page.evaluate("goTo('all')")
-            self.page.locator('#articleGrid .article-title a').first.click()
+            self.page.locator('#articleGrid .article-also').first.click()
             expect(self.page.locator('#articleReaderDialog')).to_be_visible()
             self.assertGreaterEqual(self.page.locator('#readerSummary').evaluate('n=>parseFloat(getComputedStyle(n).fontSize)'),20)
             fixtures.check_visible_boxes(self.page,['#readerClose','#readerPrevious','#readerNext','#readerOpenOriginal'],f'large reader {width}')
@@ -371,7 +372,7 @@ class DimensionRegressions(unittest.TestCase):
         for selector in ('#settingTheme','#settingFont'):
             self.assertGreaterEqual(self.page.locator(selector).evaluate('n=>parseFloat(getComputedStyle(n).fontSize)'),16)
         self.page.locator('#settingsDone').click()
-        self.page.locator('#articleGrid .article-title a').first.click()
+        self.page.locator('#articleGrid .article-also').first.click()
         expect(self.page.locator('#libraryTagInput')).to_be_visible()
         self.assertGreaterEqual(self.page.locator('#libraryTagInput').evaluate('n=>parseFloat(getComputedStyle(n).fontSize)'),16)
 
@@ -397,9 +398,9 @@ class DimensionRegressions(unittest.TestCase):
         title=self.page.locator('#coveredList .covered-title').first
         title.scroll_into_view_if_needed();title.focus()
         before=title.bounding_box()['y']
-        title.press('Enter')
-        expect(self.page.locator('#articleReaderDialog')).to_be_visible()
-        self.page.keyboard.press('Escape')
+        with self.page.expect_popup() as opened:title.press('Enter')
+        opened.value.close()
+        expect(self.page.locator('#articleReaderDialog')).to_be_hidden()
         # The reader restores its logical origin in the next animation frame.
         self.page.evaluate('() => new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))')
         expect(title).to_be_focused()
@@ -479,9 +480,9 @@ class DimensionRegressions(unittest.TestCase):
         title=card.locator('.article-title a');title.focus()
         focused=card.evaluate('n=>({shadow:getComputedStyle(n).boxShadow,border:getComputedStyle(n).borderTopColor})')
         self.assertNotEqual(focused,idle,'Focusing a card must highlight its edge')
-        title.press('Enter')
-        expect(self.page.locator('#articleReaderDialog')).to_be_visible()
-        self.page.keyboard.press('Escape')
+        with self.page.expect_popup() as opened:title.press('Enter')
+        opened.value.close()
+        expect(self.page.locator('#articleReaderDialog')).to_be_hidden()
         expect(title).to_be_focused()
         self.page.emulate_media(reduced_motion='reduce',forced_colors='active')
         self.assertNotEqual(title.evaluate('n=>getComputedStyle(n).outlineStyle'),'none')
@@ -864,7 +865,7 @@ class DimensionRegressions(unittest.TestCase):
                 self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth+2'))
             self.page.set_viewport_size({'width':1440,'height':1000})
 
-            self.page.locator('#articleGrid .article-title a').first.click()
+            self.page.locator('#articleGrid .article-also').first.click()
             expect(self.page.locator('#articleReaderDialog')).to_be_visible()
             for selector in ('.reader-primary', '.reader-primary .reader-open-hint'):
                 self.assertGreaterEqual(self.page.locator(selector).evaluate(contrast), 4.5, (theme, selector))
