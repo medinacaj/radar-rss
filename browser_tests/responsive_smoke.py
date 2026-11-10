@@ -694,7 +694,7 @@ def main():
                         if not page.locator('#sourceSelect').is_visible():
                             if width<=950 and page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuToggle').click()
                             if width<=640:page.locator('#feedFiltersToggle').click()
-                            elif not page.locator('#sidebarFeedOptions').get_attribute('open'):page.locator('#sidebarFeedOptions > summary').click()
+                            elif not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'):page.locator('#sidebarFeedOptions > summary').click()
                         page.locator("#sourceSelect").select_option("medio-3")
                         if page.locator("#feedFilterPanel").is_visible():page.locator("#feedFiltersDone").click()
                         if width<=950 and not page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuClose').click()
@@ -706,7 +706,7 @@ def main():
                         if not page.locator("#sourceSelect").is_visible():
                             if width<=950 and page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuToggle').click()
                             if width<=640:page.locator('#feedFiltersToggle').click()
-                            elif not page.locator('#sidebarFeedOptions').get_attribute('open'):page.locator('#sidebarFeedOptions > summary').click()
+                            elif not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'):page.locator('#sidebarFeedOptions > summary').click()
                         page.locator("#sourceSelect").select_option("")
                         if page.locator("#feedFilterPanel").is_visible():page.locator("#feedFiltersDone").click()
                         if width<=950 and not page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuClose').click()
