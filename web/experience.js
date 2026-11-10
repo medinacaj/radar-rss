@@ -8,10 +8,12 @@
     // Five/six are explicit dense layouts. The former 280px minimum made these
     // selections practically impossible with the normal 310px sidebar open.
     // Keep full-size reading cards for Auto/2-4; never shrink a dense card below
-    // its three 44px action targets plus padding and borders.
+    // its three 44px action targets plus padding and borders. Larger chosen
+    // titles are clamped to two lines in dense mode, so they need only a small
+    // increase to the width instead of preventing five/six columns entirely.
     const dense=requested!=='auto'&&chosen>=5;
     const minimum=dense
-      ? 152+Math.max(0,size-16)*10+(fontSize==='large'?28:0)
+      ? 152+Math.max(0,size-16)+(fontSize==='large'?8:0)
       : 280+Math.max(0,size-16)*14+(fontSize==='large'?40:0);
     const fitting=Math.max(1,Math.floor((Math.max(0,Number(width)||0)+gap)/(minimum+gap)));
     return Math.min(chosen,fitting);
