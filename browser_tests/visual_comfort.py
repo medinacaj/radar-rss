@@ -119,7 +119,7 @@ def main():
                 expect(page.locator('#feedFilterPanel')).to_be_hidden()
                 assert page.locator('#sourceSelect').count()==1
                 assert page.locator('#presentationControl').count()==1
-                if not page.locator('#sidebarFeedOptions').get_attribute('open'):
+                if not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'):
                     page.locator('#sidebarFeedOptions > summary').click()
                 page.locator('#presentationSummary').click();expect(page.locator('#readingProfile')).to_be_visible()
                 page.keyboard.press('Escape')
