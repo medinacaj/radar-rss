@@ -86,6 +86,7 @@ class ConcepcionRegressions(unittest.TestCase):
     def test_restoring_chile_search_from_another_route_preserves_source(self):
         self.page.evaluate("location.hash='#region/chile'")
         self.page.wait_for_function("() => document.querySelectorAll('#articleGrid>.article-card').length===5")
+        self.page.locator('#sidebarFeedOptions > summary').click()
         self.page.locator('#sourceSelect').select_option('medio-3')
         self.page.evaluate("document.getElementById('v12SaveSearch').click()")
         self.page.evaluate("location.hash='#noticias'")
