@@ -58,3 +58,4 @@ jobs:
           node tests/test_experience.cjs
           node tests/test_backup_extensions.cjs
           node tests/test_render_performance.cjs
+          node tests/test_article_visits.cjs

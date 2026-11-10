@@ -128,6 +128,34 @@ function link(url, label, className = '') {
   node.referrerPolicy = 'no-referrer';
   return node;
 }
+// Primary news links always visit the publisher; comparison remains explicit.
+function visitArticle(item,event){
+  const url=safeURL(item?.url);
+  if(!url){event?.preventDefault();return;}
+  if(event){
+    if(event.currentTarget?.tagName==='A')event.currentTarget.target=state.newTab?'_blank':'_self';
+    // Persist before leaving, but keep the activating anchor attached until the
+    // browser has performed its native click/Enter/Ctrl/Cmd/middle-click action.
+    markRead(item.id,true,{render:false});
+    window.setTimeout(()=>renderAfterVisit(),0);
+  }else{
+    window.open(url,state.newTab?'_blank':'_self','noopener,noreferrer');
+    markRead(item.id,true);
+  }
+}
+function renderAfterVisit(){
+  const active=document.activeElement,origin=active?.closest?.('[data-article-id]');
+  const scope=origin?.parentElement?.closest('[id]')||document;
+  const rows=()=>[...scope.querySelectorAll('[data-article-id]')].filter(row=>row.getClientRects().length);
+  const before=origin?.getBoundingClientRect().top,index=origin?rows().indexOf(origin):-1;
+  const selector=active?.matches?.('.covered-title')?'.covered-title':'.article-title a,.briefing-title,.dashboard-recent-title';
+  render();
+  if(!origin)return;
+  const visible=rows(),row=visible.find(node=>node.dataset.articleId===origin.dataset.articleId)||visible[index]||visible.at(-1);
+  const target=row?.querySelector(selector);
+  target?.focus({preventScroll:true});
+  if(row)window.scrollTo({top:window.scrollY+row.getBoundingClientRect().top-before,behavior:'instant'});
+}
 function ageDate(input) {
   if (!input) return 'Sin fecha';
   const dt = new Date(input);
@@ -866,12 +894,14 @@ function headlineRow(item,className='dashboard-recent-row'){
   const row=mk('div',className+(state.read.has(item.id)?' read-article':''));
   row.dataset.articleId=item.id;
   const title=link(item.url,item.title||'Sin título','dashboard-recent-title');
-  title.addEventListener('click',event=>openArticleReader(item,event));
+  title.addEventListener('click',event=>visitArticle(item,event));
+  title.addEventListener('auxclick',event=>{if(event.button===1)visitArticle(item,event);});
   const info=mk('span','dashboard-recent-meta');
   const kind=kindBadge(item);if(kind)info.append(kind,document.createTextNode(' '));
   info.append(mk('span','',sourceLabel(item.publisher||item.source)),document.createTextNode(' · '),timeNode(item.published_at));
   const coverage=coverageOf(item);
   if(coverage>1)info.append(document.createTextNode(' · '),mk('span','row-coverage',`${coverage} medios`));
+  if(state.read.has(item.id))info.append(document.createTextNode(' · '),mk('span','experience-read-state','Leída'));
   row.append(title,info);
   return row;
 }
@@ -1114,7 +1144,8 @@ function initArticleReader(){
 function editorialCover(item) {
   const tile=mk('a','article-cover-placeholder');
   tile.href=safeURL(item.url)||'#';tile.target=state.newTab?'_blank':'_self';tile.rel='noopener noreferrer external';tile.referrerPolicy='no-referrer';
-  tile.tabIndex=-1;tile.addEventListener('click',event=>openArticleReader(item,event));
+  tile.tabIndex=-1;tile.addEventListener('click',event=>visitArticle(item,event));
+  tile.addEventListener('auxclick',event=>{if(event.button===1)visitArticle(item,event);});
   tile.setAttribute('aria-hidden','true');
   const wrap=mk('div','article-cover-placeholder-inner');
   const source=sourceLabel(item.publisher||item.source,'Medio de noticias');
@@ -1124,7 +1155,7 @@ function editorialCover(item) {
   tile.append(wrap);
   return tile;
 }
-// Tarjeta: el título y la imagen abren la vista previa; Guardar queda a mano y
+// Tarjeta: el título y la imagen abren la web del medio; Guardar queda a mano y
 // el resto de acciones vive en un menú "⋯" para no repetir cuatro botones por tarjeta.
 function card(item) {
   const isRead=state.read.has(item.id);
@@ -1134,7 +1165,8 @@ function card(item) {
   if(hasImage){
     const cover=mk('a','cover'); cover.href=safeURL(item.url)||'#';cover.target=state.newTab?'_blank':'_self';cover.rel='noopener noreferrer external';cover.referrerPolicy='no-referrer';
     cover.tabIndex=-1;cover.setAttribute('aria-hidden','true');
-    cover.addEventListener('click',event=>openArticleReader(item,event));
+    cover.addEventListener('click',event=>visitArticle(item,event));
+    cover.addEventListener('auxclick',event=>{if(event.button===1)visitArticle(item,event);});
     const img=document.createElement('img');img.src=item.image;img.alt='';img.loading='lazy';img.decoding='async';img.referrerPolicy='no-referrer';
     img.addEventListener('error',()=>{
       cover.remove();
@@ -1152,7 +1184,8 @@ function card(item) {
   const content=mk('div','article-content');
   const title=mk('h3','article-title');
   const titleLink=link(item.url,item.title||'Sin título');
-  titleLink.addEventListener('click',event=>openArticleReader(item,event));
+  titleLink.addEventListener('click',event=>visitArticle(item,event));
+  titleLink.addEventListener('auxclick',event=>{if(event.button===1)visitArticle(item,event);});
   title.append(titleLink);
   const kicker=mk('div','article-kicker');
   kicker.append(mk('span','article-category',categoryLabel(category)));
@@ -1286,7 +1319,7 @@ function initCardMenu(){
 }
 // Una revisión por ID impide que Deshacer borre una marca manual posterior.
 const readRevisions=new Map();
-function markRead(id,value,memberIds=[id]){
+function markRead(id,value,memberIds=[id],options={}){
   let changed=false;
   for(const member of new Set([id,...(Array.isArray(memberIds)?memberIds:[])])){
     if(typeof member!=='string'||!member||member.length>150)continue;
@@ -1298,6 +1331,7 @@ function markRead(id,value,memberIds=[id]){
   const active=document.activeElement;
   const returnFocus=active?.classList?.contains('article-read-toggle')===true;
   persist('radar-read',state.read);
+  if(options.render===false)return;
   // Renderiza tarjetas, pestañas, filtros y contadores desde un único estado.
   // La biblioteca restaura los indicadores de las seis carpetas en su wrapper.
   render();

@@ -18,6 +18,7 @@ Python 3.12 para ingesta y pruebas; frontend JavaScript estático; GitHub Pages.
 - `scripts/insights.py`: agrupación y tendencias.
 - `sources/feeds.opml`: configuración de medios.
 - `web/`: interfaz y datos estáticos.
+- Preferencia expresa del usuario (2026-11-10): pulsar un titular o imagen de noticia abre directamente la URL original del medio. No expandir titulares ni interceptarlos con una vista previa interna; comparar medios es una acción explícita independiente. Conservar la preferencia de pestaña y la navegación nativa con teclado/modificadores/clic central.
 - `.github/workflows/deploy.yml`: ingestión periódica y publicación; no modificar sin tarea explícita.
 
 ## Pruebas locales pertinentes

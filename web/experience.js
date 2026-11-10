@@ -63,6 +63,14 @@
   }
   profileLabel.append(profile);
   document.querySelector('.display-controls')?.prepend(profileLabel);
+  const sizeLabel=mk('label','experience-title-size');sizeLabel.append(mk('span','','Tamaño del titular'));
+  const titleSize=mk('select');titleSize.id='presentationTitleSize';titleSize.setAttribute('aria-label','Tamaño de títulos');
+  for(let size=14;size<=22;size++)titleSize.append(new Option(size+' px',String(size)));
+  sizeLabel.append(titleSize);document.querySelector('.display-controls')?.append(sizeLabel);
+  titleSize.addEventListener('change',()=>{
+    const original=get('settingCardTitleSize');original.value=titleSize.value;
+    original.dispatchEvent(new Event('input',{bubbles:true}));
+  });
   const columnStatus=mk('output','experience-column-status');columnStatus.id='effectiveColumns';
   columnStatus.setAttribute('aria-live','polite');columnStatus.setAttribute('aria-atomic','true');
   columnStatus.setAttribute('aria-label','Columnas visibles');
@@ -82,6 +90,7 @@
     state.page=1;applyDisplaySettings();render();syncSettings();
   });
   function syncProfile(){
+    titleSize.value=String(state.cardTitleSize);
     profile.value=Object.entries(profiles).find(([,value])=>
       Object.entries(value).every(([key,setting])=>state[key]===setting))?.[0]||'custom';
     profile.querySelector('[value="custom"]').disabled=true;
@@ -118,6 +127,9 @@
     labelAction(node.querySelector('.article-save'),state.saved.has(node.dataset.articleId)?'Guardada':'Guardar');
     labelAction(node.querySelector('.article-more'),'Más');
     labelAction(node.querySelector('.article-read-toggle'),state.read.has(node.dataset.articleId)?'Sin leer':'Marcar leída');
+    if(state.read.has(node.dataset.articleId)&&!node.querySelector('.experience-read-state')){
+      node.querySelector('.article-kicker')?.append(mk('span','experience-read-state','Leída'));
+    }
     return node;
   }
   const baseCard=card;
@@ -177,15 +189,24 @@
       row.classList.toggle('experience-search-hidden',!matches);
       if(matches&&!row.hidden)folders+=1;
     }
-    results.replaceChildren();results.hidden=!query;
+    results.hidden=!query;
     searchStatus.hidden=!query;
-    if(!query)return;
+    if(!query){results.replaceChildren();return;}
     const sources=state.sources.filter(source=>!state.hiddenSources.has(source.id)&&fold(source.name).includes(query));
+    const existing=[...results.children],byId=new Map(existing.map(button=>[button.dataset.sourceId,button])),next=[];
     for(const source of sources.slice(0,30)){
-      const button=mk('button','experience-source-result');button.type='button';
-      button.dataset.sourceId=source.id;
-      button.append(mk('span','',sourceLabel(source.name)),mk('small','','Ver noticias'));
-      button.addEventListener('click',()=>selectSource(source.id));results.append(button);
+      let button=byId.get(source.id);
+      if(!button){
+        button=mk('button','experience-source-result');button.type='button';button.dataset.sourceId=source.id;
+        button.append(mk('span'),mk('small','','Ver noticias'));
+        button.addEventListener('click',()=>selectSource(source.id));
+      }
+      button.querySelector('span').textContent=sourceLabel(source.name);next.push(button);
+    }
+    // Count updates and pin reordering must not replace a keyboard user's target.
+    if(next.length!==existing.length||next.some((button,index)=>button!==existing[index])){
+      const active=document.activeElement;results.replaceChildren(...next);
+      if(next.includes(active))active.focus({preventScroll:true});
     }
     searchStatus.textContent=folders+' '+(folders===1?'carpeta':'carpetas')+' · '+sources.length+' '+(sources.length===1?'fuente':'fuentes')+(sources.length>30?' · Se muestran 30 fuentes. Afina la búsqueda.':'');
   }

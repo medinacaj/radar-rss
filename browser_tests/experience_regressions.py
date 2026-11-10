@@ -50,6 +50,7 @@ def exercise(browser, base, width):
         assert page.evaluate('window.RadarExperience.getPinnedDestinations()') == []
         if width <= 640:
             page.locator('#feedFiltersToggle').click()
+        if width>640:page.locator('#presentationSummary').click()
         profile = page.locator('#readingProfile')
         expect(profile).to_be_visible()
         for value, layout, images, summaries in [('compact','cards',False,True), ('headlines','list',False,False), ('visual','cards',True,True)]:
@@ -69,6 +70,9 @@ def exercise(browser, base, width):
             assert button.locator('.experience-action-label').evaluate('n=>{const r=n.getBoundingClientRect(),b=n.closest("button").getBoundingClientRect();return r.left>=b.left&&r.right<=b.right+1}')
         assert page.locator('#sourceSelect').bounding_box()['width'] >= 120
         assert page.locator('#editorialType').bounding_box()['width'] >= 120
+
+        if width<=640:page.locator('#feedFiltersDone').click()
+        else:page.locator('#presentationSummary').click()
 
         # Search operates on existing folder rows; source selection uses the existing feed filter.
         if width <= 950:
@@ -91,6 +95,9 @@ def exercise(browser, base, width):
         assert page.evaluate('window.RadarExperience.getPinnedDestinations()') == ['carpeta/Mis lecturas']
         search.fill('referencia 0')
         expect(page.locator('#sidebarSourceResults button')).to_have_count(1)
+        page.locator('#sidebarSourceResults button').focus()
+        page.evaluate('render()')
+        expect(page.locator('#sidebarSourceResults button')).to_be_focused()
         page.locator('#sidebarSourceResults button').press('Enter')
         expect(page.locator('#sourceSelect')).to_have_value('medio-0')
         expect(page.locator('.feed-filter-chip[data-filter="source"]')).to_be_visible()
@@ -106,7 +113,7 @@ def exercise(browser, base, width):
         # Capture the actual user-action viewport after that positioning finishes.
         page.evaluate("""() => {window.experienceReaderScroll=null;
           document.addEventListener('pointerdown',()=>{window.experienceReaderScroll=window.scrollY;window.experienceReaderTop=document.querySelector('[data-article-id="noticia-4"]').getBoundingClientRect().top;},{capture:true,once:true});}""")
-        card.locator('.article-title a').click()
+        card.locator('.article-also').click()
         opened = page.evaluate('window.experienceReaderScroll')
         assert opened is not None, 'Reader opening pointer action was not captured'
         page.locator('#readerClose').click()
