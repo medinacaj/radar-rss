@@ -16,7 +16,9 @@
       ? 152+Math.max(0,size-16)+(fontSize==='large'?8:0)
       : 280+Math.max(0,size-16)*14+(fontSize==='large'?40:0);
     const fitting=Math.max(1,Math.floor((Math.max(0,Number(width)||0)+gap)/(minimum+gap)));
-    return Math.min(chosen,fitting);
+    // Do not carry an ultra-dense desktop preference into a cramped phone/tablet.
+    const smallScreenCap=dense?(width<560?1:width<800?2:6):6;
+    return Math.min(chosen,fitting,smallScreenCap);
   }
   const profiles={
     visual:{layout:'cards',density:'comfortable',showImages:true,showSummaries:true},
