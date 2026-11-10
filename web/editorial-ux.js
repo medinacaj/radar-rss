@@ -245,7 +245,11 @@
     if (!region || !chips) return;
     const chip = mk('button','feed-filter-chip','Tipo: ' + labels[selectedType] + ' ×'); chip.type = 'button';
     chip.dataset.filter = 'content-type'; chip.setAttribute('aria-label','Quitar filtro: tipo ' + labels[selectedType]);
-    chip.addEventListener('click',()=>{clearType(); state.page = 1; render(); (window.innerWidth<=640?$('feedFiltersToggle'):select).focus();});
+    chip.addEventListener('click',()=>{
+      clearType();state.page=1;render();
+      // Returning focus to the hidden toolbar would strand keyboard users.
+      (window.innerWidth<=640?$('menuToggle'):$('sidebarFeedOptions')?.querySelector('summary'))?.focus({preventScroll:true});
+    });
     chips.append(chip); region.hidden = false;
     if ($('feedClearFilters')) $('feedClearFilters').hidden = false;
     const count = chips.childElementCount;

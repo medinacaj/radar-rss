@@ -150,6 +150,7 @@ class CountRegressions(unittest.TestCase):
         self.expect_count('#unreadCount', 4998)
         expect(self.page.locator('#categoryNav > .nav-link').nth(1).locator('.nav-count')).to_have_text('4.998')
         expect(self.page.locator('#libraryFolderNav .system-folder-link').nth(7).locator('.nav-count')).to_have_text('625')
+        self.page.locator('#sidebarFeedOptions > summary').click()
         self.page.select_option('#sourceSelect', 'medio-7')
         self.expect_count('#allCount', 625)
         self.page.select_option('#sourceSelect', '')

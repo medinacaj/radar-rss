@@ -29,6 +29,7 @@ def main():
                 page.goto(base+'#noticias');page.wait_for_function('()=>state.ready')
                 mobile=width<=640
                 if mobile:
+                    page.locator('#menuToggle').click()
                     page.locator('#feedFiltersToggle').click()
                     expect(page.locator('#feedFilterPanel')).to_have_attribute('open','')
                     assert page.locator('#feedFilterPanel').evaluate('n=>n.getBoundingClientRect().bottom<=innerHeight+1')
@@ -45,6 +46,8 @@ def main():
                     expect(page.locator('#feedFiltersToggle')).to_be_focused()
                     page.locator('#feedFiltersToggle').click()
                 else:
+                    if width<=950:page.locator('#menuToggle').click()
+                    page.locator('#sidebarFeedOptions > summary').click()
                     expect(page.locator('#readingProfile')).to_be_hidden()
                     page.locator('#presentationSummary').click()
                 expect(page.locator('#readingProfile')).to_be_visible()
@@ -61,11 +64,13 @@ def main():
                     page.locator('#sourceSelect').select_option('medio-1')
                     page.locator('#feedFiltersDone').click()
                     expect(page.locator('#feedFiltersToggle')).to_be_focused()
+                    page.locator('#menuClose').click()
                     expect(page.locator('.feed-filter-chip[data-filter="source"]')).to_be_visible()
                     page.locator('.feed-filter-chip[data-filter="source"]').click()
                 else:
                     page.keyboard.press('Escape')
                     expect(page.locator('#readingProfile')).to_be_hidden()
+                    if width<=950:page.locator('#menuClose').click()
                 # Duplicate publisher, read contrast, spacing and touch targets.
                 card=page.locator('#articleGrid [data-article-id="noticia-1"]')
                 names=card.locator('.article-cover-publisher,.article-meta .publisher').evaluate_all('nodes=>nodes.filter(n=>{const r=n.getBoundingClientRect();return r.width>2&&r.height>2}).length')
@@ -107,11 +112,15 @@ def main():
                     assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+2')
                     page.screenshot(path=str(output/f'{theme}-{width}.png'))
                 # Resize with a sheet open must close it and preserve existing nodes.
-                page.set_viewport_size({'width':390,'height':900});page.locator('#feedFiltersToggle').click()
+                page.set_viewport_size({'width':390,'height':900})
+                if page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuToggle').click()
+                page.locator('#feedFiltersToggle').click()
                 page.set_viewport_size({'width':1440,'height':900})
                 expect(page.locator('#feedFilterPanel')).to_be_hidden()
                 assert page.locator('#sourceSelect').count()==1
                 assert page.locator('#presentationControl').count()==1
+                if not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'):
+                    page.locator('#sidebarFeedOptions > summary').click()
                 page.locator('#presentationSummary').click();expect(page.locator('#readingProfile')).to_be_visible()
                 page.keyboard.press('Escape')
                 for target,selector in [('home','#dashboardFeature .article-title a'),('briefing','#briefingSections .briefing-title')]:

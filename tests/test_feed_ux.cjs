@@ -37,7 +37,7 @@ const node=(tag,id,cls,text='')=>{const el=new Element(tag);el.id=id;el.classNam
 const header=node('header',null,'topbar'),actions=node('div',null,'topbar-actions');header.append(node('div',null,'topbar-caption'),actions);body.append(header);
 const sidebar=node('div','sidebarCoreContent');body.append(sidebar);
 const feed=node('section','feedView');body.append(feed);
-const sectionHeading=node('div',null,'section-heading'),heading=node('h1','feedHeading',null,'Todas las noticias');sectionHeading.append(heading);feed.append(sectionHeading);
+const sectionHeading=node('div',null,'section-heading sr-only'),heading=node('h1','feedHeading',null,'Todas las noticias');sectionHeading.append(heading);feed.append(sectionHeading);
 const modes=node('div',null,'mode-tabs');modes.append(node('button',null,'mode-tab','Todas'));
 const bar=node('div',null,'filter-bar'),controls=node('div',null,'filter-controls');bar.append(modes,controls);feed.append(bar);
 const source=node('label',null,'source-filter'),sourceSelect=node('select','sourceSelect');source.append(sourceSelect);
@@ -71,11 +71,14 @@ vm.runInNewContext(fs.existsSync(scriptPath)?fs.readFileSync(scriptPath,'utf8'):
 const get=id=>document.getElementById(id);
 const chip=name=>get('feedFilterChips')?.querySelectorAll('button').find(el=>el.dataset.filter===name);
 const refresh=()=>context.render();
-assert.equal(heading.parentNode,sectionHeading);assert.equal(sectionHeading.classList.contains('sr-only'),false);
-assert.ok(!header.contains(heading),'the news heading stays in content, not the global topbar');
-assert.ok(bar.contains(get('feedHeaderControls')),'source and presentation controls stay in the feed toolbar');
+assert.equal(heading.parentNode,sectionHeading);assert.equal(sectionHeading.classList.contains('sr-only'),true);
+assert.ok(sidebar.contains(modes),'reading modes live in the sidebar');
+assert.ok(sidebar.contains(get('feedHeaderControls')),'source and presentation controls live in the sidebar');
+assert.ok(!bar.contains(get('feedHeaderControls')),'no duplicated toolbar above the news');
 assert.ok(!header.contains(get('feedHeaderControls')),'the topbar stays free of feed controls');
-assert.ok(sidebar.contains(modes));assert.ok(!sectionHeading.classList.contains('sr-only'));
+assert.equal(get('sidebarFeedOptions').open,false,'sidebar options do not take extra vertical space by default');
+assert.ok(sidebar.contains(get('feedFiltersToggle')),'mobile filtering is accessed from the menu');
+assert.ok(sidebar.contains(get('feedDensityToggle')),'density control lives in the side menu');
 assert.ok(get('feedActiveFilters'),'active filters have a visible region');
 assert.equal(get('feedDensityToggle').getAttribute('aria-pressed'),'false');
 get('feedDensityToggle').click();
@@ -113,13 +116,13 @@ assert.equal(privateFolder,null);assert.equal(state.search,'sin coincidencia');a
 // Existing listeners and node identities survive mobile placement and desktop restoration.
 let sourceChanges=0;sourceSelect.addEventListener('change',()=>sourceChanges++);
 window.innerWidth=390;window.emit('resize');
-assert.equal(get('feedFiltersToggle').hidden,false);assert.equal(source.parentNode,get('feedFilterFields'));assert.equal(tag.parentNode,get('feedFilterFields'));assert.equal(display.closest('#presentationControl').parentNode,get('feedFilterFields'));assert.equal(advanced.parentNode,null);
+assert.equal(get('feedFiltersToggle').hidden,false);assert.equal(get('sidebarFeedOptions').hidden,true);assert.equal(source.parentNode,get('feedFilterFields'));assert.equal(tag.parentNode,get('feedFilterFields'));assert.equal(display.closest('#presentationControl').parentNode,get('feedFilterFields'));assert.equal(advanced.parentNode,null);
 assert.equal(get('feedFilterPanel').hidden,true);get('feedFiltersToggle').click();
-assert.equal(get('feedFilterPanel').hidden,false);assert.equal(get('feedFiltersToggle').getAttribute('aria-expanded'),'true');assert.equal(get('v12Date').closest('.settings-feed-actions').parentNode,reading);
+assert.equal(get('feedFilterPanel').hidden,false);assert.equal(get('feedFiltersToggle').getAttribute('aria-expanded'),'true');assert.equal(get('feedDensityToggle').parentNode,get('feedFilterFields'));assert.equal(get('v12Date').closest('.settings-feed-actions').parentNode,reading);
 sourceSelect.dispatch('change');assert.equal(sourceChanges,1);
 get('feedFilterPanel').dispatch('keydown',{key:'Escape'});assert.equal(get('feedFilterPanel').hidden,true);assert.equal(document.activeElement,get('feedFiltersToggle'));
 window.innerWidth=1440;window.emit('resize');
-assert.equal(source.parentNode,get('feedHeaderControls'));assert.equal(display.closest('#presentationControl').parentNode,get('feedHeaderControls'));assert.equal(tag.parentNode,controls);assert.equal(advanced.parentNode,null);
+assert.equal(source.parentNode,get('feedHeaderControls'));assert.equal(display.closest('#presentationControl').parentNode,get('feedHeaderControls'));assert.equal(tag.parentNode.className,'sidebar-feed-options-body');assert.equal(get('feedDensityToggle').parentNode.className,'sidebar-feed-options-body');assert.equal(get('sidebarFeedOptions').hidden,false);assert.equal(advanced.parentNode,null);
 state.pageView='dashboard';refresh();assert.equal(get('feedHeaderControls').hidden,true);
 state.pageView='feed';refresh();assert.equal(get('feedHeaderControls').hidden,false);
 assert.equal(get('feedFiltersToggle').hidden,true);sourceSelect.dispatch('change');assert.equal(sourceChanges,2);

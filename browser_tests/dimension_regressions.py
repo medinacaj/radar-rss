@@ -262,6 +262,7 @@ class DimensionRegressions(unittest.TestCase):
         self.page.evaluate("goTo('all')")
         expect(self.page.locator('#columnsCurrent')).to_have_text('Auto')
         self.assertGreaterEqual(self.page.locator('#articleGrid > .article-card').first.bounding_box()['width'],280)
+        self.page.locator('#sidebarFeedOptions > summary').click()
         self.page.locator('#presentationSummary').click()
         self.page.locator('#columnsToggle').click()
         self.page.locator('#columnsMenu [data-columns="2"]').click()
