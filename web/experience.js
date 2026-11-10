@@ -4,9 +4,16 @@
 (() => {
   function effectiveColumns(width,titleSize,fontSize,requested,gap=20){
     const size=Math.max(14,Math.min(22,Number(titleSize)||16));
-    const minimum=280+Math.max(0,size-16)*14+(fontSize==='large'?40:0);
-    const fitting=Math.max(1,Math.floor((Math.max(0,Number(width)||0)+gap)/(minimum+gap)));
     const chosen=requested==='auto'?6:Math.max(1,Math.min(6,Number(requested)||1));
+    // Five/six are explicit dense layouts. The former 280px minimum made these
+    // selections practically impossible with the normal 310px sidebar open.
+    // Keep full-size reading cards for Auto/2-4; never shrink a dense card below
+    // its three 44px action targets plus padding and borders.
+    const dense=requested!=='auto'&&chosen>=5;
+    const minimum=dense
+      ? 152+Math.max(0,size-16)*10+(fontSize==='large'?28:0)
+      : 280+Math.max(0,size-16)*14+(fontSize==='large'?40:0);
+    const fitting=Math.max(1,Math.floor((Math.max(0,Number(width)||0)+gap)/(minimum+gap)));
     return Math.min(chosen,fitting);
   }
   const profiles={
@@ -106,9 +113,13 @@
     if(grid.style.getPropertyValue('--experience-columns')!==raw)grid.style.setProperty('--experience-columns',raw);
     document.body.dataset.effectiveColumns=raw;
     columnStatus.hidden=state.layout==='list';
-    const text=count+' '+(count===1?'columna':'columnas')+(state.columns==='auto'?' · Auto':Number(state.columns)!==count?' · '+state.columns+' elegidas':'');
+    const constrained=state.columns!=='auto'&&Number(state.columns)>count;
+    const text=count+' '+(count===1?'columna':'columnas')+
+      (state.columns==='auto'?' · Auto':constrained?' · de '+state.columns+' solicitadas':'');
     if(columnStatus.textContent!==text)columnStatus.textContent=text;
-    columnStatus.title='Se adaptan al espacio y al tamaño de letra. Tu elección de columnas se conserva.';
+    columnStatus.title=constrained
+      ? 'No caben '+state.columns+' columnas con este ancho y tamaño de letra. Amplía la ventana, reduce el ancho del menú lateral o el tamaño de los títulos.'
+      : 'Se adaptan al espacio y al tamaño de letra. Tu elección de columnas se conserva.';
     const header=document.querySelector('.topbar');
     if(header){
       const style=getComputedStyle(header);
