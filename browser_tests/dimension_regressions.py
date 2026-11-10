@@ -151,37 +151,38 @@ class DimensionRegressions(unittest.TestCase):
 
     def test_five_and_six_columns_really_render_on_normal_desktop(self):
         self.page.set_viewport_size({'width':1440,'height':900})
-        self.page.evaluate("""() => {
-            state.cardTitleSize=16;
-            state.fontSize='normal';
-            state.layout='cards';
-            applyDisplaySettings();
-            goTo('all');
-        }""")
-        for requested in ('5','6'):
-            self.page.evaluate('(value)=>chooseColumns(value)',requested)
-            self.page.wait_for_function(
-                '(value)=>Number(document.body.dataset.effectiveColumns)===Number(value)',
-                arg=requested)
-            layout=self.page.evaluate("""() => {
-              const grid=document.querySelector('#articleGrid');
-              const cards=[...grid.querySelectorAll(':scope > .article-card')];
-              const card=cards[0];
-              return {
-                tracks:getComputedStyle(grid).gridTemplateColumns.split(' ').length,
-                width:card.getBoundingClientRect().width,
-                overflow:document.documentElement.scrollWidth>innerWidth+2,
-                buttons:[...card.querySelectorAll('.article-actions button')].map(el=>{
-                  const r=el.getBoundingClientRect();return [r.width,r.height];
-                })
-              };
-            }""")
-            self.assertEqual(layout['tracks'],int(requested),layout)
-            self.assertGreaterEqual(layout['width'],150,layout)
-            self.assertFalse(layout['overflow'],layout)
-            for width,height in layout['buttons']:
-                self.assertGreaterEqual(width,44,layout)
-                self.assertGreaterEqual(height,44,layout)
+        self.page.evaluate("goTo('all')")
+        for title_size in (16,22):
+            self.page.evaluate("""(size) => {
+                state.cardTitleSize=size;
+                state.fontSize='normal';
+                state.layout='cards';
+                applyDisplaySettings();
+            }""",title_size)
+            for requested in ('5','6'):
+                self.page.evaluate('(value)=>chooseColumns(value)',requested)
+                self.page.wait_for_function(
+                    '(value)=>Number(document.body.dataset.effectiveColumns)===Number(value)',
+                    arg=requested)
+                layout=self.page.evaluate("""() => {
+                  const grid=document.querySelector('#articleGrid');
+                  const cards=[...grid.querySelectorAll(':scope > .article-card')];
+                  const card=cards[0];
+                  return {
+                    tracks:getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+                    width:card.getBoundingClientRect().width,
+                    overflow:document.documentElement.scrollWidth>innerWidth+2,
+                    buttons:[...card.querySelectorAll('.article-actions button')].map(el=>{
+                      const r=el.getBoundingClientRect();return [r.width,r.height];
+                    })
+                  };
+                }""")
+                self.assertEqual(layout['tracks'],int(requested),(title_size,layout))
+                self.assertGreaterEqual(layout['width'],150,(title_size,layout))
+                self.assertFalse(layout['overflow'],(title_size,layout))
+                for width,height in layout['buttons']:
+                    self.assertGreaterEqual(width,44,(title_size,layout))
+                    self.assertGreaterEqual(height,44,(title_size,layout))
         self.page.set_viewport_size({'width':768,'height':900})
         self.page.wait_for_function(
             '()=>Number(document.body.dataset.effectiveColumns)<6')
