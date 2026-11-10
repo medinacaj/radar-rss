@@ -15,6 +15,8 @@ assert.equal(effectiveColumns(900,22,'large','6',12),5);
 assert.equal(effectiveColumns(1060,22,'normal','6',12),6);
 assert.equal(effectiveColumns(1060,22,'large','6',12),6);
 assert.equal(effectiveColumns(320,22,'large','6',12),1);
+assert.equal(effectiveColumns(520,16,'normal','6',12),1);
+assert.equal(effectiveColumns(700,16,'normal','6',12),2);
 // Auto and standard layouts still enforce generous reading-card widths.
 assert.equal(effectiveColumns(900,16,'normal','auto',20),3);
 assert.equal(effectiveColumns(900,16,'normal','4',20),3);
