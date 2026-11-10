@@ -244,6 +244,19 @@ body.radar-hybrid.dimension .sidebar .folder-group-head {margin-top:7px;padding-
 body.radar-hybrid.dimension .sidebar-reading {margin-top:7px;padding-top:7px;}
 body.radar-hybrid.dimension .sidebar-bottom {padding-top:9px;gap:6px;}
 
+/* Controles accesibles incluso cuando el ancho de la tarjeta cambia. */
+body.radar-hybrid.dimension #articleGrid.article-grid .article-card .article-actions>button {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:44px;
+  height:44px;
+  min-width:44px;
+  min-height:44px;
+  flex:0 0 44px;
+  padding:8px;
+}
+
 /* Portada: noticia principal más compacta, carrusel más cercano al contenido. */
 body.radar-hybrid.dimension .dashboard-feature-panel {margin-bottom:20px;}
 body.radar-hybrid.dimension .homepage-latest {margin-bottom:18px;}
