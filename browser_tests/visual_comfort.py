@@ -79,8 +79,9 @@ def main():
                 assert card.locator('.article-title a').evaluate('n=>getComputedStyle(n).color')==before
                 expect(card.locator('.experience-read-state')).to_have_text('Leída')
                 assert card.evaluate('n=>getComputedStyle(n).opacity')=='1'
-                assert page.locator('#articleGrid').evaluate('n=>getComputedStyle(n).alignItems')=='start'
-                assert card.bounding_box()['height'] < page.locator('#articleGrid [data-article-id="noticia-0"]').bounding_box()['height']-30
+                # Same-row cards stretch to a consistent height, with auto rows intact.
+                assert page.locator('#articleGrid').evaluate('n=>getComputedStyle(n).alignItems')=='stretch'
+                assert page.locator('#articleGrid').evaluate('n=>getComputedStyle(n).gridAutoRows')=='auto'
                 assert card.locator('.article-content').evaluate('n=>parseFloat(getComputedStyle(n).paddingTop)')<=16
                 for button in card.locator('.article-actions button').all():
                     box=button.bounding_box();assert box['width']>=44 and box['height']>=44
