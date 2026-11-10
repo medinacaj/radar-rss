@@ -586,3 +586,95 @@ body.radar-hybrid.dimension #dashboardView:not([hidden]) #dashboardFeature:empty
   body.radar-hybrid.dimension #feedView:not([hidden]) #articleGrid:empty::before,
   body.radar-hybrid.dimension #feedView:not([hidden]) #articleGrid:empty::after {animation:none;}
 }
+
+/* Noticias: no duplicar el menú lateral encima del listado. */
+body.radar-hybrid.dimension #feedView>.section-heading.sr-only {
+  position:absolute!important;
+  width:1px!important;height:1px!important;
+  padding:0!important;margin:0!important;
+  overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;
+}
+body.radar-hybrid.dimension #feedView>.filter-bar {
+  display:none!important;
+  min-height:0!important;
+  padding:0!important;margin:0!important;
+}
+body.radar-hybrid.dimension #feedView>.feed-active-filters[hidden],
+body.radar-hybrid.dimension #feedView>.v12-saved-searches[hidden] {display:none!important;}
+body.radar-hybrid.dimension .sidebar-reading .sidebar-feed-options {
+  width:100%;
+  min-width:0;
+  margin-top:7px;
+  border-top:1px solid var(--editorial-quiet-line);
+  padding-top:7px;
+}
+body.radar-hybrid.dimension .sidebar-reading .sidebar-feed-options[hidden] {display:none!important;}
+body.radar-hybrid.dimension .sidebar-reading .sidebar-feed-options>summary {
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;min-height:44px;padding:8px 12px;
+  font:650 12px/1.4 var(--font-ui);
+  color:var(--muted);cursor:pointer;list-style:none;border-radius:9px;
+}
+body.radar-hybrid.dimension .sidebar-reading .sidebar-feed-options>summary:hover {
+  color:var(--text);background:var(--hover);
+}
+body.radar-hybrid.dimension .sidebar-reading .sidebar-feed-options>summary::-webkit-details-marker {display:none;}
+body.radar-hybrid.dimension .sidebar-reading .sidebar-feed-options>summary::after {
+  content:"⌄";font-size:15px;
+}
+body.radar-hybrid.dimension .sidebar-reading .sidebar-feed-options[open]>summary::after {content:"⌃";}
+body.radar-hybrid.dimension .sidebar-reading .sidebar-feed-options-body {
+  display:flex;flex-direction:column;align-items:stretch;gap:8px;
+  min-width:0;padding:6px 4px 8px;
+}
+body.radar-hybrid.dimension .sidebar-reading .feed-header-controls {
+  display:flex!important;
+  flex-direction:column;align-items:stretch;flex-wrap:nowrap;
+  width:100%;min-width:0;gap:8px;order:0;flex-basis:auto;
+  margin:0;padding:0;
+}
+body.radar-hybrid.dimension .sidebar-reading .feed-header-controls[hidden] {display:none!important;}
+body.radar-hybrid.dimension .sidebar-reading .feed-header-controls .source-filter {
+  display:block;width:100%;min-width:0;max-width:100%;flex:0 0 auto;
+}
+body.radar-hybrid.dimension .sidebar-reading .feed-header-controls .source-filter select {
+  width:100%;min-width:0;max-width:100%;
+}
+body.radar-hybrid.dimension .sidebar-reading .feed-header-controls .presentation-control {width:100%;}
+body.radar-hybrid.dimension .sidebar-reading .feed-header-controls .presentation-control>summary {
+  justify-content:space-between;width:100%;box-sizing:border-box;
+}
+body.radar-hybrid.dimension .sidebar-reading .feed-header-controls .presentation-controls-body {
+  position:static;width:100%;max-width:100%;box-sizing:border-box;
+  margin-top:5px;padding:10px;
+  border-radius:9px;box-shadow:none;
+}
+body.radar-hybrid.dimension .sidebar-reading .feed-header-controls .editorial-type-field {
+  width:100%;min-width:0;flex-wrap:wrap;gap:4px;
+}
+body.radar-hybrid.dimension .sidebar-reading .feed-header-controls .editorial-type-field select {
+  width:100%;max-width:100%;min-width:0;
+}
+body.radar-hybrid.dimension .sidebar-reading .sidebar-feed-options-body .library-tag-filter-wrap {
+  display:block;width:100%;min-width:0;
+}
+body.radar-hybrid.dimension .sidebar-reading .sidebar-feed-options-body .library-tag-filter-wrap select {
+  width:100%;max-width:100%;
+}
+body.radar-hybrid.dimension .sidebar-reading .sidebar-feed-options-body .feed-density-toggle {
+  width:100%;min-width:0;max-width:100%;
+  margin:0;justify-content:center;
+}
+body.radar-hybrid.dimension .sidebar-reading #feedFiltersToggle {
+  width:100%;min-height:44px;
+  justify-content:center;margin:6px 0 0;
+  border-radius:9px;
+}
+body.radar-hybrid.dimension .sidebar-reading #feedFiltersToggle[hidden] {display:none!important;}
+@media(max-width:640px) {
+  body.radar-hybrid.dimension #feedFilterPanel .feed-density-toggle {
+    width:100%;min-height:44px;
+  }
+}
