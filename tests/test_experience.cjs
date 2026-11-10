@@ -10,8 +10,10 @@ const {effectiveColumns,profileSettings,normalizePreferences}=require(file);
 assert.equal(effectiveColumns(1060,16,'normal','5',12),5);
 assert.equal(effectiveColumns(1060,16,'normal','6',12),6);
 assert.equal(effectiveColumns(900,16,'normal','6',12),5);
-assert.equal(effectiveColumns(900,22,'normal','6',12),4);
-assert.equal(effectiveColumns(900,22,'large','6',12),3);
+assert.equal(effectiveColumns(900,22,'normal','6',12),5);
+assert.equal(effectiveColumns(900,22,'large','6',12),5);
+assert.equal(effectiveColumns(1060,22,'normal','6',12),6);
+assert.equal(effectiveColumns(1060,22,'large','6',12),6);
 assert.equal(effectiveColumns(320,22,'large','6',12),1);
 // Auto and standard layouts still enforce generous reading-card widths.
 assert.equal(effectiveColumns(900,16,'normal','auto',20),3);
