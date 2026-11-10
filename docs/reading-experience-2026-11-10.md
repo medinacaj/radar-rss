@@ -18,6 +18,7 @@ Solicitud: aplicar las mejoras técnicas, de contenido y de experiencia visual a
 - Nuevas pruebas Chromium con fixtures: experiencia a 320, 768, 1440 y 1842px; resumen/atribución/filtros a 320 y 1440px; archivo lento de 5000 noticias y recuperación tras aborto. Se comprueban foco y posición visual de la noticia al regresar del lector.
 - Revisión independiente: resueltos filtrado de variantes ocultas, rollback global, secuencia propia del resumen y lectura atómica. Segundo pase detectó acceso a archivo privado: se expone una copia saneada por RadarLibrary y se verifica con una noticia archivada real, sin noticias en state.items.
 - Recorrido responsive Chromium: portada, noticias, navegación, búsqueda, configuración y resumen pasan a 320, 375, 390, 430, 768, 1024 y 1440px.
+- Lectura existente: filtros, preferencias, recuperación, Deshacer de grupos, navegación/retorno del lector y aviso de publicación nueva pasan a 320, 390, 768 y 1440px.
 - Regresión Dimension: 46 pruebas Chromium, incluidas agenda, fuentes, portabilidad, lector, temas, contraste y caché sin conexión.
 - CI incluye las nuevas suites. El workflow de publicación no cambia. Los resultados de navegador de CI y el despliegue corresponden al commit/PR y deben consultarse en Actions.
 

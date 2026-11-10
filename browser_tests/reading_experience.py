@@ -97,7 +97,7 @@ def exercise(browser, base, width):
         # Undo reverses this batch, retaining a prior read and a later unrelated one.
         page.evaluate("state.read.clear();markRead('noticia-0',true)")
         expect(page.locator('[data-article-id="noticia-0"] .article-read-toggle')).to_have_attribute('aria-pressed', 'true')
-        assert page.evaluate("state.read.size===1&&state.read.has('noticia-0')")
+        assert page.evaluate("state.read.size===2&&state.read.has('noticia-0')&&state.read.has('noticia-0-alternativa')")
         page.locator('#settingsButton').click()
         page.locator('[data-settings-tab="reading"]').click()
         page.locator('#markAllVisible').click()
@@ -105,7 +105,7 @@ def exercise(browser, base, width):
         expect(page.locator('#actionToast')).to_contain_text('17 noticias')
         page.evaluate("state.read.add('otra-noticia-concurrente')")
         page.get_by_role('button', name='Deshacer', exact=True).click()
-        assert page.evaluate("state.read.size===2&&state.read.has('noticia-0')&&state.read.has('otra-noticia-concurrente')")
+        assert page.evaluate("state.read.size===3&&state.read.has('noticia-0')&&state.read.has('noticia-0-alternativa')&&state.read.has('otra-noticia-concurrente')")
 
         card = page.locator('#articleGrid .article-card').nth(4)
         card.scroll_into_view_if_needed()

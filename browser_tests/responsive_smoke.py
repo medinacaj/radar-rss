@@ -662,6 +662,10 @@ def main():
                         assert page.locator("#v12SaveSearch").inner_text() == ""
                         assert page.locator("#markAllVisible").inner_text() == ""
                         page.locator("#closeSettings").click()
+                        # Measure normal-flow spacing at the top. Sticky filters
+                        # intentionally cover scrolled content below the header.
+                        page.evaluate("window.scrollTo({top:0,behavior:'instant'})")
+                        page.evaluate("() => new Promise(resolve=>requestAnimationFrame(resolve))")
                         filter_boxes = [page.locator(selector).bounding_box() for selector in
                                         ("#feedView .filter-bar", "#feedFilterPanel", "#feedActiveFilters")
                                         if page.locator(selector).is_visible()]
