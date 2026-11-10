@@ -1,0 +1,66 @@
+/* Encabezados compactos: la lectura y los controles empiezan antes. */
+body.radar-hybrid.dimension .main {
+  padding-top: 18px;
+}
+
+body.radar-hybrid.dimension :is(.home-heading, .page-heading, .section-heading, .briefing-head) {
+  margin-top: 0;
+  margin-bottom: 14px;
+}
+
+body.radar-hybrid.dimension .home-heading {
+  padding: 0;
+  border: 0;
+}
+
+body.radar-hybrid.dimension :is(.home-heading h1, .page-heading h1, .section-heading h1, .briefing-head h1) {
+  font: 750 clamp(24px, 2.25vw, 30px)/1.2 var(--font-ui);
+  letter-spacing: -.035em;
+  color: var(--text);
+  margin: 0;
+}
+
+body.radar-hybrid.dimension :is(.page-heading p, .section-heading p, .briefing-head p) {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* La introducción de Agenda ya está en la propia sección de actividades. */
+body.radar-hybrid.dimension .page-heading .dimension-kicker {
+  display: none;
+}
+
+body.radar-hybrid.dimension .briefing-head {
+  gap: 12px 20px;
+  align-items: center;
+  padding-bottom: 12px;
+}
+
+body.radar-hybrid.dimension .briefing-kicker {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: .02em;
+}
+
+/* Mantener las acciones del resumen accesibles en pantallas pequeñas. */
+@media (max-width: 710px) {
+  body.radar-hybrid.dimension .main {
+    padding-top: 12px;
+  }
+
+  body.radar-hybrid.dimension :is(.home-heading, .page-heading, .section-heading, .briefing-head) {
+    margin-bottom: 12px;
+  }
+
+  body.radar-hybrid.dimension :is(.home-heading h1, .page-heading h1, .section-heading h1, .briefing-head h1) {
+    font-size: 24px;
+  }
+
+  body.radar-hybrid.dimension .briefing-head {
+    align-items: stretch;
+  }
+}
