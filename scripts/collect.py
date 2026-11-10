@@ -573,6 +573,22 @@ LATEST_COUNT=300
 CHUNK_SIZE=300
 MAX_ARTICLES=5000
 MAX_CANDIDATES=7500
+RESEARCH_CATEGORY='11 - Investigación y Gestión'
+RESEARCH_DAYS=730
+RESEARCH_RESERVE=200
+
+def select_retained(ordered: list[dict], limit: int) -> list[dict]:
+    """Reserve space for slower academic publications, keeping chronological order."""
+    protected = {item['id'] for item in
+                 [item for item in ordered if RESEARCH_CATEGORY in item.get('categories', [])]
+                 [:min(RESEARCH_RESERVE, limit)]}
+    selected = set(protected)
+    for item in ordered:
+        if len(selected) >= limit:
+            break
+        selected.add(item['id'])
+    return [item for item in ordered if item['id'] in selected]
+
 STOPWORDS=set("a al an and as at con de del el en es for from in is la las lo los no of on or para por que se su the to un una with y tras hoy ayer today latest news este esta fue hay says dijo".split())
 
 def story_tokens(title: str) -> frozenset[str]:
@@ -722,7 +738,6 @@ def collect(opml: Path, out: Path, days: int, workers: int, max_per_feed: int, *
             print(f"[{st['state']:>5}] {feed['name'][:57]} ({st['count']})", flush=True)
 
     merged = {}
-    cutoff = now - timedelta(days=days)
     catalog = {source['id']: source for source in sources}
     valid_ids = set(catalog)
     for item in prior_articles + current_items:
@@ -743,6 +758,12 @@ def collect(opml: Path, out: Path, days: int, workers: int, max_per_feed: int, *
                     'summary': '', 'image': None, 'also_in': alternatives}
         # Reprocess old Google News titles, including alternatives under a direct RSS lead.
         normalize_cached_google_titles(item)
+        item['source_ids'] = [sid for sid in item.get('source_ids', []) if sid in valid_ids]
+        if not item['source_ids']:
+            continue
+        item['categories'] = list(dict.fromkeys(catalog[sid]['category'] for sid in item['source_ids']))
+        retention_days = RESEARCH_DAYS if RESEARCH_CATEGORY in item['categories'] else days
+        cutoff = now - timedelta(days=retention_days)
         date_txt = item.get('published_at') or item.get('first_seen_at')
         try:
             dt = datetime.fromisoformat(date_txt.replace('Z', '+00:00'))
@@ -750,10 +771,6 @@ def collect(opml: Path, out: Path, days: int, workers: int, max_per_feed: int, *
                 continue
         except (ValueError, AttributeError):
             continue
-        item['source_ids'] = [sid for sid in item.get('source_ids', []) if sid in valid_ids]
-        if not item['source_ids']:
-            continue
-        item['categories'] = list(dict.fromkeys(catalog[sid]['category'] for sid in item['source_ids']))
         key = item.get('id')
         if not key:
             continue
@@ -780,7 +797,7 @@ def collect(opml: Path, out: Path, days: int, workers: int, max_per_feed: int, *
         merged[key] = item
 
     ordered = sorted(merged.values(), key=lambda i: (i.get('published_at') or i.get('first_seen_at') or ''), reverse=True)
-    articles = group_related_articles(ordered[:MAX_CANDIDATES])[:MAX_ARTICLES]
+    articles = select_retained(group_related_articles(select_retained(ordered, MAX_CANDIDATES)), MAX_ARTICLES)
     if image_fallback:
         image_stats = recover_missing_images(articles, now, sources)
         print('Imágenes originales: '
@@ -800,7 +817,9 @@ def collect(opml: Path, out: Path, days: int, workers: int, max_per_feed: int, *
     write_json(out / 'status.json', {'version': 1, 'checked_at': iso(now),
                                      'feeds': states, 'errors': sum(s['state'] == 'error' for s in states),
                                      'stale': sum(s['state'] == 'stale' for s in states)})
-    result = {'sources': len(sources), 'articles': len(articles), 'ok': sum(s['state'] == 'ok' for s in states),
+    result = {'sources': len(sources), 'articles': len(articles),
+              'research_articles': sum(RESEARCH_CATEGORY in item['categories'] for item in articles),
+              'ok': sum(s['state'] == 'ok' for s in states),
               'error': sum(s['state'] == 'error' for s in states), 'stale': sum(s['state'] == 'stale' for s in states)}
     print('RESULTADO', result, flush=True)
     return result
