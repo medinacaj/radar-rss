@@ -295,3 +295,15 @@ test('a programmatic unread action preserves focus in another reader control or 
     assert.equal(h.document.activeElement,focused);
   }
 });
+
+test('an explicit digest sequence controls reader order independently of feed filters',()=>{
+ const h=setup({order:['a','b','c','d']});
+ assert.ok(h.window.RadarReaderExperience?.openSequence,'missing sequence-aware reader');
+ const sequence=[h.state.items.find(x=>x.id==='d'),h.state.items.find(x=>x.id==='b')];
+ const trigger=h.row('d').querySelector('a');trigger.focus();
+ h.window.RadarReaderExperience.openSequence(sequence,sequence[0],{currentTarget:trigger,target:trigger,button:0,preventDefault(){}});
+ assert.equal(h.get('readerPosition').textContent,'1 de 2');
+ h.get('readerNext').click();assert.equal(h.context.activeReaderItem.id,'b');assert.equal(h.get('readerPosition').textContent,'2 de 2');
+ h.get('readerPrevious').click();assert.equal(h.context.activeReaderItem.id,'d');
+ h.get('readerClose').click();h.flush();assert.equal(h.document.activeElement.closest('[data-article-id]').dataset.articleId,'d');
+});

@@ -407,3 +407,41 @@ test('an old archive request cannot overwrite an accepted publication or its new
   assert(!h.state.items.some(item=>item.id==='stale-history'));
   assert.equal(h.state.historyLoaded,true);
 });
+
+test('archive download reports progress while latest remains readable and commits atomically',async()=>{
+  const h=harness();let first,second;
+  Object.assign(h.state,{items:[{id:'latest',published_at:OLD}],historyLoaded:false,historyLoading:false,
+    feedMeta:{generated_at:OLD,total_articles:3,archive_files:['archive-01.json','archive-02.json']}});
+  h.setFetch(name=>new Promise(resolve=>{if(name==='archive-01.json')first=resolve;else second=resolve;}));
+  const pending=h.run('loadHistory()');await new Promise(setImmediate);
+  assert.deepEqual(JSON.parse(JSON.stringify(h.state.historyProgress)),{loaded:0,total:2});
+  first({generated_at:OLD,items:[{id:'first',published_at:OLD}]});await new Promise(setImmediate);
+  assert.equal(h.state.historyProgress.loaded,1);assert.equal(h.state.items.length,1,'partial downloads must not replace readable latest');
+  second({generated_at:OLD,items:[{id:'second',published_at:OLD}]});await pending;
+  assert.equal(h.state.historyProgress.loaded,2);assert.equal(h.state.items.length,3);assert.equal(h.state.historyLoaded,true);
+});
+
+test('archive timeout preserves current stories and exposes a retry',async()=>{
+  const h=harness();Object.assign(h.state,{items:[{id:'latest'}],historyLoaded:false,historyLoading:false,
+    feedMeta:{generated_at:OLD,total_articles:2,archive_files:['archive-01.json']}});
+  h.setFetch(()=>new Promise(()=>{}));const pending=h.run('loadHistory()');await new Promise(setImmediate);
+  assert.ok([...h.timers.values()].some(timer=>timer.ms===15000),'archive must have a bounded timeout');
+  h.expire(15000);await pending;
+  assert.equal(h.state.historyFailed,true);assert.equal(h.state.items[0].id,'latest');assert.equal(h.state.historyLoading,false);
+  assert.equal(h.el('historyRetry').hidden,false);
+});
+
+test('a truncated complete archive cannot silently replace latest with an incomplete total',async()=>{
+  const h=harness();Object.assign(h.state,{items:[{id:'latest'}],historyLoaded:false,historyLoading:false,
+    feedMeta:{generated_at:OLD,total_articles:3,archive_files:['archive-01.json']}});
+  h.setFetch(()=>({generated_at:OLD,items:[{id:'only-one'}]}));await h.run('loadHistory()');
+  assert.equal(h.state.historyFailed,true);assert.equal(h.state.historyLoaded,false);assert.equal(h.state.items.length,1);
+});
+
+test('setting grouped story reading state updates every member with one render',()=>{
+ const h=harness();h.state.read=new Set();const before=h.effects.length;
+ h.run("markRead('a',true,['a','b','a'])");
+ assert.deepEqual([...h.state.read],['a','b']);
+ assert.equal(h.effects.slice(before).filter(e=>e.type==='render').length,1);
+ h.run("markRead('a',false,['a','b'])");assert.equal(h.state.read.size,0);
+});

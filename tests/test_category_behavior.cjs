@@ -34,7 +34,7 @@ function reader(scope) {
     storyTime: () => 0});
   const labels = app.match(/^const CATEGORY_LABELS = .*$/m)[0];
   vm.runInContext([labels, productionFunction(app, 'categoryLabel'),
-    productionFunction(app, 'stripAccents'), productionFunction(app, 'applyFilters')].join('\n'), context);
+    productionFunction(app, 'stripAccents'), 'const newsSearchCache=new WeakMap();', productionFunction(app,'newsSearchText'), productionFunction(app, 'applyFilters')].join('\n'), context);
   // This initial module section owns geography and the public briefing API;
   // DOM rendering starts at const display and is exercised by the browser smoke.
   vm.runInContext(v12.slice(0, v12.indexOf('  const display =')) +

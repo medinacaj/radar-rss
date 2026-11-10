@@ -1,0 +1,94 @@
+/* Reading stays legible at the selected font size as the available grid changes. */
+body.radar-hybrid.dimension #articleGrid.article-grid:not(.list-view){
+  grid-template-columns:repeat(var(--experience-columns,1),minmax(0,1fr))!important;
+}
+body.radar-hybrid.dimension #articleGrid.article-grid:not(.list-view)>.article-card .article-title,
+body.radar-hybrid.dimension #articleGrid.article-grid.list-view>.article-card .article-title{
+  font-size:var(--radar-reading-title-size)!important;line-height:1.4;
+}
+/* A source identity is sufficient when the feed supplies no photograph. */
+body.radar-hybrid.dimension :is(#articleGrid.article-grid:not(.list-view),#dashboardFeature)>.article-card.no-cover>.article-cover-placeholder,
+body.radar-hybrid.dimension.compact #articleGrid.article-grid:not(.list-view)>.article-card.no-cover>.article-cover-placeholder{
+  min-height:0;height:auto;max-height:none;flex-basis:auto;aspect-ratio:auto;
+  padding:12px 18px;border-radius:0;background:var(--surface);border-bottom:1px solid var(--line);
+}
+body.radar-hybrid.dimension :is(#articleGrid.article-grid:not(.list-view),#dashboardFeature)>.article-card.no-cover>.article-cover-placeholder .article-cover-placeholder-inner{
+  display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:8px;padding:0;min-width:0;width:100%;text-align:left;
+}
+body.radar-hybrid.dimension :is(#articleGrid.article-grid:not(.list-view),#dashboardFeature)>.article-card.no-cover>.article-cover-placeholder .article-cover-publisher{
+  font:600 12px/1.5 var(--font-ui);letter-spacing:0;text-transform:none;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+body.radar-hybrid.dimension :is(#articleGrid.article-grid:not(.list-view),#dashboardFeature)>.article-card.no-cover>.article-cover-placeholder .ui-icon{
+  width:18px;height:18px;flex:0 0 18px;
+}
+body.radar-hybrid.dimension :is(#articleGrid.article-grid:not(.list-view),#dashboardFeature)>.article-card.no-cover>.article-cover-placeholder .article-cover-note{display:none}
+body.radar-hybrid.dimension .experience-profile{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px;min-width:0}
+body.radar-hybrid.dimension .experience-profile select{
+  min-height:44px;max-width:100%;min-width:0;border:1px solid var(--line);border-radius:8px;
+  background:var(--surface);color:var(--text);font:inherit;padding:8px;
+}
+body.radar-hybrid.dimension .display-controls{flex-wrap:wrap;gap:8px;min-width:0}
+body.radar-hybrid.dimension .layout-switch{flex-wrap:wrap;align-items:center;gap:6px}
+body.radar-hybrid.dimension .experience-column-status{font-size:11px;color:var(--muted);max-width:150px;line-height:1.4}
+body.radar-hybrid.dimension .cards-columns-control{width:auto;gap:6px;padding-inline:10px;min-height:44px}
+body.radar-hybrid.dimension .experience-columns-label{font-size:12px;font-weight:600}
+body.radar-hybrid.dimension .view-button[data-view="list"]{width:auto;gap:6px;padding-inline:10px;min-height:44px}
+body.radar-hybrid.dimension .experience-action-label{font:600 11px/1.2 var(--font-ui);white-space:nowrap}
+body.radar-hybrid.dimension .article-card .article-actions{flex-wrap:wrap;width:100%;justify-content:flex-end;gap:6px}
+body.radar-hybrid.dimension .article-card .article-footer :is(.article-read-toggle,.article-save,.article-more){
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:0 0 auto;width:auto;height:auto;min-width:44px;min-height:44px;
+  padding:8px;border-radius:8px;
+}
+body.radar-hybrid.dimension .view-button[data-view="list"]{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+@media(min-width:641px){
+  body.radar-hybrid.dimension .topbar{flex-wrap:wrap}
+  body.radar-hybrid.dimension .feed-header-controls{
+    order:6;flex-basis:100%;flex-wrap:wrap;justify-content:flex-start;padding-bottom:8px;
+  }
+  body.radar-hybrid.dimension .feed-header-controls .source-filter{flex:0 1 220px;min-width:160px}
+  body.radar-hybrid.dimension .feed-header-controls .source-filter select{width:100%}
+  body.radar-hybrid.dimension .feed-header-controls .display-controls{flex:0 1 auto}
+  body.radar-hybrid.dimension .feed-header-controls .editorial-type-field{flex:0 0 auto}
+  body.radar-hybrid.dimension .feed-header-controls .editorial-type-field select{min-width:140px}
+}
+body.radar-hybrid.dimension .article-card .article-footer{flex-wrap:wrap}
+body.radar-hybrid.dimension #feedActiveFilters{
+  position:sticky;top:var(--experience-sticky-top,88px);z-index:12;background:var(--surface);border:1px solid var(--line);
+  border-radius:10px;padding:8px 10px;max-height:38vh;overflow:auto;
+}
+body.radar-hybrid.dimension #feedActiveFilters[hidden]{display:none}
+body.radar-hybrid.dimension #feedActiveFilters :is(.feed-filter-chip,.feed-clear-filters){min-height:44px}
+body.radar-hybrid.dimension .experience-library-search{padding:8px 10px 10px;min-width:0}
+body.radar-hybrid.dimension .experience-library-search>label{display:block;font-size:11px;color:var(--muted);margin-bottom:7px}
+body.radar-hybrid.dimension .experience-search-row{display:flex;align-items:center;gap:4px;min-width:0}
+body.radar-hybrid.dimension #sidebarLibrarySearch{
+  width:100%;min-width:0;min-height:44px;border:1px solid var(--line);border-radius:8px;
+  padding:8px;color:var(--text);background:var(--surface);font:inherit;font-size:12px;
+}
+body.radar-hybrid.dimension .experience-search-row button{
+  min-height:44px;min-width:44px;border:0;background:transparent;color:var(--muted);font:inherit;font-size:11px;
+}
+body.radar-hybrid.dimension .source-folders-section .folder-entry>.experience-pin{
+  display:inline-flex;align-items:center;justify-content:center;flex:0 0 52px;min-height:44px;min-width:44px;
+  border:0;background:transparent;color:var(--muted);font:600 11px/1.3 var(--font-ui);cursor:pointer;border-radius:8px;
+}
+body.radar-hybrid.dimension .source-folders-section .folder-entry>.experience-pin[aria-pressed="true"]{color:var(--accent)}
+body.radar-hybrid.dimension .experience-search-hidden{display:none!important}
+body.radar-hybrid.dimension .experience-source-result{
+  display:flex;width:100%;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:3px;
+  min-height:44px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);
+  text-align:left;padding:8px 2px;font:inherit;font-size:12px;cursor:pointer;overflow-wrap:anywhere;
+}
+body.radar-hybrid.dimension .experience-source-result small{color:var(--muted);font-size:10px}
+body.radar-hybrid.dimension .experience-source-results{max-height:270px;overflow:auto;margin-top:8px}
+body.radar-hybrid.dimension .experience-search-status{font-size:11px;line-height:1.5;color:var(--muted);margin:8px 0 0}
+body.radar-hybrid.dimension :is(.experience-pin,.experience-source-result,.experience-search-row button):hover{background:var(--hover)}
+body.radar-hybrid.dimension :is(.experience-profile select,.experience-pin,.experience-source-result,#sidebarLibrarySearch,.experience-search-row button):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(max-width:640px){
+  body.radar-hybrid.dimension .experience-profile{width:100%;justify-content:space-between;font-size:13px}
+  body.radar-hybrid.dimension .experience-profile select{font-size:16px;flex:1;max-width:220px}
+  body.radar-hybrid.dimension .experience-column-status{max-width:120px}
+  body.radar-hybrid.dimension #sidebarLibrarySearch{font-size:16px}
+  body.radar-hybrid.dimension #feedActiveFilters{padding:6px;max-height:32vh}
+}

@@ -80,7 +80,7 @@ class DimensionRegressions(unittest.TestCase):
         expect(self.page.locator('#dashboardTitle')).to_have_text('Inicio')
         expect(self.page.locator('#newsroomColumns,#dashboardFolders,#dashboardSavedPanel')).to_have_count(0)
         order=self.page.locator('#dashboardView > section').evaluate_all('nodes=>nodes.map(n=>n.id)')
-        self.assertEqual(order,['sinceVisit','homeHeadlines','homeLatest','coverageTools'])
+        self.assertEqual(order,['sinceVisit','homeHeadlines','homeLatest','editorialLocal','coverageTools'])
         for width in (320,768,1440):
             self.page.set_viewport_size({'width':width,'height':1000})
             expect(self.page.locator('#radarFigure')).to_be_visible()
@@ -125,7 +125,10 @@ class DimensionRegressions(unittest.TestCase):
         for columns in ('auto','2','3','4','5','6'):
             self.page.evaluate('(columns)=>chooseColumns(columns)',columns)
             self.page.evaluate('() => new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))')
-            if columns in ('5','6'):self.assertLess(title.evaluate('n=>parseFloat(getComputedStyle(n).fontSize)'),normal)
+            self.assertEqual(title.evaluate('n=>parseFloat(getComputedStyle(n).fontSize)'),normal)
+            self.assertEqual(self.page.evaluate('state.columns'),columns)
+            effective=self.page.evaluate('Number(document.body.dataset.effectiveColumns)')
+            self.assertLessEqual(effective,6 if columns=='auto' else int(columns))
             cards=self.page.locator('#articleGrid>.article-card').evaluate_all("""nodes=>nodes.map(n=>({
                 width:n.getBoundingClientRect().width,height:n.getBoundingClientRect().height,
                 overflow:n.scrollWidth>n.clientWidth+1,
@@ -146,7 +149,7 @@ class DimensionRegressions(unittest.TestCase):
         self.page.evaluate("state.cardTitleSize=16;applyDisplaySettings();chooseColumns('3')")
         self.assertEqual(title.evaluate('n=>parseFloat(getComputedStyle(n).fontSize)'),normal)
 
-    def test_all_column_sizes_scale_text_and_sidebar_rows_are_compact(self):
+    def test_all_column_sizes_preserve_chosen_text_and_sidebar_rows_are_compact(self):
         self.page.set_viewport_size({'width':1842,'height':1000})
         self.page.evaluate("goTo('all')")
         sizes=[]
@@ -154,7 +157,8 @@ class DimensionRegressions(unittest.TestCase):
             self.page.evaluate('(columns)=>chooseColumns(columns)',columns)
             self.page.evaluate('() => new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))')
             sizes.append(self.page.locator('#articleGrid .article-title').first.evaluate('n=>parseFloat(getComputedStyle(n).fontSize)'))
-        self.assertTrue(all(a>b for a,b in zip(sizes,sizes[1:])),sizes)
+        self.assertEqual(len(set(sizes)),1,sizes)
+        self.assertGreaterEqual(sizes[0],16)
         for width in (375,1440):
             self.page.set_viewport_size({'width':width,'height':900})
             if width==375:self.page.locator('#menuToggle').click()

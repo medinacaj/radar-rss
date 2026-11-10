@@ -28,6 +28,17 @@ const snapshot=item=>{
     source:String(item.source||'').slice(0,120),
     source_ids:Array.isArray(item.source_ids)?item.source_ids.filter(x=>typeof x==='string').slice(0,20):[],
     categories:Array.isArray(item.categories)?item.categories.filter(x=>typeof x==='string').slice(0,10):[],
+    ...(['news','opinion','analysis','press_release'].includes(item.content_type)?{content_type:item.content_type,content_type_label:String(item.content_type_label||'').slice(0,40)}:{}),
+    coverage:Math.max(1,Math.min(1000,Math.trunc(Number(item.coverage)||1))),
+    editorial_member_ids:Array.isArray(item.editorial_member_ids)?[...new Set(item.editorial_member_ids.filter(x=>typeof x==='string'&&x.length<=150))].slice(0,100):[],
+    also_in:(Array.isArray(item.also_in)?item.also_in:[]).filter(x=>x&&typeof x==='object'&&safeURL(x.url)&&typeof x.source_id==='string').slice(0,20).map(x=>({
+      id:typeof x.id==='string'?x.id.slice(0,150):'',url:safeURL(x.url),
+      title:String(x.title||'').slice(0,250),publisher:String(x.publisher||'').slice(0,90),
+      source:String(x.source||'').slice(0,120),source_id:x.source_id.slice(0,150),
+      category:String(x.category||'').slice(0,150),published_at:String(x.published_at||'').slice(0,40),
+      ...(['news','opinion','analysis','press_release'].includes(x.content_type)?{content_type:x.content_type}:{}),
+      is_radar:Boolean(x.is_radar)
+    })),
     is_radar:Boolean(item.is_radar)
   };
 };
@@ -58,8 +69,56 @@ function readTags(data){
 }
 tags=readTags(rawTags);
 let activeFolder=null,activeTag='',pendingSourceNavigation=null;
+// Registered local preference modules participate in the existing v3 backup.
+const backupExtensions=new Map();
+function registerBackupModule(name,module){
+ const reserved=['__proto__','prototype','constructor','agendaPreferences','followedTopics','v12Preferences','savedSearches'];
+ if(typeof name!=='string'||!/^[a-z][a-zA-Z0-9]{0,50}$/.test(name)||reserved.includes(name)||backupExtensions.has(name)||
+    !module||!['validate','export','restore','reset'].every(key=>typeof module[key]==='function'))return false;
+ backupExtensions.set(name,module);return true;
+}
+function cleanExtensionModules(input){
+ const result=Object.create(null);
+ if(!input||typeof input!=='object'||Array.isArray(input))return result;
+ for(const [name,module] of backupExtensions)if(Object.hasOwn(input,name))result[name]=module.validate(input[name]);
+ return result;
+}
+function exportExtensionModules(){
+ const result=Object.create(null);
+ for(const [name,module] of backupExtensions)result[name]=module.validate(module.export());
+ return result;
+}
+function restoreExtensionModules(input,options={}){
+ const clean=cleanExtensionModules(input),before=new Map(),applied=[];
+ for(const name of Object.keys(clean)){const module=backupExtensions.get(name);before.set(name,module.validate(module.export()));}
+ try{for(const name of Object.keys(clean)){applied.push(name);backupExtensions.get(name).restore(clean[name],options);}}
+ catch(error){for(const name of applied.reverse()){try{backupExtensions.get(name).restore(before.get(name),{persist:false});}catch{}}throw error;}
+}
+function resetBackupModules(){
+ let failure=null;
+ for(const module of backupExtensions.values()){try{module.reset();}catch(error){failure=error;}}
+ if(failure)throw failure;
+}
+function beginPreferenceImport(){
+ const previous={...state},domain={archive:new Map(archive),folders,defaults,tags,activeFolder,activeTag};
+ const modules=backupModules(),storage=new Map();
+ for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key?.startsWith('radar-'))storage.set(key,localStorage.getItem(key));}
+ return function rollback(){
+  let failure=null;
+  try{
+   const current=[];for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key?.startsWith('radar-'))current.push(key);}
+   for(const key of current)if(!storage.has(key))localStorage.removeItem(key);
+   for(const [key,value] of storage)if(localStorage.getItem(key)!==value)localStorage.setItem(key,value);
+  }catch(error){failure=error;}
+  Object.assign(state,previous);archive=domain.archive;folders=domain.folders;defaults=domain.defaults;tags=domain.tags;activeFolder=domain.activeFolder;activeTag=domain.activeTag;
+  restoreModules(modules,{persist:false});
+  if(failure)throw failure;
+ };
+}
 // Read-only snapshot for the feed's visible filter summary; no library data is removed.
 window.RadarLibrary=Object.freeze({
+ registerBackupModule,resetBackupModules,
+ getSavedStories(){return savedNews().map(snapshot).filter(Boolean);},
  getSourceGroups(){return sourceGroups();},
  getFeedFilters(){return {
   folder:activeFolder?{id:activeFolder,label:activeFolder,kind:'manual'}:
@@ -86,14 +145,16 @@ function cleanModules(data){
   .filter(x=>x&&typeof x==='object'&&typeof x.label==='string'&&typeof x.query==='string'&&['all','latam','chile','venezuela','region'].includes(x.geo)).slice(0,12)
   .map(x=>({label:x.label.trim().slice(0,65),query:x.query.slice(0,90),geo:x.geo,age:[0,1,7,30,90].includes(Number(x.age))?Number(x.age):0,
    category:state.categories.includes(x.category)?x.category:'all',feed:typeof x.feed==='string'&&state.sources.some(source=>source.id===x.feed)?x.feed:''}));
+ Object.assign(result,cleanExtensionModules(input));
  return result;
 }
-function backupModules(){return cleanModules({followedTopics:read('radar-followed-topics',[]),v12Preferences:read('radar-v12-preferences',{}),savedSearches:read('radar-v12-saved-searches',[]),agendaPreferences:window.RadarAgenda.exportPreferences()});}
-function restoreModules(data){
+function backupModules(){return cleanModules({followedTopics:read('radar-followed-topics',[]),v12Preferences:read('radar-v12-preferences',{}),savedSearches:read('radar-v12-saved-searches',[]),agendaPreferences:window.RadarAgenda.exportPreferences(),...exportExtensionModules()});}
+function restoreModules(data,options={}){
  const modules=cleanModules(data);
  for(const [field,key] of [['followedTopics','radar-followed-topics'],['v12Preferences','radar-v12-preferences'],['savedSearches','radar-v12-saved-searches']])
-  if(Object.hasOwn(modules,field)&&!write(key,modules[field]))throw Error('No se pudo guardar '+field);
- if(Object.hasOwn(modules,'agendaPreferences'))window.RadarAgenda.restorePreferences(modules.agendaPreferences);
+  if(options.persist!==false&&Object.hasOwn(modules,field)&&!write(key,modules[field]))throw Error('No se pudo guardar '+field);
+ if(Object.hasOwn(modules,'agendaPreferences'))window.RadarAgenda.restorePreferences(modules.agendaPreferences,options);
+ restoreExtensionModules(modules,options);
 }
 
 
@@ -414,7 +475,7 @@ function syncArchive(){
     const s=snapshot(item);
     if(!s)continue;
     const previous=archive.get(s.id);
-    if(!previous||previous.title!==s.title||previous.summary!==s.summary||previous.image!==s.image){
+    if(!previous||JSON.stringify(previous)!==JSON.stringify(s)){
       archive.delete(s.id);archive.set(s.id,s);changed=true;
     }
   }
@@ -734,10 +795,12 @@ applyFilters=function(mode=state.mode){
   const blocked=state.mutedKeywords.split(',').map(x=>stripAccents(x.trim())).filter(x=>x.length>1).slice(0,30);
   const query=stripAccents(state.search.trim());
   const input=mode==='saved'?savedNews():state.items;
+  const categoryIds=state.category==='all'?null:new Set(folderSources('default',state.category));
+  const manualIds=activeFolder?new Set(folders[activeFolder]||[]):null;
   const filtered=input.filter(item=>{
-    if(state.category!=='all'&&!(item.source_ids||[]).some(id=>folderSources('default',state.category).includes(id)))return false;
+    if(categoryIds&&!(item.source_ids||[]).some(id=>categoryIds.has(id)))return false;
     if(mode!=='saved'&&!(item.source_ids||[]).some(id=>!state.hiddenSources.has(id)))return false;
-    if(activeFolder&&!(item.source_ids||[]).some(id=>(folders[activeFolder]||[]).includes(id)))return false;
+    if(manualIds&&!(item.source_ids||[]).some(id=>manualIds.has(id)))return false;
     if(state.feed&&!(item.source_ids||[]).includes(state.feed))return false;
     if(state.maxAge&&mode!=='saved'){
       const t=new Date(item.published_at).getTime();
@@ -747,7 +810,7 @@ applyFilters=function(mode=state.mode){
     if(mode==='unread'&&state.read.has(item.id))return false;
     if(state.hideRead&&mode!=='saved'&&state.read.has(item.id))return false;
     if(activeTag&&!(tags[item.id]||[]).includes(activeTag))return false;
-    const text=stripAccents([item.title,item.summary,item.publisher,item.source,...(tags[item.id]||[])].join(' '));
+    const text=newsSearchText(item,tags[item.id]||[]);
     return(!query||text.includes(query))&&!blocked.some(w=>text.includes(w));
   });
   if(state.sort==='oldest')filtered.sort((a,b)=>new Date(a.published_at||a.first_seen_at||0)-new Date(b.published_at||b.first_seen_at||0));
@@ -918,11 +981,13 @@ function mount(){
     e.stopImmediatePropagation();
     const file=e.target.files?.[0];e.target.value='';if(!file)return;
     if(file.size>5_000_000){$('dataNotice').textContent='Respaldo mayor de 5 MB.';return;}
+    let rollback=null;
     try{
       const d=JSON.parse(await file.text());
       if(!['radar-rss-settings-v2','radar-rss-settings-v3'].includes(d.format)||!d.preferences||typeof d.preferences!=='object'||Array.isArray(d.preferences))throw Error('Formato incompatible');
       // Validate the entire agenda module before changing any live preference.
       const modules=cleanModules(d.modules);
+      rollback=beginPreferenceImport();
       const p=d.preferences,choose=(key,options,def)=>options.includes(p[key])?p[key]:def;
       state.theme=choose('theme',['system','light','dark'],'system');
       state.layout=choose('layout',['cards','list'],'cards');
@@ -940,22 +1005,31 @@ function mount(){
       state.saved=new Set((Array.isArray(d.saved)?d.saved:[]).filter(x=>typeof x==='string'&&x.length<150).slice(-4000));
       state.read=new Set((Array.isArray(d.read)?d.read:[]).filter(x=>typeof x==='string'&&x.length<150).slice(-20000));
       state.hiddenSources=new Set((Array.isArray(d.hiddenSources)?d.hiddenSources:[]).filter(x=>known.has(x)));
-      persist('radar-saved',state.saved);persist('radar-read',state.read);persist('radar-hidden-sources',state.hiddenSources);
+      if(!write('radar-saved',[...state.saved].slice(-4000))||!write('radar-read',[...state.read].slice(-5000))||!write('radar-hidden-sources',[...state.hiddenSources]))throw Error('No se pudieron guardar las lecturas importadas');
       archive=new Map((Array.isArray(d.savedArchive)?d.savedArchive:[]).slice(-LIMIT).map(snapshot).filter(Boolean).filter(x=>state.saved.has(x.id)).map(x=>[x.id,x]));
       folders=readFolders(d.sourceFolders);defaults=(d.folderDefaults&&typeof d.folderDefaults==='object'&&!Array.isArray(d.folderDefaults))?d.folderDefaults:Object.create(null);tags=readTags(d.articleTags);
-      saveArchive();write(FOLDER_KEY,folders);saveDefaults();write(TAG_KEY,tags);syncArchive();
+      if(!write(ARCHIVE_KEY,[...archive.values()].slice(-LIMIT))||!write(FOLDER_KEY,folders)||!saveDefaults()||!write(TAG_KEY,tags))throw Error('No se pudo guardar la biblioteca importada');
+      syncArchive();
       if(Number.isFinite(Number(p.sidebarWidth))&&Number(p.sidebarWidth)>=240&&Number(p.sidebarWidth)<=480){
         try{localStorage.setItem('radar-sidebar-width',String(Math.round(Number(p.sidebarWidth))));}catch{}
         window.dispatchEvent(new Event('radar-sidebar-pref-sync'));
       }
-      for(const [key,value] of [['layout',state.layout],['columns',state.columns],['theme',state.theme],['density',state.density],['font',state.fontSize],['card-title-size',state.cardTitleSize],['page-size',state.pageSize],['max-age',state.maxAge],['show-hero',state.showHero],['show-images',state.showImages],['show-summaries',state.showSummaries],['hide-read',state.hideRead],['new-tab',state.newTab],['lite',state.lite],['sort',state.sort],['start-mode',state.startMode],['keywords',state.mutedKeywords]])savePref(key,value);
+      for(const [key,value] of [['layout',state.layout],['columns',state.columns],['theme',state.theme],['density',state.density],['font',state.fontSize],['card-title-size',state.cardTitleSize],['page-size',state.pageSize],['max-age',state.maxAge],['show-hero',state.showHero],['show-images',state.showImages],['show-summaries',state.showSummaries],['hide-read',state.hideRead],['new-tab',state.newTab],['lite',state.lite],['sort',state.sort],['start-mode',state.startMode],['keywords',state.mutedKeywords]])localStorage.setItem('radar-'+key,String(value));
       restoreModules(modules);
       document.body.classList.toggle('lite',state.lite);
       window.dispatchEvent(new Event('radar-preferences-imported'));
       state.mode=state.startMode;state.page=1;
       setTheme(state.theme,true);applyDisplaySettings();refreshFeedUI();syncSettings();selectedTab('data');
       $('dataNotice').textContent='Respaldo importado correctamente.';
-    }catch(err){console.warn('Importación Radar RSS',err);$('dataNotice').textContent='Archivo inválido o incompatible.';}
+    }catch(err){
+      console.warn('Importación Radar RSS',err);
+      if(rollback){
+        let restored=true;try{rollback();}catch(error){restored=false;console.warn('Restauración local:',error);}
+        document.body.classList.toggle('lite',state.lite);setTheme(state.theme);applyDisplaySettings();refreshFeedUI();syncSettings();selectedTab('data');
+        window.dispatchEvent(new Event('radar-preferences-imported'));window.dispatchEvent(new Event('radar-sidebar-pref-sync'));
+        $('dataNotice').textContent=restored?'No se pudo importar. Se conservaron tus preferencias y lecturas anteriores. Revisa el almacenamiento del navegador.':'No se pudo importar. Se restauró la vista anterior, pero el almacenamiento del navegador sigue bloqueado.';
+      }else $('dataNotice').textContent='Archivo inválido o incompatible.';
+    }
   },true);
   refreshTagFilter();renderFolderNav();
 }

@@ -228,3 +228,12 @@ body.radar-hybrid .settings-footer > span { font-size: 12px; line-height: 1.45; 
   body.radar-hybrid #readerOpenOriginal { grid-column: 1 / -1; }
   body.radar-hybrid .action-toast { gap: 10px; font-size: 13px; }
 }
+
+/* Latest remains readable while the complete archive loads or is retried. */
+body.radar-hybrid .history-progress{display:flex;align-items:center;gap:12px;padding:10px 12px;margin:0 0 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);font-size:12px}
+body.radar-hybrid .history-progress[hidden]{display:none}
+body.radar-hybrid .history-progress>div{flex:1;min-width:0}
+body.radar-hybrid .history-progress p{margin:0 0 5px;line-height:1.5}
+body.radar-hybrid .history-progress progress{width:100%;height:6px;accent-color:var(--accent)}
+body.radar-hybrid .history-progress button{min-height:44px;flex-shrink:0}
+@media(max-width:640px){body.radar-hybrid .history-progress{align-items:stretch;flex-direction:column}}

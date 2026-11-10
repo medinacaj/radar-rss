@@ -33,10 +33,10 @@
     [...(row?.querySelectorAll('a, button, [tabindex]')||[])]
       .find(node=>node.getAttribute('aria-hidden')!=='true'&&node.tabIndex!==-1&&!node.disabled);
 
-  function startSession(item,event){
+  function startSession(item,event,sequence=null){
     // Opening marks read and can remove the originating row from an unread list.
     // Capture both the complete filtered order and its viewport anchor first.
-    const filtered=applyFilters().slice();
+    const filtered=Array.isArray(sequence)?sequence.filter(entry=>entry&&typeof entry.id==='string').slice():applyFilters().slice();
     const inFiltered=filtered.some(entry=>entry.id===item.id);
     const visibleRows=rows();
     const trigger=event?.currentTarget||event?.target||document.activeElement;
@@ -70,7 +70,8 @@
     if(event&&(event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.button!==0)){
       return baseOpen.call(this,item,event,...rest);
     }
-    if(!dialog.open||!session){session=startSession(item,event);openingVersion+=1;}
+    const sequence=rest[1]?.sequence;
+    if(Array.isArray(sequence)||!dialog.open||!session){session=startSession(item,event,sequence);openingVersion+=1;}
     let index=session.items.findIndex(entry=>entry.id===item.id);
     if(index<0){
       // A related-story link can leave the current filtered sequence. Preserve
@@ -84,6 +85,10 @@
     sync();
     return result;
   };
+
+  window.RadarReaderExperience=Object.freeze({
+    openSequence(items,item,event,tab){return openArticleReader(item,event,tab,{sequence:items});}
+  });
 
   function move(delta){
     if(!dialog.open||!session||otherDialogOpen())return;
