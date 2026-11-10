@@ -75,7 +75,7 @@ assert.equal(heading.parentNode,sectionHeading);assert.equal(sectionHeading.clas
 assert.ok(!header.contains(heading),'the news heading stays in content, not the global topbar');
 assert.ok(bar.contains(get('feedHeaderControls')),'source and presentation controls stay in the feed toolbar');
 assert.ok(!header.contains(get('feedHeaderControls')),'the topbar stays free of feed controls');
-assert.ok(sidebar.contains(modes));assert.ok(sectionHeading.classList.contains('sr-only'));
+assert.ok(sidebar.contains(modes));assert.ok(!sectionHeading.classList.contains('sr-only'));
 assert.ok(get('feedActiveFilters'),'active filters have a visible region');
 assert.equal(get('feedDensityToggle').getAttribute('aria-pressed'),'false');
 get('feedDensityToggle').click();
