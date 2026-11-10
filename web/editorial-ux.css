@@ -678,3 +678,57 @@ body.radar-hybrid.dimension .sidebar-reading #feedFiltersToggle[hidden] {display
     width:100%;min-height:44px;
   }
 }
+
+/* Five and six user-selected columns are genuine dense editorial grids.
+   Auto/2-4 retain their comfortable reading layout. */
+body.radar-hybrid.dimension:is([data-effective-columns="5"],[data-effective-columns="6"])
+#articleGrid.article-grid:not(.list-view) {
+  gap:9px;
+}
+body.radar-hybrid.dimension:is([data-effective-columns="5"],[data-effective-columns="6"])
+#articleGrid.article-grid:not(.list-view)>.article-card>.cover {
+  max-height:104px;
+  aspect-ratio:2;
+}
+body.radar-hybrid.dimension:is([data-effective-columns="5"],[data-effective-columns="6"])
+#articleGrid.article-grid:not(.list-view)>.article-card .article-content {
+  padding:8px;
+  gap:4px;
+}
+body.radar-hybrid.dimension:is([data-effective-columns="5"],[data-effective-columns="6"])
+#articleGrid.article-grid:not(.list-view)>.article-card .article-title {
+  line-height:1.28;
+  -webkit-line-clamp:2;
+  margin:3px 0;
+}
+body.radar-hybrid.dimension:is([data-effective-columns="5"],[data-effective-columns="6"])
+#articleGrid.article-grid:not(.list-view)>.article-card .article-excerpt {
+  display:none;
+}
+body.radar-hybrid.dimension:is([data-effective-columns="5"],[data-effective-columns="6"])
+#articleGrid.article-grid:not(.list-view)>.article-card .article-kicker {
+  gap:4px;min-width:0;
+}
+body.radar-hybrid.dimension:is([data-effective-columns="5"],[data-effective-columns="6"])
+#articleGrid.article-grid:not(.list-view)>.article-card .article-category {
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;
+}
+body.radar-hybrid.dimension:is([data-effective-columns="5"],[data-effective-columns="6"])
+#articleGrid.article-grid:not(.list-view)>.article-card .article-footer {
+  display:flex;flex-direction:column;align-items:stretch;
+  margin-top:auto;padding-top:5px;gap:4px;
+}
+body.radar-hybrid.dimension:is([data-effective-columns="5"],[data-effective-columns="6"])
+#articleGrid.article-grid:not(.list-view)>.article-card .article-meta {
+  width:100%;min-width:0;gap:3px;flex-basis:auto;
+}
+body.radar-hybrid.dimension:is([data-effective-columns="5"],[data-effective-columns="6"])
+#articleGrid.article-grid:not(.list-view)>.article-card .article-actions {
+  display:flex;flex-wrap:nowrap;justify-content:space-between;
+  width:100%;min-width:0;margin:0;gap:0;
+}
+body.radar-hybrid.dimension:is([data-effective-columns="5"],[data-effective-columns="6"])
+#articleGrid.article-grid:not(.list-view)>.article-card .article-actions>button {
+  width:44px;height:44px;min-width:44px;min-height:44px;
+  flex:0 0 44px;
+}

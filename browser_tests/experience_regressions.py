@@ -60,8 +60,12 @@ def exercise(browser, base, width):
             profile.select_option(value)
             assert page.evaluate('({layout:state.layout,images:state.showImages,summaries:state.showSummaries})') == {'layout':layout,'images':images,'summaries':summaries}
             assert page.evaluate("state.cardTitleSize===22&&state.columns==='6'")
-        page.wait_for_function("() => document.body.dataset.effectiveColumns && Number(document.body.dataset.effectiveColumns)<6")
-        expect(page.locator('#effectiveColumns')).to_contain_text('elegidas')
+        page.wait_for_function("() => Number(document.body.dataset.effectiveColumns)>=1")
+        actual=page.evaluate("Number(document.body.dataset.effectiveColumns)")
+        assert 1<=actual<=6
+        expect(page.locator('#effectiveColumns')).to_contain_text(str(actual)+' columna')
+        if actual<6:
+            expect(page.locator('#effectiveColumns')).to_contain_text('de 6 solicitadas')
         assert page.locator('#articleGrid .article-title').first.evaluate('n=>parseFloat(getComputedStyle(n).fontSize)') >= 22
         assert page.locator('#articleGrid .no-cover .article-cover-placeholder').first.evaluate('n=>n.getBoundingClientRect().height') <= 60
         for selector in ('.article-save','.article-more','.article-read-toggle'):

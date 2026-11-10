@@ -6,14 +6,23 @@ const file=path.join(__dirname,'../web/experience.js');
 assert.ok(fs.existsSync(file),'Reading experience module must exist');
 const {effectiveColumns,profileSettings,normalizePreferences}=require(file);
 
-// Increasing the requested number cannot make text narrower than its reading minimum.
-assert.equal(effectiveColumns(900,16,'normal','6',20),3);
-assert.equal(effectiveColumns(900,22,'normal','6',20),2);
-assert.equal(effectiveColumns(900,22,'large','6',20),2);
-assert.equal(effectiveColumns(320,22,'large','6',20),1);
+// The previous 280px minimum prevented even a wide desktop from using 5/6.
+assert.equal(effectiveColumns(1060,16,'normal','5',12),5);
+assert.equal(effectiveColumns(1060,16,'normal','6',12),6);
+assert.equal(effectiveColumns(900,16,'normal','6',12),5);
+assert.equal(effectiveColumns(900,22,'normal','6',12),5);
+assert.equal(effectiveColumns(900,22,'large','6',12),5);
+assert.equal(effectiveColumns(1060,22,'normal','6',12),6);
+assert.equal(effectiveColumns(1060,22,'large','6',12),6);
+assert.equal(effectiveColumns(320,22,'large','6',12),1);
+assert.equal(effectiveColumns(520,16,'normal','6',12),1);
+assert.equal(effectiveColumns(700,16,'normal','6',12),2);
+// Auto and standard layouts still enforce generous reading-card widths.
+assert.equal(effectiveColumns(900,16,'normal','auto',20),3);
+assert.equal(effectiveColumns(900,16,'normal','4',20),3);
 assert.equal(effectiveColumns(1800,16,'normal','2',20),2);
 assert.equal(effectiveColumns(1800,16,'normal','auto',20),6);
-assert.equal(effectiveColumns(0,16,'normal','6',20),1);
+assert.equal(effectiveColumns(0,16,'normal','6',12),1);
 
 const current={cardTitleSize:22,fontSize:'large',columns:'6',theme:'dark',layout:'cards'};
 for(const profile of ['visual','compact','headlines']){
