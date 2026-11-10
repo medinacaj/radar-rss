@@ -383,8 +383,8 @@ body.radar-hybrid.dimension #articleGrid.article-grid:not(.list-view) .article-a
   white-space:nowrap;
 }
 body.radar-hybrid.dimension.compact #articleGrid.article-grid:not(.list-view)>.article-card>.cover {
-  max-height:110px;
-  aspect-ratio:2.2;
+  max-height:96px;
+  aspect-ratio:2.3;
 }
 body.radar-hybrid.dimension.compact #articleGrid.article-grid:not(.list-view)>.article-card .article-content {
   padding:10px 12px;
@@ -400,6 +400,14 @@ body.radar-hybrid.dimension #dashboardRecent>:is(.dashboard-latest-card,.dashboa
 body.radar-hybrid.dimension :is(#articleGrid.article-grid,#dashboardFeature)>.article-card:hover .cover img {
   transform:none;
   filter:none;
+}
+
+/* Profundidad tenue que conserva la separación sin usar sombras amplias. */
+body.radar-hybrid.dimension :is(#articleGrid.article-grid,#dashboardFeature)>.article-card {
+  box-shadow:0 1px 4px #00000012;
+}
+body.radar-hybrid.dimension.font-large #dashboardFeature>.article-card .article-title {
+  font-size:clamp(25px,2.6vw,33px);
 }
 
 /* Agenda y resumen: mismos bordes y escala editorial, sin paneles gigantes. */
@@ -556,6 +564,7 @@ body.radar-hybrid.dimension #dashboardView:not([hidden]) #dashboardFeature:empty
 @media(max-width:640px) {
   body.radar-hybrid.dimension .filter-bar {gap:8px;}
   body.radar-hybrid.dimension .feed-header-controls {display:none;}
+  body.radar-hybrid.dimension .filter-controls {width:auto;flex:0 0 auto;}
   body.radar-hybrid.dimension .feed-density-toggle {min-width:90px;}
   body.radar-hybrid.dimension #articleGrid.article-grid:not(.list-view)>.article-card .article-content {padding:12px;}
 }
