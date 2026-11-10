@@ -119,7 +119,8 @@ def main():
                 expect(page.locator('#feedFilterPanel')).to_be_hidden()
                 assert page.locator('#sourceSelect').count()==1
                 assert page.locator('#presentationControl').count()==1
-                page.locator('#sidebarFeedOptions > summary').click()
+                if not page.locator('#sidebarFeedOptions').get_attribute('open'):
+                    page.locator('#sidebarFeedOptions > summary').click()
                 page.locator('#presentationSummary').click();expect(page.locator('#readingProfile')).to_be_visible()
                 page.keyboard.press('Escape')
                 for target,selector in [('home','#dashboardFeature .article-title a'),('briefing','#briefingSections .briefing-title')]:
