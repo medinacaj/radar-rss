@@ -76,7 +76,7 @@ class QuietHandler(SimpleHTTPRequestHandler):
         pass
 
 def check_uniform_card_heights(page, label):
-    """Cards align within EACH row; a long item must not stretch every row."""
+    """Same-row cards share height; different rows keep their natural heights."""
     result = page.evaluate("""() => {
       const grid = document.querySelector('#articleGrid');
       if (!grid || grid.classList.contains('list-view')) return {error:'not in cards view'};
@@ -93,7 +93,7 @@ def check_uniform_card_heights(page, label):
       return {
         rows:[...rows.values()], gridAutoRows:getComputedStyle(grid).gridAutoRows,alignItems:getComputedStyle(grid).alignItems,
         hasImage:covers.length>0, hasNoImage:cards.some(x=>!x.querySelector('.cover')),
-        proportional:[...covers,...placeholders].every(c=>c.getBoundingClientRect().height<=c.getBoundingClientRect().width/2+1),
+        proportional:[...covers,...placeholders].every(c=>c.getBoundingClientRect().height<=c.getBoundingClientRect().width*9/16+1),
         maxImageHeight:covers.length?Math.max(...covers.map(c=>c.getBoundingClientRect().height)):0,
         maxPlaceholderHeight:placeholders.length?Math.max(...placeholders.map(c=>c.getBoundingClientRect().height)):0
       };
@@ -103,8 +103,10 @@ def check_uniform_card_heights(page, label):
         raise AssertionError(f"{label}: fixture lacks mixed images: {result}")
     if result["gridAutoRows"] != "auto":
         raise AssertionError(f"{label}: global equal-height grid creates wasted space: {result}")
-    if result["alignItems"] != "start":
-        raise AssertionError(f"{label}: cards should use their content height with aligned row tops: {result}")
+    if result["alignItems"] != "stretch":
+        raise AssertionError(f"{label}: card tops and bottoms should align within rows: {result}")
+    if any(max(row)-min(row)>2 for row in rows if len(row)>1):
+        raise AssertionError(f"{label}: cards on the same row differ in height: {result}")
     if not result["proportional"] or result["maxImageHeight"]>241 or result["maxPlaceholderHeight"]>241:
         raise AssertionError(f"{label}: image/placeholder unnecessarily tall: {result}")
 
@@ -339,7 +341,7 @@ def main():
                           radius:getComputedStyle(document.querySelector('#dashboardFeature .article-card')).borderTopLeftRadius,
                           shadow:getComputedStyle(document.querySelector('#dashboardFeature .article-card')).boxShadow
                         })""")
-                        assert visual['radius']=='24px' and visual['shadow']!='none',visual
+                        assert visual['radius']=='14px' and visual['shadow']!='none',visual
                         light_background=visual['bg']
                         assert page.locator('#dashboardTitle').inner_text() == 'Inicio'
                         expect(page.locator('#dashboardFeature')).to_be_visible()

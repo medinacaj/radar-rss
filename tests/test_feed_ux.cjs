@@ -54,15 +54,15 @@ const settings=node('dialog','settingsDialog');settings.append(reading);settings
 for(const id of ['settingAge','settingHideRead','settingKeywords','settingsSourceSearch'])settings.append(node('input',id));body.append(settings);
 const windowListeners={};
 const window={innerWidth:1440,addEventListener(name,fn,options){(windowListeners[name]??=[]).push({fn,once:options?.once});},emit(name,event={}){const list=(windowListeners[name]||[]).slice();windowListeners[name]=(windowListeners[name]||[]).filter(x=>!x.once);list.forEach(x=>x.fn(event));}};
-const state={pageView:'feed',category:'all',feed:'',search:'',maxAge:0,mode:'all',hideRead:false,mutedKeywords:'',hiddenSources:new Set(),onlyNew:false,page:1,sources:[{id:'s1',name:'Medio Uno'}],items:[{id:'a'}],saved:new Set(),historyLoading:false};
+const state={pageView:'feed',category:'all',feed:'',search:'',maxAge:0,mode:'all',density:'comfortable',hideRead:false,mutedKeywords:'',hiddenSources:new Set(),onlyNew:false,page:1,sources:[{id:'s1',name:'Medio Uno'}],items:[{id:'a'}],saved:new Set(),historyLoading:false};
 let privateFolder=null,privateTag='',geo='all',settingsTab='',renderCount=0;
-const prefWrites=[];
+const prefWrites=[];let displayChanges=0;
 window.RadarLibrary={getFeedFilters:()=>({folder:privateFolder,tag:privateTag}),clearTagFilter(){privateTag='';tagSelect.value='';}};
 window.RadarV12={getFeedGeo:()=>({id:geo,label:'Latinoamérica'})};
 const location={hash:'#noticias'};
 const context={window,document,state,location,console,mk:(tag,cls,text)=>node(tag,null,cls,text),sourceLabel:x=>x,categoryLabel:x=>x,
   savePref:(k,v)=>prefWrites.push([k,v]),selectedTab:name=>{settingsTab=name;},
-  syncSettings(){},goTo(){privateFolder=null;geo='all';state.category='all';state.feed='';location.hash='#noticias';context.render();window.emit('hashchange');},
+  syncSettings(){},applyDisplaySettings(){displayChanges++;},goTo(){privateFolder=null;geo='all';state.category='all';state.feed='';location.hash='#noticias';context.render();window.emit('hashchange');},
   fillSelect(){sourceSelect.value=state.feed;},hasHistory:()=>false,newsCountsUnavailable:()=>false,
   emptyState:()=>node('div',null,'empty-state','Existing loading state'),
   render(){renderCount++;grid.replaceChildren(context.emptyState([]));},applyFilters:()=>[]};
@@ -71,9 +71,19 @@ vm.runInNewContext(fs.existsSync(scriptPath)?fs.readFileSync(scriptPath,'utf8'):
 const get=id=>document.getElementById(id);
 const chip=name=>get('feedFilterChips')?.querySelectorAll('button').find(el=>el.dataset.filter===name);
 const refresh=()=>context.render();
-assert.equal(heading.parentNode.className,'feed-header-title');assert.ok(header.contains(heading));
-assert.ok(sidebar.contains(modes));assert.ok(sectionHeading.classList.contains('sr-only'));
+assert.equal(heading.parentNode,sectionHeading);assert.equal(sectionHeading.classList.contains('sr-only'),false);
+assert.ok(!header.contains(heading),'the news heading stays in content, not the global topbar');
+assert.ok(bar.contains(get('feedHeaderControls')),'source and presentation controls stay in the feed toolbar');
+assert.ok(!header.contains(get('feedHeaderControls')),'the topbar stays free of feed controls');
+assert.ok(sidebar.contains(modes));assert.ok(!sectionHeading.classList.contains('sr-only'));
 assert.ok(get('feedActiveFilters'),'active filters have a visible region');
+assert.equal(get('feedDensityToggle').getAttribute('aria-pressed'),'false');
+get('feedDensityToggle').click();
+assert.equal(state.density,'compact');assert.equal(get('feedDensityToggle').getAttribute('aria-pressed'),'true');
+assert.ok(prefWrites.some(([key,value])=>key==='density'&&value==='compact'));
+get('feedDensityToggle').click();
+assert.equal(state.density,'comfortable');assert.equal(get('feedDensityToggle').getAttribute('aria-pressed'),'false');
+assert.equal(displayChanges,2,'both density choices immediately refresh the layout');
 assert.equal(get('feedActiveFilters').hidden,true,'no empty toolbar when nothing filters');
 state.search='energía';state.feed='s1';state.maxAge=7;state.mode='unread';state.hideRead=true;
 state.hiddenSources.add('s2');state.mutedKeywords='política';privateFolder={id:'Lectura',label:'Lectura',kind:'manual'};privateTag='Informe';
