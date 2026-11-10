@@ -149,6 +149,45 @@ class DimensionRegressions(unittest.TestCase):
         self.page.evaluate("state.cardTitleSize=16;applyDisplaySettings();chooseColumns('3')")
         self.assertEqual(title.evaluate('n=>parseFloat(getComputedStyle(n).fontSize)'),normal)
 
+    def test_five_and_six_columns_really_render_on_normal_desktop(self):
+        self.page.set_viewport_size({'width':1440,'height':900})
+        self.page.evaluate("""() => {
+            state.cardTitleSize=16;
+            state.fontSize='normal';
+            state.layout='cards';
+            applyDisplaySettings();
+            goTo('all');
+        }""")
+        for requested in ('5','6'):
+            self.page.evaluate('(value)=>chooseColumns(value)',requested)
+            self.page.wait_for_function(
+                '(value)=>Number(document.body.dataset.effectiveColumns)===Number(value)',
+                arg=requested)
+            layout=self.page.evaluate("""() => {
+              const grid=document.querySelector('#articleGrid');
+              const cards=[...grid.querySelectorAll(':scope > .article-card')];
+              const card=cards[0];
+              return {
+                tracks:getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+                width:card.getBoundingClientRect().width,
+                overflow:document.documentElement.scrollWidth>innerWidth+2,
+                buttons:[...card.querySelectorAll('.article-actions button')].map(el=>{
+                  const r=el.getBoundingClientRect();return [r.width,r.height];
+                })
+              };
+            }""")
+            self.assertEqual(layout['tracks'],int(requested),layout)
+            self.assertGreaterEqual(layout['width'],150,layout)
+            self.assertFalse(layout['overflow'],layout)
+            for width,height in layout['buttons']:
+                self.assertGreaterEqual(width,44,layout)
+                self.assertGreaterEqual(height,44,layout)
+        self.page.set_viewport_size({'width':768,'height':900})
+        self.page.wait_for_function(
+            '()=>Number(document.body.dataset.effectiveColumns)<6')
+        expect(self.page.locator('#effectiveColumns')).to_contain_text('de 6 solicitadas')
+        self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth+2'))
+
     def test_all_column_sizes_preserve_chosen_text_and_sidebar_rows_are_compact(self):
         self.page.set_viewport_size({'width':1842,'height':1000})
         self.page.evaluate("goTo('all')")
