@@ -61,16 +61,10 @@
   // Reuse the same controls and listeners in the header and mobile panel.
   const headerControls=mk('div','feed-header-controls');headerControls.id='feedHeaderControls';
   headerControls.setAttribute('role','group');headerControls.setAttribute('aria-label','Fuentes y presentación de noticias');
-  document.querySelector('.topbar-actions').before(headerControls);
-  const heading=get('feedHeading');
+  // Keep the global top bar to one row; local controls belong beside the feed.
+  bar.prepend(headerControls);
   const sidebar=get('sidebarCoreContent');
   const modes=feed.querySelector('.mode-tabs');
-  const headerTitle=mk('div','feed-header-title');
-  if(heading){
-    heading.closest('.section-heading')?.classList.add('sr-only');
-    headerTitle.append(heading);
-    document.querySelector('.topbar-caption').after(headerTitle);
-  }
   const readingNav=mk('section','sidebar-reading');
   readingNav.setAttribute('aria-label','Estado de lectura');
   if(sidebar&&modes){
@@ -115,6 +109,20 @@
   const done=mk('button','feed-sheet-done','Ver noticias');done.id='feedFiltersDone';done.type='button';
   panel.append(panelHead,fields,done);
   bar.append(toggle);document.body.append(panel);
+  const densityToggle=mk('button','feed-density-toggle','Compacto');
+  densityToggle.id='feedDensityToggle';densityToggle.type='button';
+  densityToggle.title='Alternar entre espaciado cómodo y compacto';
+  function syncDensity(){
+    const compact=state.density==='compact';
+    densityToggle.setAttribute('aria-pressed',String(compact));
+    densityToggle.setAttribute('aria-label',compact?'Usar espaciado cómodo':'Usar espaciado compacto');
+  }
+  densityToggle.addEventListener('click',()=>{
+    state.density=state.density==='compact'?'comfortable':'compact';
+    savePref('density',state.density);
+    applyDisplaySettings();syncSettings();render();
+  });
+  bar.append(densityToggle);
   const movable=[source,presentation,get('libraryTagFilter')?.closest('label')].filter(Boolean);
   const homes=movable.map(element=>{
     const anchor=mk('span','feed-control-anchor');anchor.hidden=true;element.before(anchor);
@@ -197,7 +205,7 @@
   function update(){
     if(state.pageView!=='feed'){setExpanded(false);presentation.open=false;}
     headerControls.hidden=state.pageView!=='feed';
-    headerTitle.hidden=state.pageView!=='feed';
+    syncDensity();
     readingNav.hidden=state.pageView!=='feed';
     const active=filters();chips.replaceChildren();
     for(const item of active){
