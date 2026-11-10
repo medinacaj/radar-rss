@@ -2,13 +2,13 @@
 
 La ingesta aplicaba a las revistas académicas el mismo corte de 45 días que a las noticias diarias. Además, las 5.000 entradas más recientes podían desplazar toda la carpeta. El catálogo ya contenía ocho fuentes y consultas académicas con ventanas de hasta 730 días.
 
-El colector conserva ahora los trabajos de «11 - Investigación y Gestión» durante 730 días y protege hasta 200 entradas de esa carpeta al seleccionar candidatos y artículos finales. Los espacios libres se aprovechan para otras noticias. Se mantienen los límites de 7.500 candidatos, 5.000 artículos y particiones de 300, además del orden cronológico, las fechas y los créditos originales. La pertenencia se calcula con las fuentes del catálogo actual; una etiqueta antigua en caché no concede retención adicional.
+El colector conserva ahora los trabajos de «11 - Investigación y Gestión» durante 730 días y protege hasta 200 entradas de esa carpeta al seleccionar candidatos y artículos finales. Primero agrupa los duplicados académicos, con un máximo de 7.500 entradas en esa pasada, para que varias coberturas del mismo estudio no consuman la reserva. Los espacios libres se aprovechan para otras noticias. Se mantienen los límites de 7.500 candidatos, 5.000 artículos y particiones de 300, además del orden cronológico, las fechas y los créditos originales. La pertenencia se calcula con las fuentes del catálogo actual; una etiqueta antigua en caché no concede retención adicional.
 
 Los filtros personales de antigüedad siguen vigentes. Por ejemplo, seleccionar 90 días puede ocultar trabajos anteriores aunque se conserven en el archivo. El titular sigue abriendo directamente la web del medio.
 
 ## Evidencia
 
-- Seis regresiones del colector reproducidas antes de corregirlo: antigüedad, límite exacto, ventana personalizada, catálogo/caché, saturación y agrupación/persistencia. Después: seis correctas y batería completa de 322 pruebas Python correcta.
+- Siete regresiones del colector reproducidas antes de corregirlo: antigüedad, límite exacto, ventana personalizada, catálogo/caché, saturación, duplicados bajo saturación y agrupación/persistencia. Incluyen 120 estudios cubiertos por dos fuentes junto a 7.600 noticias. Después: siete correctas y batería completa de 323 pruebas Python correcta.
 - 14 suites Node y seis controles de sintaxis correctos.
 - Prueba de navegador con archivo de 5.000 entradas y trabajos de 400 días: carpeta, fecha original, navegación al editor y filtro de antigüedad, en móvil y escritorio. Incluida en CI.
 - El resumen `RESULTADO` de cada ingesta informa `research_articles` para contrastar la cantidad retenida en la generación publicada.

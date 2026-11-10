@@ -89,6 +89,27 @@ class ResearchRetentionTests(unittest.TestCase):
         docs,_=collect_documents(lambda source:[story(source,f'news-{i}') for i in range(5010)] if source['category']==NEWS else [story(source,'paper',200)] if source['url']=='https://research.example/rss' else [])
         items=docs['articles.json']['items'];self.assertEqual(len(items),5000);self.assertEqual(items[-1]['id'],'paper')
 
+    def test_duplicate_coverage_does_not_consume_the_research_reserve(self):
+        def fresh(source):
+            if source['category']==NEWS:
+                return [story(source,f'news-{i}',i/100000) for i in range(7600)]
+            papers=[]
+            for i in range(120):
+                item=story(source,f'paper-{i}-{source["id"]}',200+i/1000)
+                item['title']=f'Estudio académico sobre mejora productiva empresarial número {i}'
+                papers.append(item)
+            return papers
+        with patch.object(collect,'group_related_articles',wraps=collect.group_related_articles) as grouping:
+            docs,result=collect_documents(fresh)
+        items=docs['articles.json']['items'];papers=[x for x in items if RESEARCH in x['categories']]
+        self.assertEqual(len(items),5000);self.assertEqual(len(papers),120)
+        self.assertEqual(result['research_articles'],120)
+        self.assertTrue(all(x['coverage']==2 and len(x['also_in'])==1 for x in papers))
+        self.assertTrue(all(len(call.args[0])<=7500 for call in grouping.call_args_list))
+        self.assertEqual({x['title'] for x in papers},
+                         {f'Estudio académico sobre mejora productiva empresarial número {i}' for i in range(120)})
+        dates=[x['published_at'] for x in items];self.assertEqual(dates,sorted(dates,reverse=True))
+
     def test_grouped_papers_preserve_both_publishers_and_refresh_from_cache(self):
         title='La investigación analiza nuevos procesos productivos para mejorar las empresas'
         def fresh(source):

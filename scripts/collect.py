@@ -797,7 +797,11 @@ def collect(opml: Path, out: Path, days: int, workers: int, max_per_feed: int, *
         merged[key] = item
 
     ordered = sorted(merged.values(), key=lambda i: (i.get('published_at') or i.get('first_seen_at') or ''), reverse=True)
-    articles = select_retained(group_related_articles(select_retained(ordered, MAX_CANDIDATES)), MAX_ARTICLES)
+    # Count distinct papers toward the reserve, preserving each outlet's metadata.
+    research = group_related_articles([item for item in ordered if RESEARCH_CATEGORY in item['categories']][:MAX_CANDIDATES])
+    candidates = research + [item for item in ordered if RESEARCH_CATEGORY not in item['categories']]
+    candidates.sort(key=lambda i: (i.get('published_at') or i.get('first_seen_at') or ''), reverse=True)
+    articles = select_retained(group_related_articles(select_retained(candidates, MAX_CANDIDATES)), MAX_ARTICLES)
     if image_fallback:
         image_stats = recover_missing_images(articles, now, sources)
         print('Imágenes originales: '

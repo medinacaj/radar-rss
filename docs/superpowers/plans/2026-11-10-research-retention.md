@@ -15,13 +15,14 @@ Categorías antiguas de caché; fuente académica retirada; reserva antes del co
 
 ## Task1: Política y publicación
 Files: scripts/collect.py; tests/test_research_retention.py.
-- [ ] RED: colector completo con RSS simulado mantiene trabajos anteriores a45días; elimina mayores730, conserva cutoff45 para noticias y fecha exacta, rechaza categorías de caché sin fuente válida.
-- [ ] RED: más7500 noticias no expulsan investigación; más5000 mantiene límite/reserva y orden; pocos trabajos no dejan huecos; mismo límite tras agrupar/refrescar y cuotas con otra carpeta.
-- [ ] GREEN: constants RESEARCH_CATEGORY/RESEARCH_DAYS/RESEARCH_RESERVE, selector `select_retained(ordered,limit)`, recencia por categoría recalculada. Selección protegida antes de group_related_articles y después. `research_articles` en resultado de ingesta.
-- [ ] Verificar toda suite Python y contratos Node existentes.
+- [x] RED: colector completo con RSS simulado mantiene trabajos anteriores a45días; elimina mayores730, conserva cutoff45 para noticias y fecha exacta, rechaza categorías de caché sin fuente válida.
+- [x] RED: más7500 noticias no expulsan investigación; más5000 mantiene límite/reserva y orden; pocos trabajos no dejan huecos; mismo límite tras agrupar/refrescar y cuotas con otra carpeta.
+- [x] GREEN: constants RESEARCH_CATEGORY/RESEARCH_DAYS/RESEARCH_RESERVE, selector `select_retained(ordered,limit)`, recencia por categoría recalculada. Selección protegida antes de group_related_articles y después. `research_articles` en resultado de ingesta.
+- [x] Revisión: agrupar duplicados académicos antes de reservar candidatos; regresión con 120 trabajos de dos fuentes y 7.600 noticias, RED 100/120 → GREEN 120/120.
+- [x] Verificar toda suite Python y contratos Node existentes.
 
 ## Task2: Flujo de carpeta y cierre
 Files: browser_tests/research_retention.py; .github/workflows/responsive.yml; docs/research-retention-2026-11-10.md.
-- [ ] Fixture5000 entradas, últimos300 utilizables y archivo con artículos académicos antiguos; carpeta muestra cantidad/fecha real y título abre fuente original; filtro de fecha explícito se respeta y se puede quitar.
-- [ ] Revisión independiente de diff y pruebas; corregir hallazgos importantes con regresión.
+- [x] Fixture5000 entradas, últimos300 utilizables y archivo con artículos académicos antiguos; carpeta muestra cantidad/fecha real y título abre fuente original; filtro de fecha explícito se respeta y se puede quitar.
+- [x] Revisión independiente de diff y pruebas; corregir hallazgos importantes con regresión.
 - [ ] Commit/PR, esperar CI, fusionar SHA verificado y comprobar build con research_articles>0 + generación pública correcta.
