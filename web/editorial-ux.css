@@ -1,0 +1,21 @@
+/* Editorial evidence uses the existing palette and reading scale. */
+.editorial-type-field{display:flex;align-items:center;gap:6px;min-width:0;color:var(--muted);font-size:12px}
+.editorial-type-label{flex:none}
+.editorial-type-field select{min-height:44px;max-width:170px;min-width:0;border:1px solid var(--line);border-radius:8px;padding:8px;color:var(--text);background:var(--surface);font:inherit}
+.editorial-type-badge{display:inline-flex;align-items:center;max-width:100%;border:1px solid var(--line);border-radius:5px;padding:2px 5px;color:var(--muted);font-size:10px;line-height:1.4;font-weight:550;white-space:normal}
+.editorial-type-badge.is-unknown{border-color:transparent;padding-left:0;font-weight:400}
+.article-kicker .editorial-type-badge{margin-left:auto}
+.editorial-digest-list{margin:0;padding:0;list-style:none;counter-reset:editorial-story}
+.editorial-digest{grid-column:1/-1}
+.editorial-digest-list>.briefing-item{position:relative;padding-left:38px;counter-increment:editorial-story;min-width:0}
+.editorial-digest-list>.briefing-item::before{content:counter(editorial-story,decimal-leading-zero);position:absolute;left:0;top:20px;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.editorial-story-category{display:block;color:var(--muted);font-size:11px;font-weight:650;line-height:1.5;margin-bottom:5px}
+.editorial-digest .briefing-title{display:block;overflow-wrap:anywhere}
+.editorial-digest .briefing-meta{flex-wrap:wrap;gap:5px}
+.editorial-local{grid-column:1/-1;min-width:0}
+.editorial-local-intro{margin:0 0 14px;color:var(--muted);font-size:12px;line-height:1.5}
+.editorial-local-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.editorial-local-row{display:flex;flex-direction:column;min-width:0;overflow-wrap:anywhere}
+.editorial-local-row+.editorial-local-row{border-top:0}
+@media(max-width:950px){.editorial-type-label{display:none}.editorial-type-field select{max-width:145px}.editorial-local-list{grid-template-columns:1fr}.editorial-local-row+.editorial-local-row{border-top:1px solid var(--line);padding-top:14px}}
+@media(max-width:640px){.editorial-type-field{width:100%;justify-content:space-between}.editorial-type-label{display:inline}.editorial-type-field select{max-width:none;width:75%}.editorial-digest-list>.briefing-item{padding-left:30px}}

@@ -86,10 +86,10 @@
     return {version:1,saved:[...value.saved],view:value.view};
   }
   function exportPreferences(){return {version:1,saved:[...preferences.saved],view:preferences.view};}
-  function restorePreferences(value){
+  function restorePreferences(value,options={}){
     const next=validatePreferences(value);
     // Validate the complete value before writing; storage failure leaves memory intact.
-    localStorage.setItem(preferencesKey,JSON.stringify(next));
+    if(options.persist!==false)localStorage.setItem(preferencesKey,JSON.stringify(next));
     preferences=next;paint();return exportPreferences();
   }
   function clearPreferences(){

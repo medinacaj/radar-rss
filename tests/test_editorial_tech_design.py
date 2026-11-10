@@ -88,7 +88,9 @@ class EditorialTechDesignTests(unittest.TestCase):
         self.assertNotIn('--radar-card-title-size) * 1.15', CSS)
 
     def test_pwa_cache_changes_atomically_with_theme(self):
-        self.assertIn("const CACHE = 'radar-rss-v59'", SW)
+        self.assertRegex(SW, r"const CACHE = 'radar-rss-v[0-9]+'")
+        for module in ("editorial-model.js", "editorial-ux.js", "editorial-ux.css", "experience.js", "experience.css"):
+            self.assertIn("'./" + module + "'", SW)
         self.assertIn("'./dimension.css'", SW)
         self.assertIn('<meta name="theme-color" content="#10151d">', HTML)
 

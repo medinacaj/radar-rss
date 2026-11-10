@@ -41,8 +41,10 @@
   <link rel="stylesheet" href="./homepage.css?v=1.0.2">
   <link rel="stylesheet" href="./agenda.css?v=1.1.0">
   <link rel="stylesheet" href="./reader-layout.css?v=1.0.0">
-  <link rel="stylesheet" href="./reading-ux.css?v=1.0.0">
+  <link rel="stylesheet" href="./reading-ux.css?v=1.1.0">
   <link rel="stylesheet" href="./dimension.css?v=4.0.6">
+  <link rel="stylesheet" href="./experience.css?v=1.0.0">
+  <link rel="stylesheet" href="./editorial-ux.css?v=1.0.0">
   <title>Radar-RSS — Noticias con perspectiva</title>
 </head>
 <body class="radar-hybrid dimension" data-columns="auto">
@@ -192,6 +194,10 @@
         </section>
         <section class="feed-area" id="feedView" aria-labelledby="feedHeading">
           <div class="section-heading"><div><span class="section-eyebrow" id="sectionEyebrow">SELECCIÓN EDITORIAL</span><h1 id="feedHeading">Todas las noticias</h1><p id="feedDescription">Titulares y novedades de tus medios favoritos.</p></div><span class="sr-only" id="visibleCount" role="status" aria-live="polite" aria-atomic="true">0 ARTÍCULOS</span></div>
+          <section id="historyProgress" class="history-progress" role="status" aria-live="polite" hidden>
+            <div><p id="historyProgressText">Preparando noticias…</p><progress id="historyProgressBar" max="1" value="0" aria-label="Descarga del archivo de noticias"></progress></div>
+            <button id="historyRetry" type="button" class="settings-secondary" hidden>Reintentar archivo</button>
+          </section>
           <div class="filter-bar">
             <div class="mode-tabs" role="group" aria-label="Tipo de noticias">
               <button type="button" data-mode="all" class="mode-tab active">Todas <span class="mode-tab-count" id="allCount">0</span></button>
@@ -414,8 +420,9 @@
   <button id="backTop" class="back-to-top" type="button" aria-label="Volver arriba" title="Volver arriba" hidden><span data-icon="arrow-up" class="ui-icon-slot" aria-hidden="true"></span></button>
   <div id="actionToast" class="action-toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
   <script src="./source-tools.js?v=1.0.2" defer></script>
-  <script src="./app.js?v=9.10.0" defer></script>
-  <script src="./library.js?v=2.0.2" defer></script>
+  <script src="./editorial-model.js?v=1.0.0" defer></script>
+  <script src="./app.js?v=9.11.0" defer></script>
+  <script src="./library.js?v=2.1.0" defer></script>
   <script src="./sidebar-layout.js?v=1.2.3" defer></script>
   <script src="./news-effects.js?v=1.0.0" defer></script>
   <script src="./features.js?v=1.3.3" defer></script>
@@ -423,8 +430,10 @@
   <script src="./v13.js?v=1.4.3" defer></script>
   <script src="./usability.js?v=1.1.1" defer></script>
   <script src="./homepage.js?v=1.3.0" defer></script>
-  <script src="./agenda.js?v=1.1.2" defer></script>
+  <script src="./agenda.js?v=1.1.3" defer></script>
   <script src="./feed-ux.js?v=1.0.2" defer></script>
-  <script src="./reader-ux.js?v=1.0.0" defer></script>
+  <script src="./reader-ux.js?v=1.1.0" defer></script>
+  <script src="./experience.js?v=1.0.0" defer></script>
+  <script src="./editorial-ux.js?v=1.0.0" defer></script>
 </body>
 </html>

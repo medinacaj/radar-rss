@@ -239,9 +239,10 @@ def check_concepcion_category(page):
                           ("latam", ["Chile", "Venezuela", "Latinoamérica", "Concepción"]),
                           ("cat:07 - Concepción", ["Concepción"])):
         page.locator("#v12BriefingScope").select_option(scope)
-        assert page.locator(".briefing-section h2").all_text_contents() == labels
-        assert set(local_ids).issubset(set(page.locator(".briefing-item").evaluate_all(
-            "nodes => nodes.map(node => node.dataset.articleId)")))
+        assert set(page.locator(".editorial-digest .editorial-story-category").all_text_contents()) == set(labels)
+        selected_ids = page.locator(".briefing-item").evaluate_all("nodes => nodes.map(node => node.dataset.articleId)")
+        assert 1 <= len(selected_ids) <= 7
+        assert set(local_ids).intersection(selected_ids)
     page.locator("#v12BriefingScope").select_option("all")
     page.evaluate("location.hash = '#inicio'")
     expect(page.locator("#dashboardView")).to_be_visible()
@@ -497,9 +498,9 @@ def main():
                         expect(placeholders.first).to_be_visible()
                         image_height=page.locator("#articleGrid .article-card .cover").first.evaluate("(el)=>el.getBoundingClientRect().height")
                         fallback_height=placeholders.first.evaluate("(el)=>el.getBoundingClientRect().height")
-                        assert abs(image_height-fallback_height)<=1,(image_height,fallback_height)
+                        assert 0 < fallback_height <= 60 and fallback_height < image_height,(image_height,fallback_height)
                         assert placeholders.first.locator(".article-cover-publisher").inner_text()
-                        expect(placeholders.first.locator(".article-cover-note")).to_have_text("Vista previa")
+                        expect(placeholders.first.locator(".article-cover-note")).to_be_hidden()
                         assert placeholders.first.locator("img").count() == 0
                         assert page.locator("#articleGrid .article-card.no-excerpt .article-excerpt").count() == 0
                         # El cristal aporta relieve a leídas y pendientes sin cambiar
@@ -551,8 +552,7 @@ def main():
                         expect(read_button).to_be_visible()
                         expect(read_button).to_have_attribute("title","Marcar como leída")
                         assert read_button.locator("svg").count() == 1
-                        assert read_button.locator("span").count() == 0
-                        assert read_button.inner_text() == ""
+                        expect(read_button.locator(".experience-action-label")).to_have_text("Marcar leída")
                         initial_unread=int(page.locator("#unreadCount").text_content().replace(".",""))
                         initial_nav=int(page.locator("#categoryNav > .nav-link").nth(1).locator(".nav-count").text_content())
                         read_button.click()
@@ -560,6 +560,7 @@ def main():
                         expect(page.locator("#categoryNav > .nav-link").nth(1).locator(".nav-count")).to_have_text(str(initial_nav-1))
                         expect(page.locator("#articleGrid .article-card").first.locator(".article-read-toggle")).to_have_attribute("aria-pressed","true")
                         expect(page.locator("#articleGrid .article-card").first.locator(".article-read-toggle")).to_have_attribute("title","Marcar como no leída")
+                        expect(page.locator("#articleGrid .article-card").first.locator(".article-read-toggle .experience-action-label")).to_have_text("Sin leer")
                         assert page.locator("#articleGrid .article-card").first.evaluate(
                             "(node) => node.classList.contains('read-article')")
                         shadow_read=page.locator("#articleGrid .article-card").first.evaluate(
@@ -615,10 +616,12 @@ def main():
                         assert page.locator("#v12BriefingScope").count() == 1
                         page.locator("#v12BriefingScope").select_option("chile")
                         assert page.locator(".briefing-section").count() >= 1
-                        assert page.locator(".briefing-section h2").all_text_contents() == ["Chile", "Concepción"]
+                        assert set(page.locator(".editorial-digest .editorial-story-category").all_text_contents()) == {"Chile", "Concepción"}
+                        assert page.locator(".briefing-item").count() == 5
                         page.locator("#v12BriefingScope").select_option("cat:02 - Tecnología")
                         assert page.locator(".briefing-section").count() == 1
-                        assert "Tecnología" in page.locator(".briefing-section h2").first.inner_text()
+                        assert set(page.locator(".editorial-digest .editorial-story-category").all_text_contents()) == {"Tecnología"}
+                        assert page.locator(".briefing-item").count() == 3
                         page.locator("#v12BriefingScope").select_option("all")
                         page.evaluate("location.hash = '#inicio'")
                         page.locator("#dashboardView:not([hidden])").wait_for()

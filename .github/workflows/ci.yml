@@ -44,6 +44,9 @@ jobs:
           node --check web/feed-ux.js
           node --check web/reader-ux.js
           node --check web/sw.js
+          node --check web/editorial-model.js
+          node --check web/editorial-ux.js
+          node --check web/experience.js
       - name: Pruebas JavaScript
         run: |
           node tests/test_sidebar_behavior.cjs
@@ -51,3 +54,7 @@ jobs:
           node tests/test_feed_ux.cjs
           node tests/test_reader_ux.cjs
           node tests/test_reading_state.cjs
+          node tests/test_editorial_model.cjs
+          node tests/test_experience.cjs
+          node tests/test_backup_extensions.cjs
+          node tests/test_render_performance.cjs

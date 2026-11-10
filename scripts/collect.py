@@ -474,6 +474,30 @@ def readable_summary(entry, title: str) -> str:
     return ''
 
 
+def publisher_content_type(entry) -> dict:
+    """Keep exact article-level publisher labels; never guess from source or prose."""
+    known = {'news':'news', 'noticia':'news', 'noticias':'news', 'opinion':'opinion',
+             'analysis':'analysis', 'analisis':'analysis', 'press_release':'press_release',
+             'press release':'press_release', 'comunicado':'press_release',
+             'comunicado de prensa':'press_release'}
+    candidates = [entry.get('content_type')]
+    tags = entry.get('tags')
+    if isinstance(tags, list):
+        candidates.extend(tag.get('term') for tag in tags if isinstance(tag, dict))
+    matches = {}
+    for candidate in candidates:
+        if not isinstance(candidate, str):
+            continue
+        folded = ''.join(c for c in unicodedata.normalize('NFKD', candidate.strip().casefold())
+                         if not unicodedata.combining(c))
+        if folded in known:
+            matches.setdefault(known[folded], candidate.strip()[:90])
+    if len(matches) != 1:
+        return {}
+    kind, label = next(iter(matches.items()))
+    return {'content_type':kind, 'content_type_label':label}
+
+
 def make_item(entry, source: dict, now: datetime) -> dict | None:
     link = safe_web_url(entry.get('link') or '')
     title, _ = extract_html(entry.get('title') or '')
@@ -503,6 +527,7 @@ def make_item(entry, source: dict, now: datetime) -> dict | None:
         'source_ids': [source['id']],
         'categories': [source['category']],
         'is_radar': source['is_radar'],
+        **publisher_content_type(entry),
     }
 
 
@@ -554,6 +579,14 @@ def story_tokens(title: str) -> frozenset[str]:
     folded=''.join(c for c in unicodedata.normalize('NFKD',title.lower()) if not unicodedata.combining(c))
     return frozenset(t for t in re.findall(r'[a-z0-9]+',folded) if len(t)>2 and t not in STOPWORDS)
 
+
+def story_headline(title: str) -> str:
+    """Full wording and numerical signs/units remain significant for grouping."""
+    folded = ''.join(c for c in unicodedata.normalize('NFKD', str(title).casefold())
+                     if not unicodedata.combining(c))
+    folded = re.sub(r'\s+y mas\s*[.!]?$', '', folded)
+    return ' '.join(re.findall(r'[a-z]+|[+\-−]?\d+(?:[.,:/-]\d+)*|[%$€£]', folded))
+
 def story_instant(item: dict) -> datetime | None:
     raw=item.get('published_at') or item.get('first_seen_at')
     if not isinstance(raw,str):
@@ -583,7 +616,7 @@ def retained_alternatives(item: dict, candidates: list[dict], valid_ids: set[str
 
 
 def group_related_articles(items: list[dict]) -> list[dict]:
-    """Conservative similarity within 24 h and across independent feed sources."""
+    """Same complete headline within 24 h, preserving distinct reported facts."""
     groups=[]
     tokens_by_group=[]
     dates=[]
@@ -603,6 +636,15 @@ def group_related_articles(items: list[dict]) -> list[dict]:
                 if previous is None or abs((stamp-previous).total_seconds())>86400:
                     continue
                 if set(item.get('source_ids',())) & set(groups[idx].get('source_ids',())):
+                    continue
+                publisher = str(item.get('publisher') or item.get('source') or '').casefold().strip()
+                previous_publisher = str(groups[idx].get('publisher') or groups[idx].get('source') or '').casefold().strip()
+                if not publisher or publisher == previous_publisher and not (item.get('is_radar') or groups[idx].get('is_radar')):
+                    continue
+                # Token overlap alone conflates figures, locations, negation and
+                # changed actions. Keep every word; only accents/case/punctuation
+                # may differ. Prefer extra stories over incorrectly merged facts.
+                if story_headline(item.get('title')) != story_headline(groups[idx].get('title')):
                     continue
                 intersection=len(tokens&old)
                 if intersection>=5 and intersection / max(1,len(tokens|old)) >= .72:
@@ -628,7 +670,8 @@ def group_related_articles(items: list[dict]) -> list[dict]:
                          'title':str(item.get('title') or '')[:250],
                          'source_id':(item.get('source_ids') or [None])[0],
                          'category':(item.get('categories') or [None])[0],
-                         'published_at':item.get('published_at')}]
+                         'published_at':item.get('published_at'),
+                         **{key:item[key] for key in ('content_type', 'content_type_label') if key in item}}]
             candidates += [x for x in item.get('also_in',[]) if isinstance(x,dict)]
             for alt in candidates:
                 url=alt.get('url')
