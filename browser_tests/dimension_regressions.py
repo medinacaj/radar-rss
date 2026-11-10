@@ -348,7 +348,11 @@ class DimensionRegressions(unittest.TestCase):
             for target,selectors in targets.items():
                 self.page.evaluate('(target)=>goTo(target)',target)
                 for selector in selectors:
-                    self.assertGreater(self.page.locator(selector).first.evaluate('n=>parseFloat(getComputedStyle(n).fontSize)'),normal[width,selector],selector)
+                    node=self.page.locator(selector).first
+                    # Hash navigation is asynchronous. WebKit may return an
+                    # unresolved size for the previous, still-hidden route.
+                    expect(node).to_be_visible()
+                    self.assertGreater(node.evaluate('n=>parseFloat(getComputedStyle(n).fontSize)'),normal[width,selector],selector)
                 self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth+2'),(width,target))
             self.page.evaluate("goTo('all')")
             self.page.locator('#articleGrid .article-also').first.click()
