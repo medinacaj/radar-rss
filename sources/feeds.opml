@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <opml version="1.0">
   <head>
-    <title>Fuentes públicas Radar-RSS (409 feeds, 11 categorías)</title>
+    <title>Fuentes públicas Radar-RSS (443 feeds, 11 categorías)</title>
   </head>
   <body>
     <outline text="01 - Inteligencia Artificial" title="01 - Inteligencia Artificial">
@@ -66,6 +66,9 @@
       <outline text="RADAR — Think Big / Telefónica | IA aplicada" title="RADAR — Think Big / Telefónica | IA aplicada" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Ablogthinkbig.com+%28intitle%3AIA+OR+intitle%3A%22inteligencia+artificial%22%29+when%3A30d&amp;hl=es&amp;gl=ES&amp;ceid=ES%3Aes" htmlUrl="https://blogthinkbig.com/" />
       <outline text="RADAR — Retina | Análisis de IA" title="RADAR — Retina | Análisis de IA" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aretinatendencias.com+%28%22inteligencia+artificial%22+OR+%22IA%22%29+when%3A30d&amp;hl=es&amp;gl=ES&amp;ceid=ES%3Aes" htmlUrl="https://retinatendencias.com/" />
       <outline text="RADAR — ElevenLabs | video y herramientas IA" title="RADAR — ElevenLabs | video y herramientas IA" type="rss" xmlUrl="https://news.google.com/rss/search?q=ElevenLabs+%28video+OR+v%C3%ADdeo+OR+generaci%C3%B3n+OR+ElevenCreative+OR+MCP%29+when%3A45d&amp;hl=es-419&amp;gl=CL&amp;ceid=CL%3Aes-419" htmlUrl="https://elevenlabs.io/blog" />
+      <outline text="OFICIAL — CENIA | Investigación de IA en Chile" title="OFICIAL — CENIA | Investigación de IA en Chile" type="rss" xmlUrl="https://cenia.cl/feed/" htmlUrl="https://cenia.cl/noticias/" />
+      <outline text="RADAR — AESIA | Supervisión y gobernanza de IA" title="RADAR — AESIA | Supervisión y gobernanza de IA" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aaesia.digital.gob.es%2Fes%2Factualidad+when%3A45d&amp;hl=es&amp;gl=ES&amp;ceid=ES%3Aes" htmlUrl="https://aesia.digital.gob.es/es/actualidad" />
+      <outline text="OFICIAL — Microsoft Source LATAM | IA en español" title="OFICIAL — Microsoft Source LATAM | IA en español" type="rss" xmlUrl="https://news.microsoft.com/source/latam/etiqueta/ia/feed/" htmlUrl="https://news.microsoft.com/source/latam/etiqueta/ia/" />
     </outline>
     <outline text="02 - Tecnología" title="02 - Tecnología">
       <outline text="RADAR — iProUP | Fintech y tecnología" title="RADAR — iProUP | Fintech y tecnología" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aiproup.com+%28fintech+OR+tecnolog%C3%ADa+OR+%22econom%C3%ADa+digital%22+OR+inteligencia+artificial%29&amp;hl=es-419&amp;gl=CL&amp;ceid=CL:es-419" htmlUrl="https://www.iproup.com/" />
@@ -143,6 +146,9 @@
       <outline text="MEDIO — DPL News" title="MEDIO — DPL News" type="rss" xmlUrl="https://dplnews.com/feed/" htmlUrl="https://dplnews.com/" />
       <outline text="RADAR — IT Reseller" title="RADAR — IT Reseller" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aitreseller.es+when%3A90d&amp;hl=es&amp;gl=ES&amp;ceid=ES%3Aes" htmlUrl="https://itreseller.es/" />
       <outline text="MEDIO — Red Seguridad" title="MEDIO — Red Seguridad" type="rss" xmlUrl="https://www.redseguridad.com/feed/" htmlUrl="https://www.redseguridad.com/" />
+      <outline text="MEDIO — Pisapapeles | Tecnología móvil en Chile" title="MEDIO — Pisapapeles | Tecnología móvil en Chile" type="rss" xmlUrl="https://pisapapeles.net/feed/" htmlUrl="https://pisapapeles.net/" />
+      <outline text="MEDIO — Mundo Xiaomi | Dispositivos y HyperOS" title="MEDIO — Mundo Xiaomi | Dispositivos y HyperOS" type="rss" xmlUrl="https://www.mundoxiaomi.com/index.xml" htmlUrl="https://www.mundoxiaomi.com/" />
+      <outline text="MEDIO — Xataka México | Tecnología en México" title="MEDIO — Xataka México | Tecnología en México" type="rss" xmlUrl="https://www.xataka.com.mx/index.xml" htmlUrl="https://www.xataka.com.mx/" />
     </outline>
     <outline text="03 - Internacionales" title="03 - Internacionales">
       <outline text="MEDIO — Actualidad Laboral" title="MEDIO — Actualidad Laboral" type="rss" xmlUrl="https://actualidadlaboral.com/feed/" htmlUrl="https://actualidadlaboral.com/" />
@@ -210,6 +216,8 @@
       <outline text="RADAR — Sudeste Asiático | Actualidad regional" title="RADAR — Sudeste Asiático | Actualidad regional" type="rss" xmlUrl="https://news.google.com/rss/search?q=%28intitle%3AIndonesia+OR+intitle%3AFilipinas+OR+intitle%3ATailandia+OR+intitle%3AVietnam+OR+intitle%3ABirmania+OR+intitle%3AMyanmar+OR+intitle%3AMalasia+OR+intitle%3ASingapur%29+%28site%3Abbc.com%2Fmundo+OR+site%3Adw.com%2Fes+OR+site%3Afrance24.com%2Fes+OR+site%3Arfi.fr%2Fes+OR+site%3Aefe.com+OR+site%3Anews.un.org%2Fes%2Fstory+OR+site%3Artve.es%2Fnoticias%29+-site%3Aefecomunica.efe.com+when%3A7d&amp;hl=es&amp;gl=ES&amp;ceid=ES%3Aes" htmlUrl="https://news.google.com/" />
       <outline text="RADAR — Oceanía | Australia, Nueva Zelanda y Pacífico" title="RADAR — Oceanía | Australia, Nueva Zelanda y Pacífico" type="rss" xmlUrl="https://news.google.com/rss/search?q=%28intitle%3AAustralia+OR+intitle%3A%22Nueva+Zelanda%22+OR+intitle%3AOcean%C3%ADa+OR+intitle%3AFiyi+OR+intitle%3APap%C3%BAa+OR+intitle%3AVanuatu+OR+intitle%3ASamoa%29+%28site%3Abbc.com%2Fmundo+OR+site%3Adw.com%2Fes+OR+site%3Afrance24.com%2Fes+OR+site%3Arfi.fr%2Fes+OR+site%3Aefe.com+OR+site%3Anews.un.org%2Fes%2Fstory+OR+site%3Artve.es%2Fnoticias%29+-site%3Aefecomunica.efe.com+when%3A7d&amp;hl=es&amp;gl=ES&amp;ceid=ES%3Aes" htmlUrl="https://news.google.com/" />
       <outline text="RADAR — Asia Central y Cáucaso | Actualidad y contexto" title="RADAR — Asia Central y Cáucaso | Actualidad y contexto" type="rss" xmlUrl="https://news.google.com/rss/search?q=%28intitle%3AKazajist%C3%A1n+OR+intitle%3AKazajst%C3%A1n+OR+intitle%3AUzbekist%C3%A1n+OR+intitle%3AKirguist%C3%A1n+OR+intitle%3ATayikist%C3%A1n+OR+intitle%3ATurkmenist%C3%A1n+OR+intitle%3AArmenia+OR+intitle%3AAzerbaiy%C3%A1n+OR+intitle%3AC%C3%A1ucaso%29+%28site%3Abbc.com%2Fmundo+OR+site%3Adw.com%2Fes+OR+site%3Afrance24.com%2Fes+OR+site%3Arfi.fr%2Fes+OR+site%3Aefe.com+OR+site%3Anews.un.org%2Fes%2Fstory+OR+site%3Artve.es%2Fnoticias%29+-site%3Aefecomunica.efe.com+when%3A7d&amp;hl=es&amp;gl=ES&amp;ceid=ES%3Aes" htmlUrl="https://news.google.com/" />
+      <outline text="RADAR — Público | Internacional" title="RADAR — Público | Internacional" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Apublico.es%2Finternacional+when%3A45d&amp;hl=es&amp;gl=ES&amp;ceid=ES%3Aes" htmlUrl="https://www.publico.es/internacional" />
+      <outline text="OFICIAL — Vatican News | Español" title="OFICIAL — Vatican News | Español" type="rss" xmlUrl="https://www.vaticannews.va/es.rss.xml" htmlUrl="https://www.vaticannews.va/es.html" />
     </outline>
     <outline text="04 - Chile" title="04 - Chile">
       <outline text="RADAR — Startups y capital emprendedor en Chile" title="RADAR — Startups y capital emprendedor en Chile" type="rss" xmlUrl="https://news.google.com/rss/search?q=%28startups+OR+emprendimiento+OR+venture+capital+OR+%22capital+de+riesgo%22%29+Chile&amp;hl=es-419&amp;gl=CL&amp;ceid=CL%3Aes-419" htmlUrl="https://news.google.com/" />
@@ -247,6 +255,10 @@
       <outline text="RADAR — Canal 9 Biobío TV" title="RADAR — Canal 9 Biobío TV" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Acanal9.cl&amp;hl=es-419&amp;gl=CL&amp;ceid=CL%3Aes-419" htmlUrl="https://www.canal9.cl/" />
       <outline text="RADAR — RedGol" title="RADAR — RedGol" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aredgol.cl&amp;hl=es-419&amp;gl=CL&amp;ceid=CL%3Aes-419" htmlUrl="https://redgol.cl/" />
       <outline text="RADAR — En Cancha" title="RADAR — En Cancha" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aencancha.cl&amp;hl=es-419&amp;gl=CL&amp;ceid=CL%3Aes-419" htmlUrl="https://www.encancha.cl/" />
+      <outline text="MEDIO — Diario El Día | Coquimbo" title="MEDIO — Diario El Día | Coquimbo" type="rss" xmlUrl="https://www.diarioeldia.cl/rss/noticias/" htmlUrl="https://www.diarioeldia.cl/" />
+      <outline text="RADAR — Fiscalía Nacional Económica" title="RADAR — Fiscalía Nacional Económica" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Afne.gob.cl+when%3A45d&amp;hl=es-419&amp;gl=CL&amp;ceid=CL%3Aes-419" htmlUrl="https://www.fne.gob.cl/" />
+      <outline text="RADAR — Universidad de Chile | Noticias" title="RADAR — Universidad de Chile | Noticias" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Auchile.cl%2Fnoticias+when%3A45d&amp;hl=es-419&amp;gl=CL&amp;ceid=CL%3Aes-419" htmlUrl="https://uchile.cl/noticias" />
+      <outline text="MEDIO — Diario El Centro | Maule" title="MEDIO — Diario El Centro | Maule" type="rss" xmlUrl="https://www.diarioelcentro.cl/feed/" htmlUrl="https://www.diarioelcentro.cl/" />
     </outline>
     <outline text="05 - Venezuela" title="05 - Venezuela">
       <outline text="RADAR — Empresas, comercio e industria en Venezuela" title="RADAR — Empresas, comercio e industria en Venezuela" type="rss" xmlUrl="https://news.google.com/rss/search?q=Venezuela+%28empresas+OR+comercio+OR+industria+OR+%22c%C3%A1maras+de+comercio%22+OR+Fedec%C3%A1maras%29+-site%3Ainstagram.com+-site%3Afacebook.com+-site%3Atiktok.com&amp;hl=es-419&amp;gl=VE&amp;ceid=VE%3Aes-419" htmlUrl="https://news.google.com/" />
@@ -278,6 +290,9 @@
       <outline text="RADAR — Radio Fe y Alegría Noticias" title="RADAR — Radio Fe y Alegría Noticias" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aradiofeyalegrianoticias.com+when%3A30d&amp;hl=es-419&amp;gl=VE&amp;ceid=VE%3Aes-419" htmlUrl="https://www.radiofeyalegrianoticias.com/" />
       <outline text="RADAR — Armando.info | Investigación" title="RADAR — Armando.info | Investigación" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aarmando.info+-intitle%3Aarmando.info+when%3A30d&amp;hl=es-419&amp;gl=VE&amp;ceid=VE%3Aes-419" htmlUrl="https://armando.info/" />
       <outline text="RADAR — El Diario | Venezuela" title="RADAR — El Diario | Venezuela" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aeldiario.com+when%3A30d&amp;hl=es-419&amp;gl=VE&amp;ceid=VE%3Aes-419" htmlUrl="https://eldiario.com/" />
+      <outline text="MEDIO — Contrapunto | Venezuela" title="MEDIO — Contrapunto | Venezuela" type="rss" xmlUrl="https://contrapunto.com/feed/" htmlUrl="https://contrapunto.com/" />
+      <outline text="RADAR — Diario de Los Andes | Regiones" title="RADAR — Diario de Los Andes | Regiones" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Adiariodelosandes.com+when%3A45d&amp;hl=es-419&amp;gl=VE&amp;ceid=VE%3Aes-419" htmlUrl="https://diariodelosandes.com/" />
+      <outline text="MEDIO — Correo del Caroní | Guayana" title="MEDIO — Correo del Caroní | Guayana" type="rss" xmlUrl="https://correodelcaroni.com/feed/" htmlUrl="https://correodelcaroni.com/" />
     </outline>
     <outline text="06 - Latinoamérica" title="06 - Latinoamérica">
       <outline text="MEDIO — EL PAÍS | América" title="MEDIO — EL PAÍS | América" type="rss" xmlUrl="https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/america/portada" htmlUrl="https://elpais.com/" />
@@ -306,6 +321,10 @@
       <outline text="RADAR — El Deber | Bolivia" title="RADAR — El Deber | Bolivia" type="rss" xmlUrl="https://news.google.com/rss/search?q=%28site%3Aeldeber.com.bo%2Fpais+OR+site%3Aeldeber.com.bo%2Fmundo+OR+site%3Aeldeber.com.bo%2Feconomia%29+when%3A7d&amp;hl=es-419&amp;gl=MX&amp;ceid=MX%3Aes-419" htmlUrl="https://eldeber.com.bo/" />
       <outline text="RADAR — Diario Libre | República Dominicana" title="RADAR — Diario Libre | República Dominicana" type="rss" xmlUrl="https://news.google.com/rss/search?q=%28site%3Adiariolibre.com%2Factualidad+OR+site%3Adiariolibre.com%2Feconomia+OR+site%3Adiariolibre.com%2Fmundo%29+when%3A7d&amp;hl=es-419&amp;gl=MX&amp;ceid=MX%3Aes-419" htmlUrl="https://www.diariolibre.com/" />
       <outline text="RADAR — La Nación | Costa Rica" title="RADAR — La Nación | Costa Rica" type="rss" xmlUrl="https://news.google.com/rss/search?q=%28site%3Anacion.com%2Fel-pais+OR+site%3Anacion.com%2Feconomia+OR+site%3Anacion.com%2Fel-mundo%29+when%3A7d&amp;hl=es-419&amp;gl=MX&amp;ceid=MX%3Aes-419" htmlUrl="https://www.nacion.com/" />
+      <outline text="MEDIO — Página/12 | Argentina" title="MEDIO — Página/12 | Argentina" type="rss" xmlUrl="https://www.pagina12.com.ar/arc/outboundfeeds/rss/portada" htmlUrl="https://www.pagina12.com.ar/" />
+      <outline text="RADAR — Confidencial | Nicaragua" title="RADAR — Confidencial | Nicaragua" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aconfidencial.digital%2Fnoticias+when%3A45d&amp;hl=es-419&amp;gl=MX&amp;ceid=MX%3Aes-419" htmlUrl="https://confidencial.digital/" />
+      <outline text="MEDIO — Plaza Pública | Guatemala" title="MEDIO — Plaza Pública | Guatemala" type="rss" xmlUrl="https://plazapublica.com.gt/feed/" htmlUrl="https://plazapublica.com.gt/" />
+      <outline text="RADAR — La Jornada | México" title="RADAR — La Jornada | México" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Ajornada.com.mx%2Fnoticia%2F+when%3A45d&amp;hl=es-419&amp;gl=MX&amp;ceid=MX%3Aes-419" htmlUrl="https://www.jornada.com.mx/" />
     </outline>
     <outline text="07 - Concepción" title="07 - Concepción">
       <outline text="MEDIO — ConceAhora" title="MEDIO — ConceAhora" type="rss" xmlUrl="https://www.conceahora.cl/feed/" htmlUrl="https://www.conceahora.cl/" />
@@ -341,6 +360,10 @@
       <outline text="RADAR — TVU" title="RADAR — TVU" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Atvu.cl&amp;hl=es-419&amp;gl=CL&amp;ceid=CL%3Aes-419" htmlUrl="https://www.tvu.cl/" />
       <outline text="OFICIAL — Municipalidad de Concepción (Google Noticias)" title="OFICIAL — Municipalidad de Concepción (Google Noticias)" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aconcepcion.cl&amp;hl=es-419&amp;gl=CL&amp;ceid=CL%3Aes-419" htmlUrl="https://concepcion.cl/" />
       <outline text="OFICIAL — Municipalidad de Talcahuano (Google Noticias)" title="OFICIAL — Municipalidad de Talcahuano (Google Noticias)" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Atalcahuano.cl&amp;hl=es-419&amp;gl=CL&amp;ceid=CL%3Aes-419" htmlUrl="https://www.talcahuano.cl/" />
+      <outline text="RADAR — Municipalidad de Santa Juana" title="RADAR — Municipalidad de Santa Juana" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Asantajuana.cl+when%3A45d&amp;hl=es-419&amp;gl=CL&amp;ceid=CL%3Aes-419" htmlUrl="https://santajuana.cl/" />
+      <outline text="RADAR — Lanalhue Noticias | Biobío" title="RADAR — Lanalhue Noticias | Biobío" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Alanalhuenoticias.cl+%28intitle%3AConcepci%C3%B3n+OR+intitle%3ABiob%C3%ADo+OR+intitle%3A%22Bio+B%C3%ADo%22+OR+intitle%3ATalcahuano+OR+intitle%3ACoronel+OR+intitle%3ALota%29+when%3A45d&amp;hl=es-419&amp;gl=CL&amp;ceid=CL%3Aes-419" htmlUrl="https://www.lanalhuenoticias.cl/" />
+      <outline text="REGIONAL — Irade | Desarrollo del Biobío" title="REGIONAL — Irade | Desarrollo del Biobío" type="rss" xmlUrl="https://irade.cl/feed/" htmlUrl="https://irade.cl/" />
+      <outline text="RADAR — Municipalidad de Hualqui" title="RADAR — Municipalidad de Hualqui" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Amunihualqui.cl+when%3A45d&amp;hl=es-419&amp;gl=CL&amp;ceid=CL%3Aes-419" htmlUrl="https://www.munihualqui.cl/" />
     </outline>
     <outline text="08 - Maturín / Monagas" title="08 - Maturín / Monagas">
       <outline text="RADAR — La Verdad de Monagas | Maturín y Monagas" title="RADAR — La Verdad de Monagas | Maturín y Monagas" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Alaverdaddemonagas.com+%28Matur%C3%ADn+OR+Maturin+OR+Monagas%29&amp;hl=es-419&amp;gl=VE&amp;ceid=VE%3Aes-419" htmlUrl="https://laverdaddemonagas.com/" />
@@ -353,6 +376,9 @@
       <outline text="RADAR — Radio Fe y Alegría | Maturín y Monagas" title="RADAR — Radio Fe y Alegría | Maturín y Monagas" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aradiofeyalegrianoticias.com+%28intitle%3AMonagas+OR+intitle%3AMatur%C3%ADn+OR+intitle%3AMaturin%29+when%3A30d&amp;hl=es-419&amp;gl=VE&amp;ceid=VE%3Aes-419" htmlUrl="https://www.radiofeyalegrianoticias.com/" />
       <outline text="MEDIO — La Verdad de Monagas | Maturín" title="MEDIO — La Verdad de Monagas | Maturín" type="rss" xmlUrl="https://laverdaddemonagas.com/maturin/feed/" htmlUrl="https://laverdaddemonagas.com/" />
       <outline text="RADAR — Maturín News | Monagas" title="RADAR — Maturín News | Monagas" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Amaturinnews.com+intitle%3AMonagas+-intitle%3Aarchivos+when%3A45d&amp;hl=es-419&amp;gl=VE&amp;ceid=VE%3Aes-419" htmlUrl="https://maturinnews.com/" />
+      <outline text="RADAR — MundoUR / Unión Radio | Monagas" title="RADAR — MundoUR / Unión Radio | Monagas" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Amundour.com+%28intitle%3AMatur%C3%ADn+OR+intitle%3AMaturin+OR+intitle%3AMonagas%29+when%3A45d&amp;hl=es-419&amp;gl=VE&amp;ceid=VE%3Aes-419" htmlUrl="https://mundour.com/" />
+      <outline text="RADAR — Fedecámaras Radio | Monagas" title="RADAR — Fedecámaras Radio | Monagas" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Afedecamarasradio.com+%28intitle%3AMatur%C3%ADn+OR+intitle%3AMaturin+OR+intitle%3AMonagas%29+when%3A45d&amp;hl=es-419&amp;gl=VE&amp;ceid=VE%3Aes-419" htmlUrl="https://fedecamarasradio.com/" />
+      <outline text="RADAR — Otilca Radio | Cultura en Maturín" title="RADAR — Otilca Radio | Cultura en Maturín" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aradio.otilca.org+%28intitle%3AMatur%C3%ADn+OR+intitle%3AMaturin+OR+intitle%3AMonagas%29+when%3A45d&amp;hl=es-419&amp;gl=VE&amp;ceid=VE%3Aes-419" htmlUrl="https://radio.otilca.org/" />
     </outline>
     <outline text="09 - Startups y Capital" title="09 - Startups y Capital">
       <outline text="MEDIO — Tekios" title="MEDIO — Tekios" type="rss" xmlUrl="https://tekiosmag.com/feed/" htmlUrl="https://tekiosmag.com/" />
@@ -387,6 +413,9 @@
       <outline text="MEDIO — Entrepreneur en Español" title="MEDIO — Entrepreneur en Español" type="rss" xmlUrl="https://spanish.entrepreneur.com/feed" htmlUrl="https://spanish.entrepreneur.com/" />
       <outline text="MEDIO — El Ecosistema Startup" title="MEDIO — El Ecosistema Startup" type="rss" xmlUrl="https://ecosistemastartup.com/feed/" htmlUrl="https://ecosistemastartup.com/" />
       <outline text="RADAR — FinteChile" title="RADAR — FinteChile" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Afintechile.org+when%3A90d&amp;hl=es&amp;gl=ES&amp;ceid=ES%3Aes" htmlUrl="https://fintechile.org/" />
+      <outline text="OFICIAL — Startup Valencia | Ecosistema emprendedor" title="OFICIAL — Startup Valencia | Ecosistema emprendedor" type="rss" xmlUrl="https://startupvalencia.org/es/feed/" htmlUrl="https://startupvalencia.org/es/category/noticias/" />
+      <outline text="RADAR — SpainCap | Capital privado y venture capital" title="RADAR — SpainCap | Capital privado y venture capital" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aspaincap.org%2Fcomunicacion%2Fnoticias+when%3A45d&amp;hl=es&amp;gl=ES&amp;ceid=ES%3Aes" htmlUrl="https://www.spaincap.org/comunicacion/noticias" />
+      <outline text="RADAR — Enisa | Financiación de startups" title="RADAR — Enisa | Financiación de startups" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aenisa.es%2Factualidad%2Fnoticia+when%3A45d&amp;hl=es&amp;gl=ES&amp;ceid=ES%3Aes" htmlUrl="https://www.enisa.es/actualidad/noticias/" />
     </outline>
     <outline text="10 - Empresas y Economía" title="10 - Empresas y Economía">
       <outline text="MEDIO — Insider Latam" title="MEDIO — Insider Latam" type="rss" xmlUrl="https://insiderlatam.com/feed/" htmlUrl="https://insiderlatam.com/" />
@@ -424,6 +453,8 @@
       <outline text="MEDIO — Ecommerce News" title="MEDIO — Ecommerce News" type="rss" xmlUrl="https://ecommerce-news.es/feed/" htmlUrl="https://ecommerce-news.es/" />
       <outline text="RADAR — PuroMarketing" title="RADAR — PuroMarketing" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Apuromarketing.com+when%3A90d&amp;hl=es&amp;gl=ES&amp;ceid=ES%3Aes" htmlUrl="https://puromarketing.com/" />
       <outline text="MEDIO — Emprendedor.com" title="MEDIO — Emprendedor.com" type="rss" xmlUrl="https://emprendedor.com/feed/" htmlUrl="https://emprendedor.com/" />
+      <outline text="MEDIO — Ámbito | Economía" title="MEDIO — Ámbito | Economía" type="rss" xmlUrl="https://www.ambito.com/rss/pages/economia.xml" htmlUrl="https://www.ambito.com/economia" />
+      <outline text="MEDIO — Economía Digital" title="MEDIO — Economía Digital" type="rss" xmlUrl="https://www.economiadigital.es/feed" htmlUrl="https://www.economiadigital.es/" />
     </outline>
     <outline text="11 - Investigación y Gestión" title="11 - Investigación y Gestión">
       <outline text="MEDIO — Dirección y Organización" title="MEDIO — Dirección y Organización" type="rss" xmlUrl="https://revistadyo.es/DyO/index.php/dyo/gateway/plugin/WebFeedGatewayPlugin/rss2" htmlUrl="https://revistadyo.es/DyO/index.php/dyo" />
@@ -434,6 +465,9 @@
       <outline text="MEDIO — Revista Venezolana de Gerencia" title="MEDIO — Revista Venezolana de Gerencia" type="rss" xmlUrl="https://produccioncientificaluz.org/index.php/rvg/gateway/plugin/WebFeedGatewayPlugin/atom" htmlUrl="https://produccioncientificaluz.org/index.php/rvg" />
       <outline text="RADAR — Revista GCG | Nuevos números de Georgetown" title="RADAR — Revista GCG | Nuevos números de Georgetown" type="rss" xmlUrl="https://news.google.com/rss/search?q=%22Globalizaci%C3%B3n%2C+Competitividad+y+Gobernabilidad%22+when%3A730d&amp;hl=es&amp;gl=ES&amp;ceid=ES%3Aes" htmlUrl="https://lalp.georgetown.edu/" />
       <outline text="MEDIO — Revista de Contabilidad | Spanish Accounting Review" title="MEDIO — Revista de Contabilidad | Spanish Accounting Review" type="rss" xmlUrl="https://revistas.um.es/rcsar/gateway/plugin/WebFeedGatewayPlugin/atom" htmlUrl="https://revistas.um.es/rcsar" />
+      <outline text="MEDIO — Estudios de la Gestión | UASB" title="MEDIO — Estudios de la Gestión | UASB" type="rss" xmlUrl="https://revistas.uasb.edu.ec/index.php/eg/gateway/plugin/WebFeedGatewayPlugin/rss2" htmlUrl="https://revistas.uasb.edu.ec/index.php/eg/" />
+      <outline text="MEDIO — Cuadernos de Gestión | Español e inglés" title="MEDIO — Cuadernos de Gestión | Español e inglés" type="rss" xmlUrl="https://ojs.ehu.eus/index.php/CG/gateway/plugin/WebFeedGatewayPlugin/rss2" htmlUrl="https://ojs.ehu.eus/index.php/CG/" />
+      <outline text="RADAR — Retos | Administración y economía" title="RADAR — Retos | Administración y economía" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aretos.ups.edu.ec%2Fretos%2Farticle%2Fview+when%3A730d&amp;hl=es&amp;gl=ES&amp;ceid=ES%3Aes" htmlUrl="https://retos.ups.edu.ec/index.php/retos/" />
     </outline>
   </body>
 </opml>

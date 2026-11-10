@@ -1,0 +1,1149 @@
+{
+  "version": 1,
+  "checked_at": "2026-11-10T18:45:18Z",
+  "baseline_source_count": 409,
+  "baseline_sources_sha256": "a23c1dd0510a7800da1b5a55c1b773c1300a23ba46fb771bb133d095181ffbbc",
+  "discovery_method": "Primary publisher pages and RSS links/content types through connected web search. Executor publisher access restricted; no policy bypass or feed XML parsing.",
+  "operational_health": "Actual ingestion status is maintained separately in the published data/status.json; discovery does not guarantee current yield.",
+  "sources": [
+    {
+      "category": "01 - Inteligencia Artificial",
+      "name": "OFICIAL — CENIA | Investigación de IA en Chile",
+      "website": "https://cenia.cl/noticias/",
+      "feed": "https://cenia.cl/feed/",
+      "provider": "publisher",
+      "publisher_country": "Chile",
+      "evidence_urls": [
+        "https://cenia.cl/",
+        "https://cenia.cl/noticias/",
+        "https://cenia.cl/2026/10/29/microsoft-y-cenia-le-dan-motor-a-latam-gpt-el-primer-gran-modelo-de-lenguaje-abierto-de-america-latina/",
+        "https://cenia.cl/feed/"
+      ],
+      "rationale": "Centro chileno especializado: investigación, modelos regionales y transferencia de IA; incorpora fuente primaria latinoamericana.",
+      "sample_article": {
+        "url": "https://cenia.cl/2026/10/29/microsoft-y-cenia-le-dan-motor-a-latam-gpt-el-primer-gran-modelo-de-lenguaje-abierto-de-america-latina/",
+        "date": "2026-10-29",
+        "title_short": "Alianza Microsoft y CENIA para Latam GPT",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "rss_content_type_observed",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "Endpoint convencional consultado una vez por herramienta web: Unsupported content-type: text/xml. Evidencia de respuesta XML del host editorial, distinta de un enlace RSS declarado. XML no parseado; no se verificaron contenido, idioma del feed, número de ítems ni estado HTTP real. Página y artículo reciente en español observados."
+      },
+      "territorial_scope": "not_applicable",
+      "id": "a90b2852b07c662e",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "01 - Inteligencia Artificial",
+      "name": "RADAR — AESIA | Supervisión y gobernanza de IA",
+      "website": "https://aesia.digital.gob.es/es/actualidad",
+      "feed": "https://news.google.com/rss/search?q=site%3Aaesia.digital.gob.es%2Fes%2Factualidad+when%3A45d&hl=es&gl=ES&ceid=ES%3Aes",
+      "provider": "google-news-search",
+      "publisher_country": "España",
+      "evidence_urls": [
+        "https://aesia.digital.gob.es/es/actualidad",
+        "https://aesia.digital.gob.es/es/actualidad/20261020-la-aesia-con-las-empresas-para-convertir-la-ia-en-un-motor-de-competitividad-e-innovacion-responsable"
+      ],
+      "rationale": "Agencia pública española: aplicación del Reglamento de IA, guías y supervisión con documentos y anuncios de primera mano.",
+      "sample_article": {
+        "url": "https://aesia.digital.gob.es/es/actualidad/20261020-la-aesia-con-las-empresas-para-convertir-la-ia-en-un-motor-de-competitividad-e-innovacion-responsable",
+        "date": "2026-10-20",
+        "title_short": "AESIA presenta guías para adopción responsable de IA",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "primary_editorial_evidence",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "Página editorial y artículo fechado observados mediante herramienta web. No se evidenció RSS nativo declarado en las páginas revisadas; consulta Google News restringida al editor. Feed RADAR propuesto, no descargado ni parseado; indexación y cantidad de resultados no verificadas."
+      },
+      "territorial_scope": "not_applicable",
+      "id": "02549f9736af479b",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "01 - Inteligencia Artificial",
+      "name": "OFICIAL — Microsoft Source LATAM | IA en español",
+      "website": "https://news.microsoft.com/source/latam/etiqueta/ia/",
+      "feed": "https://news.microsoft.com/source/latam/etiqueta/ia/feed/",
+      "provider": "publisher",
+      "publisher_country": "Estados Unidos (edición latinoamericana en español)",
+      "evidence_urls": [
+        "https://news.microsoft.com/source/latam/etiqueta/ia/",
+        "https://news.microsoft.com/source/latam/etiqueta/ia/feed/",
+        "https://news.microsoft.com/source/latam/features/transformacion-digital/ia-expertos-financieros-northern-trust/"
+      ],
+      "rationale": "Comunicaciones originales y casos de IA en español para América Latina. Complementa los RADAR de Microsoft existentes con un canal nativo y editorial en español; comparte empresa y puede solapar algunos anuncios.",
+      "sample_article": {
+        "url": "https://news.microsoft.com/source/latam/features/transformacion-digital/ia-expertos-financieros-northern-trust/",
+        "date": "2026-11-09",
+        "title_short": "Northern Trust colabora con Microsoft en IA financiera",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "rss_content_type_observed",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "Endpoint de etiqueta consultado por herramienta web: Unsupported content-type: application/rss+xml. Confirma respuesta de tipo RSS del host editorial; no se observó enlace declarado ni se parseó XML. Página de etiqueta y artículo reciente en español observados. No se verificaron número de ítems, idioma del XML o estado HTTP real. El endpoint heredado /es-xl/category/inteligencia-artificial/feed/ también respondió tipo RSS, pero se prefiere la ruta de la edición actual."
+      },
+      "territorial_scope": "not_applicable",
+      "id": "b4612e629d248dc1",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "02 - Tecnología",
+      "name": "MEDIO — Pisapapeles | Tecnología móvil en Chile",
+      "website": "https://pisapapeles.net/",
+      "feed": "https://pisapapeles.net/feed/",
+      "provider": "publisher",
+      "publisher_country": "Chile",
+      "evidence_urls": [
+        "https://pisapapeles.net/",
+        "https://pisapapeles.net/feed/"
+      ],
+      "rationale": "Medio chileno de dispositivos y conectividad; suma pruebas y cobertura local en español.",
+      "sample_article": {
+        "url": "https://pisapapeles.net/review-en-video-hisense-uled-mini-led-u7-55u7qg-55-pulgadas-con-google-tv/",
+        "date": "2026-11-10",
+        "title_short": "Análisis de televisor Hisense U7 con Google TV",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "publisher_declared",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "RSS explícito en pie de portada; enlace seguido hasta /feed/, herramienta respondió Unsupported content-type: application/rss+xml. Portada y reseña observadas; fecha visible en portada. No se ha parseado XML ni medido número de ítems."
+      },
+      "territorial_scope": "not_applicable",
+      "id": "af91c62cfe958f7b",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "02 - Tecnología",
+      "name": "MEDIO — Mundo Xiaomi | Dispositivos y HyperOS",
+      "website": "https://www.mundoxiaomi.com/",
+      "feed": "https://www.mundoxiaomi.com/index.xml",
+      "provider": "publisher",
+      "publisher_country": "España",
+      "evidence_urls": [
+        "https://www.mundoxiaomi.com/",
+        "https://www.mundoxiaomi.com/index.xml",
+        "https://www.mundoxiaomi.com/moviles/importancia-xring-03-xiaomi-solo-uno-sus-moviles-integra-no-precisamente-uno-gama-baja"
+      ],
+      "rationale": "Publicación especializada del grupo Webedia: chips, actualizaciones y dispositivos Xiaomi. Tiene afinidad editorial con otros Xataka existentes, pero dominio y feed distintos.",
+      "sample_article": {
+        "url": "https://www.mundoxiaomi.com/moviles/importancia-xring-03-xiaomi-solo-uno-sus-moviles-integra-no-precisamente-uno-gama-baja",
+        "date": "2026-11-10",
+        "title_short": "El procesador XRING 03 y los móviles Xiaomi",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "publisher_declared",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "Portada enlaza RSS; enlace seguido hasta https://www.mundoxiaomi.com/index.xml; herramienta devolvió error (400) OK, sin XML parseado. Artículo y fecha ISO de portada observados. Disponibilidad de ingesta y número de ítems pendientes."
+      },
+      "territorial_scope": "not_applicable",
+      "id": "c064b626d74596f7",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "02 - Tecnología",
+      "name": "MEDIO — Xataka México | Tecnología en México",
+      "website": "https://www.xataka.com.mx/",
+      "feed": "https://www.xataka.com.mx/index.xml",
+      "provider": "publisher",
+      "publisher_country": "México",
+      "evidence_urls": [
+        "https://www.xataka.com.mx/",
+        "https://www.xataka.com.mx/index.xml",
+        "https://www.xataka.com.mx/educacion/mexico-quiere-que-inventos-sus-universidades-lleguen-al-mercado-no-se-queden-guardados-laboratorios"
+      ],
+      "rationale": "Edición mexicana de Webedia; añade mercado, telecomunicaciones y políticas tecnológicas locales. Mismo grupo que Xataka España, pero edición y feed distintos.",
+      "sample_article": {
+        "url": "https://www.xataka.com.mx/educacion/mexico-quiere-que-inventos-sus-universidades-lleguen-al-mercado-no-se-queden-guardados-laboratorios",
+        "date": "2026-11-10",
+        "title_short": "Transferencia de inventos universitarios al mercado mexicano",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "publisher_declared",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "RSS explícito en portada; enlace seguido hasta /index.xml y herramienta respondió Unsupported content-type: text/xml. Artículo y fecha ISO de portada observados. XML e ingesta no probados; sin conteo de ítems."
+      },
+      "territorial_scope": "not_applicable",
+      "id": "c3608773b8b8ef2d",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "03 - Internacionales",
+      "name": "RADAR — Público | Internacional",
+      "website": "https://www.publico.es/internacional",
+      "feed": "https://news.google.com/rss/search?q=site%3Apublico.es%2Finternacional+when%3A45d&hl=es&gl=ES&ceid=ES%3Aes",
+      "provider": "google-news-search",
+      "publisher_country": "España",
+      "evidence_urls": [
+        "https://www.publico.es/internacional/guterres-pide-gobernanza-ia-advierte-ninos-expuestos-cobayas.html"
+      ],
+      "rationale": "Nueva cabecera en la carpeta, acotada a su sección internacional.",
+      "sample_article": {
+        "url": "https://www.publico.es/internacional/guterres-pide-gobernanza-ia-advierte-ninos-expuestos-cobayas.html",
+        "date": "2026-11-10",
+        "title_short": "Gobernanza internacional de la IA",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "primary_editorial_evidence",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "primary_article_observed; RADAR query constructed, XML and yield not measured"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "ceb5adee0fe33db8",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "03 - Internacionales",
+      "name": "OFICIAL — Vatican News | Español",
+      "website": "https://www.vaticannews.va/es.html",
+      "feed": "https://www.vaticannews.va/es.rss.xml",
+      "provider": "publisher",
+      "publisher_country": "Vaticano",
+      "evidence_urls": [
+        "https://www.vaticannews.va/es.html",
+        "https://www.vaticannews.va/es.rss.xml",
+        "https://www.vaticannews.va/es/mundo/news/2026-11/congo-onu-guerra-africa-ebola-enfrentamientos-salud-migrantes.html"
+      ],
+      "rationale": "Fuente institucional internacional con edición española; perspectiva religiosa explícita, sociedad y actualidad mundial.",
+      "sample_article": {
+        "url": "https://www.vaticannews.va/es/mundo/news/2026-11/congo-onu-guerra-africa-ebola-enfrentamientos-salud-migrantes.html",
+        "date": "2026-11-10",
+        "title_short": "Congo: guerra y respuesta sanitaria",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "publisher_declared",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "publisher_declared_endpoint; browser reports application/xml; XML not parsed"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "616df53c8853f492",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "04 - Chile",
+      "name": "MEDIO — Diario El Día | Coquimbo",
+      "website": "https://www.diarioeldia.cl/",
+      "feed": "https://www.diarioeldia.cl/rss/noticias/",
+      "provider": "publisher",
+      "publisher_country": "Chile",
+      "evidence_urls": [
+        "https://www.diarioeldia.cl/Rss",
+        "https://www.diarioeldia.cl/rss/noticias/",
+        "https://www.diarioeldia.cl/noticias/2026/11/05/155964-coquimbo-tendra-dos-jornadas-de-musica-en-vivo-para-apoyar-la-teleton-2026"
+      ],
+      "rationale": "Adds established reporting from Coquimbo and La Serena outside the Santiago-heavy national selection. The publisher's own RSS directory explicitly links this exact general-news endpoint.",
+      "sample_article": {
+        "url": "https://www.diarioeldia.cl/noticias/2026/11/05/155964-coquimbo-tendra-dos-jornadas-de-musica-en-vivo-para-apoyar-la-teleton-2026",
+        "date": "2026-11-05",
+        "title_short": "Coquimbo apoyará la Teletón",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "publisher_declared",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "publisher_declared_endpoint; web open returned Unsupported content-type: text/xml; XML not parsed and feed items/freshness not verified; recent primary article observed"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "3f83a793af74f24e",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "04 - Chile",
+      "name": "RADAR — Fiscalía Nacional Económica",
+      "website": "https://www.fne.gob.cl/",
+      "feed": "https://news.google.com/rss/search?q=site%3Afne.gob.cl+when%3A45d&hl=es-419&gl=CL&ceid=CL%3Aes-419",
+      "provider": "google-news-search",
+      "publisher_country": "Chile",
+      "evidence_urls": [
+        "https://www.fne.gob.cl/",
+        "https://www.fne.gob.cl/comunicaciones/noticias/",
+        "https://www.fne.gob.cl/fne-participo-en-jornada-de-libre-competencia-de-la-pontificia-universidad-catolica/"
+      ],
+      "rationale": "Adds primary national competition-enforcement, mergers and market-study updates. Distinct publisher absent from Chile folder.",
+      "sample_article": {
+        "url": "https://www.fne.gob.cl/fne-participo-en-jornada-de-libre-competencia-de-la-pontificia-universidad-catolica/",
+        "date": "2026-11-06",
+        "title_short": "FNE en jornada de libre competencia",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "primary_editorial_evidence",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "RADAR fallback proposed; active primary publisher and dated article verified in web search; no publisher RSS declaration found; Google News query not fetched and coverage/yield unverified"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "4c4cfd7b875ec73d",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "04 - Chile",
+      "name": "RADAR — Universidad de Chile | Noticias",
+      "website": "https://uchile.cl/noticias",
+      "feed": "https://news.google.com/rss/search?q=site%3Auchile.cl%2Fnoticias+when%3A45d&hl=es-419&gl=CL&ceid=CL%3Aes-419",
+      "provider": "google-news-search",
+      "publisher_country": "Chile",
+      "evidence_urls": [
+        "https://uchile.cl/noticias",
+        "https://uchile.cl/noticias/246065/estudiantes-u-de-chile-ganan-hackaton-de-amazon-web-services-"
+      ],
+      "rationale": "Adds primary public-university research, science, education and policy coverage to Chile. Restricts the fallback to the news path.",
+      "sample_article": {
+        "url": "https://uchile.cl/noticias/246065/estudiantes-u-de-chile-ganan-hackaton-de-amazon-web-services-",
+        "date": "2026-10-19",
+        "title_short": "Hackatón con solución hospitalaria",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "primary_editorial_evidence",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "RADAR fallback proposed; primary news page and dated article observed; no exact publisher RSS declaration found on news page; Google News query not fetched and coverage/yield unverified"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "0eb500544f5d3ee5",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "04 - Chile",
+      "name": "MEDIO — Diario El Centro | Maule",
+      "website": "https://www.diarioelcentro.cl/",
+      "feed": "https://www.diarioelcentro.cl/feed/",
+      "provider": "publisher",
+      "publisher_country": "Chile",
+      "evidence_urls": [
+        "https://www.diarioelcentro.cl/",
+        "https://www.diarioelcentro.cl/2026/11/09/habilitan-el-transito-internacional-por-el-paso-pehuenche-revisa-los-detalles/",
+        "https://www.diarioelcentro.cl/feed/"
+      ],
+      "rationale": "Adds an established Maule regional publisher and recent public-service reporting. Native endpoint observed with RSS content type; content and items remain unparsed.",
+      "endpoint_evidence": {
+        "url": "https://www.diarioelcentro.cl/feed/",
+        "observed_content_type": "application/rss+xml",
+        "publisher_declaration_observed": false,
+        "parsed_items": false
+      },
+      "sample_article": {
+        "url": "https://www.diarioelcentro.cl/2026/11/09/habilitan-el-transito-internacional-por-el-paso-pehuenche-revisa-los-detalles/",
+        "date": "2026-11-09",
+        "title_short": "Paso Pehuenche habilitado",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "rss_content_type_observed",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "native_endpoint_content_type_observed; conventional /feed/ web probe returned Unsupported content-type: application/rss+xml; not an explicit publisher declaration; XML/items/counts/feed recency not parsed or verified; primary recent article observed"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "d8947118e2b363f0",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "05 - Venezuela",
+      "name": "MEDIO — Contrapunto | Venezuela",
+      "website": "https://contrapunto.com/",
+      "feed": "https://contrapunto.com/feed/",
+      "provider": "publisher",
+      "publisher_country": "Venezuela",
+      "evidence_urls": [
+        "https://contrapunto.com/",
+        "https://contrapunto.com/economia/empresas/panorama-actual-del-sector-automotor-venezolano-sera-debatido-en-asamblea-anual-de-canidra-este-19nov/",
+        "https://contrapunto.com/feed/"
+      ],
+      "rationale": "Nueva redacción con cobertura de empresas, trabajo, política y cultura; nota reciente de economía. RSS nativo observado por tipo de contenido del endpoint; no se comprobó parsing.",
+      "native_feed_observation": {
+        "url": "https://contrapunto.com/feed/",
+        "date": "2026-11-10",
+        "content_type_reported_by_web_tool": "application/rss+xml",
+        "result": "unsupported_content_type; XML_not_parsed",
+        "basis": "Single direct endpoint observation; not an explicit publisher declaration."
+      },
+      "sample_article": {
+        "url": "https://contrapunto.com/economia/empresas/panorama-actual-del-sector-automotor-venezolano-sera-debatido-en-asamblea-anual-de-canidra-este-19nov/",
+        "date": "2026-11-10",
+        "title_short": "Canidra debatirá sector automotor",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "rss_content_type_observed",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "native_endpoint_observed_by_connected_web_tool_as_application/rss+xml; unsupported_content_type_prevented_XML_parsing; no_explicit_publisher_RSS_link_evidenced; no_feed_item_or_runtime_verification"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "e77a8c0620c34bed",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "05 - Venezuela",
+      "name": "RADAR — Diario de Los Andes | Regiones",
+      "website": "https://diariodelosandes.com/",
+      "feed": "https://news.google.com/rss/search?q=site%3Adiariodelosandes.com+when%3A45d&hl=es-419&gl=VE&ceid=VE%3Aes-419",
+      "provider": "google-news-search",
+      "publisher_country": "Venezuela",
+      "evidence_urls": [
+        "https://diariodelosandes.com/",
+        "https://diariodelosandes.com/colegio-de-profesores-de-trujillo-exige-ante-la-zona-educativa-la-revision-de-expedientes-y-la-restitucion-de-salarios/"
+      ],
+      "rationale": "Amplía representación territorial hacia Trujillo, Táchira y Mérida; evidencia de reportería local sobre educación y trabajo. RSS exacto no evidenciado.",
+      "native_feed_observation": {
+        "url": "https://diariodelosandes.com/feed/",
+        "date": "2026-11-10",
+        "content_type_reported_by_web_tool": "text/html",
+        "redirect_target": "https://diariodelosandes.com/",
+        "result": "redirected_to_homepage; not_RSS"
+      },
+      "sample_article": {
+        "url": "https://diariodelosandes.com/colegio-de-profesores-de-trujillo-exige-ante-la-zona-educativa-la-revision-de-expedientes-y-la-restitucion-de-salarios/",
+        "date": "2026-11-10",
+        "title_short": "Docentes de Trujillo reclaman salarios",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "primary_editorial_evidence",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "publisher_article_and_date_observed; /feed/_redirected_to_HTML_homepage; retain_RADAR_query_constructed_not_runtime_parsed"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "1b33daee50358281",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "05 - Venezuela",
+      "name": "MEDIO — Correo del Caroní | Guayana",
+      "website": "https://correodelcaroni.com/",
+      "feed": "https://correodelcaroni.com/feed/",
+      "provider": "publisher",
+      "publisher_country": "Venezuela",
+      "evidence_urls": [
+        "https://correodelcaroni.com/author/fdiaz/",
+        "https://correodelcaroni.com/laboral-economia/cvg-anuncia-dialogos-laborales-al-margen-de-la-huelga-de-hambre-y-vigilia-de-trabajadores/",
+        "https://correodelcaroni.com/feed/"
+      ],
+      "rationale": "Añade voz regional de Guayana y reportería propia sobre industria, salarios y servicios. Página de autora identifica firma y fecha; no atribuir esta fuente a Monagas. El endpoint nativo respondió como RSS según el navegador conectado.",
+      "native_feed_observation": {
+        "url": "https://correodelcaroni.com/feed/",
+        "date": "2026-11-10",
+        "content_type_reported_by_web_tool": "application/rss+xml",
+        "result": "unsupported_content_type; XML_not_parsed",
+        "basis": "Single direct endpoint observation; not an explicit publisher declaration."
+      },
+      "sample_article": {
+        "url": "https://correodelcaroni.com/laboral-economia/cvg-anuncia-dialogos-laborales-al-margen-de-la-huelga-de-hambre-y-vigilia-de-trabajadores/",
+        "date": "2026-11-05",
+        "title_short": "Trabajadores y diálogo laboral de CVG",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "rss_content_type_observed",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "native_endpoint_observed_by_connected_web_tool_as_application/rss+xml; unsupported_content_type_prevented_XML_parsing; no_explicit_publisher_RSS_link_evidenced; no_feed_item_or_runtime_verification"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "e6bc615f8c155828",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "06 - Latinoamérica",
+      "name": "MEDIO — Página/12 | Argentina",
+      "website": "https://www.pagina12.com.ar/",
+      "feed": "https://www.pagina12.com.ar/arc/outboundfeeds/rss/portada",
+      "provider": "publisher",
+      "publisher_country": "Argentina",
+      "evidence_urls": [
+        "https://www.pagina12.com.ar/rss/",
+        "https://www.pagina12.com.ar/arc/outboundfeeds/rss/portada",
+        "https://www.pagina12.com.ar/2026/11/09/la-inflacion-en-torno-al-2/"
+      ],
+      "rationale": "Nueva voz editorial argentina; el medio enumera expresamente el RSS de portada en su página oficial de sindicación. La fecha es la publicada en la nota, aunque el permalink contiene el día anterior.",
+      "sample_article": {
+        "url": "https://www.pagina12.com.ar/2026/11/09/la-inflacion-en-torno-al-2/",
+        "date": "2026-11-10",
+        "title_short": "Expectativas de inflación argentina",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "publisher_declared",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "exact_feed_link_published_on_official_rss_page; web_open_returned_application/xml_unsupported; XML_NOT_parsed_or_runtime_verified"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "20064df045bfb53a",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "06 - Latinoamérica",
+      "name": "RADAR — Confidencial | Nicaragua",
+      "website": "https://confidencial.digital/",
+      "feed": "https://news.google.com/rss/search?q=site%3Aconfidencial.digital%2Fnoticias+when%3A45d&hl=es-419&gl=MX&ceid=MX%3Aes-419",
+      "provider": "google-news-search",
+      "publisher_country": "Nicaragua",
+      "evidence_urls": [
+        "https://confidencial.digital/noticias/",
+        "https://confidencial.digital/noticias/bachilleres-tendran-12-000-cupos-menos-en-universidades-publicas-en-2027/"
+      ],
+      "rationale": "Añade redacción nicaragüense y cobertura centroamericana de educación, instituciones y economía. Evidencia consultada por búsqueda conectada del dominio; portada devolvió 403, sin reintentar.",
+      "native_feed_observation": {
+        "result": "not_probed; publisher_host_previously_returned_403; no_denied_host_retry"
+      },
+      "sample_article": {
+        "url": "https://confidencial.digital/noticias/bachilleres-tendran-12-000-cupos-menos-en-universidades-publicas-en-2027/",
+        "date": "2026-11-09",
+        "title_short": "Menos cupos universitarios en Nicaragua",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "primary_editorial_evidence",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "publisher_article_and_date_in_connected_search; homepage_403; native_feed_not_evidenced; RADAR_query_constructed_not_runtime_parsed"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "7c6079bb1822d65c",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "06 - Latinoamérica",
+      "name": "MEDIO — Plaza Pública | Guatemala",
+      "website": "https://plazapublica.com.gt/",
+      "feed": "https://plazapublica.com.gt/feed/",
+      "provider": "publisher",
+      "publisher_country": "Guatemala",
+      "evidence_urls": [
+        "https://plazapublica.com.gt/",
+        "https://plazapublica.com.gt/politica/en-corto/amenazas-obligan-a-poder-ciudadano-a-retirar-propuesta-de-reforma-constitucional/",
+        "https://plazapublica.com.gt/feed/"
+      ],
+      "rationale": "Añade periodismo guatemalteco de investigación y profundidad, con firma, editor y fecha en página de origen; fortalece Centroamérica. RSS nativo observado por tipo de contenido del endpoint; no se comprobó parsing.",
+      "native_feed_observation": {
+        "url": "https://plazapublica.com.gt/feed/",
+        "date": "2026-11-10",
+        "content_type_reported_by_web_tool": "application/rss+xml",
+        "result": "unsupported_content_type; XML_not_parsed",
+        "basis": "Single direct endpoint observation; not an explicit publisher declaration."
+      },
+      "sample_article": {
+        "url": "https://plazapublica.com.gt/politica/en-corto/amenazas-obligan-a-poder-ciudadano-a-retirar-propuesta-de-reforma-constitucional/",
+        "date": "2026-11-05",
+        "title_short": "Retiran propuesta de reforma constitucional",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "rss_content_type_observed",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "native_endpoint_observed_by_connected_web_tool_as_application/rss+xml; unsupported_content_type_prevented_XML_parsing; no_explicit_publisher_RSS_link_evidenced; no_feed_item_or_runtime_verification"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "9b78fd1da6b30813",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "06 - Latinoamérica",
+      "name": "RADAR — La Jornada | México",
+      "website": "https://www.jornada.com.mx/",
+      "feed": "https://news.google.com/rss/search?q=site%3Ajornada.com.mx%2Fnoticia%2F+when%3A45d&hl=es-419&gl=MX&ceid=MX%3Aes-419",
+      "provider": "google-news-search",
+      "publisher_country": "México",
+      "evidence_urls": [
+        "https://www.jornada.com.mx/rss/",
+        "https://www.jornada.com.mx/noticia/2026/11/10/economia/economia-nacional-entre-las-10-con-mayor-inversion-extranjera-directa"
+      ],
+      "rationale": "Nueva voz mexicana con evidencia de economía reciente. Página oficial declara servicio RSS, pero no fue posible obtener de ella el enlace exacto: se conserva como RADAR, sin inventar endpoint nativo.",
+      "sample_article": {
+        "url": "https://www.jornada.com.mx/noticia/2026/11/10/economia/economia-nacional-entre-las-10-con-mayor-inversion-extranjera-directa",
+        "date": "2026-11-10",
+        "title_short": "Inversión extranjera directa en México",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "primary_editorial_evidence",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "publisher_article_and_date_in_connected_search; official_rss_service_indexed_but_403_on_open; exact_native_endpoint_not_evidenced; RADAR_query_constructed_not_runtime_parsed"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "5706c0d2d5ed8834",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "07 - Concepción",
+      "name": "RADAR — Municipalidad de Santa Juana",
+      "website": "https://santajuana.cl/",
+      "feed": "https://news.google.com/rss/search?q=site%3Asantajuana.cl+when%3A45d&hl=es-419&gl=CL&ceid=CL%3Aes-419",
+      "provider": "google-news-search",
+      "publisher_country": "Chile",
+      "evidence_urls": [
+        "https://santajuana.cl/",
+        "https://santajuana.cl/grandes-noticias-para-la-conectividad-de-santa-juana-%F0%9F%9A%8C%F0%9F%92%A8%E2%9C%A8/",
+        "https://santajuana.cl/3467-2/"
+      ],
+      "rationale": "Fuente municipal de una comuna del Gran Concepción; el ámbito territorial lo determina el dominio institucional completo, sin exigir el nombre de la comuna en cada titular.",
+      "sample_article": {
+        "url": "https://santajuana.cl/grandes-noticias-para-la-conectividad-de-santa-juana-%F0%9F%9A%8C%F0%9F%92%A8%E2%9C%A8/",
+        "date": "2026-11-05",
+        "title_short": "Conectividad de Santa Juana",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "primary_editorial_evidence",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "Página municipal y noticia con fecha explícita de publicación observadas. No se evidenció RSS propio utilizable. RADAR por dominio local y 45 días; no se descargó ni analizó el XML de la consulta ni se midió su rendimiento."
+      },
+      "territorial_scope": "municipality",
+      "id": "88746af0452984aa",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "07 - Concepción",
+      "name": "RADAR — Lanalhue Noticias | Biobío",
+      "website": "https://www.lanalhuenoticias.cl/",
+      "feed": "https://news.google.com/rss/search?q=site%3Alanalhuenoticias.cl+%28intitle%3AConcepci%C3%B3n+OR+intitle%3ABiob%C3%ADo+OR+intitle%3A%22Bio+B%C3%ADo%22+OR+intitle%3ATalcahuano+OR+intitle%3ACoronel+OR+intitle%3ALota%29+when%3A45d&hl=es-419&gl=CL&ceid=CL%3Aes-419",
+      "provider": "google-news-search",
+      "publisher_country": "Chile",
+      "evidence_urls": [
+        "https://www.lanalhuenoticias.cl/",
+        "https://www.lanalhuenoticias.cl/leepagina.php?pag=1",
+        "https://www.lanalhuenoticias.cl/leenota.php?noti=18362"
+      ],
+      "rationale": "Regional publisher based in Arauco with documented wider Biobío/Concepción coverage; sample reports a book launch at Concepción municipal library. Geographic title restrictions limit broad or national posts.",
+      "sample_article": {
+        "url": "https://www.lanalhuenoticias.cl/leenota.php?noti=18362",
+        "date": "2026-11-09",
+        "title_short": "Libro sobre editoriales del Biobío",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "primary_editorial_evidence",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "RADAR fallback proposed; current primary page and dated article observed; publisher history mentions RSS but no exact current endpoint established; Google News query not fetched and coverage/yield unverified; keep geographic title filters"
+      },
+      "territorial_scope": "title_filter",
+      "id": "ee81a30becc92f65",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "07 - Concepción",
+      "name": "REGIONAL — Irade | Desarrollo del Biobío",
+      "website": "https://irade.cl/",
+      "feed": "https://irade.cl/feed/",
+      "provider": "publisher",
+      "publisher_country": "Chile",
+      "evidence_urls": [
+        "https://irade.cl/",
+        "https://irade.cl/noticias/",
+        "https://irade.cl/galeria-de-fotos-segunda-jornada-biobio-sostenible/",
+        "https://irade.cl/feed/"
+      ],
+      "rationale": "Adds primary regional institutional coverage of productivity, sustainability, business and development in the Biobío. Publisher news listing dates the linked recent item. Native endpoint observed with RSS content type; content and items remain unparsed.",
+      "endpoint_evidence": {
+        "url": "https://irade.cl/feed/",
+        "observed_content_type": "application/rss+xml",
+        "publisher_declaration_observed": false,
+        "parsed_items": false
+      },
+      "sample_article": {
+        "url": "https://irade.cl/galeria-de-fotos-segunda-jornada-biobio-sostenible/",
+        "date": "2026-10-23",
+        "title_short": "Segunda jornada Biobío Sostenible",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "rss_content_type_observed",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "native_endpoint_content_type_observed; conventional /feed/ web probe returned Unsupported content-type: application/rss+xml; not an explicit publisher declaration; XML/items/counts/feed recency not parsed or verified; primary recent article/listing observed"
+      },
+      "territorial_scope": "publisher_local",
+      "id": "f752a289f4342a3d",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "07 - Concepción",
+      "name": "RADAR — Municipalidad de Hualqui",
+      "website": "https://www.munihualqui.cl/",
+      "feed": "https://news.google.com/rss/search?q=site%3Amunihualqui.cl+when%3A45d&hl=es-419&gl=CL&ceid=CL%3Aes-419",
+      "provider": "google-news-search",
+      "publisher_country": "Chile",
+      "evidence_urls": [
+        "https://www.munihualqui.cl/articulos-noticias-2-hualqui-noticias.html",
+        "https://www.munihualqui.cl/concurso-de-cueca-hualqui-2026-articulo-noticias-1789396522.html",
+        "https://www.munihualqui.cl/curso-de-banqueteria-y-catering-60-horas-articulo-noticias-1792601190.html"
+      ],
+      "rationale": "Fuente municipal de una comuna del Gran Concepción; el ámbito territorial lo determina el dominio institucional completo, sin exigir el nombre de la comuna en cada titular.",
+      "sample_article": {
+        "url": "https://www.munihualqui.cl/curso-de-banqueteria-y-catering-60-horas-articulo-noticias-1792601190.html",
+        "date": "2026-10-20",
+        "title_short": "Curso de banquetería en Hualqui",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "primary_editorial_evidence",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "Página municipal y noticia con fecha explícita de publicación observadas. No se evidenció RSS propio utilizable. RADAR por dominio local y 45 días; no se descargó ni analizó el XML de la consulta ni se midió su rendimiento."
+      },
+      "territorial_scope": "municipality",
+      "id": "b642bd95e981341a",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "08 - Maturín / Monagas",
+      "name": "RADAR — MundoUR / Unión Radio | Monagas",
+      "website": "https://mundour.com/",
+      "feed": "https://news.google.com/rss/search?q=site%3Amundour.com+%28intitle%3AMatur%C3%ADn+OR+intitle%3AMaturin+OR+intitle%3AMonagas%29+when%3A45d&hl=es-419&gl=VE&ceid=VE%3Aes-419",
+      "provider": "google-news-search",
+      "publisher_country": "Venezuela",
+      "evidence_urls": [
+        "https://mundour.com/2026/11/08/ingenieros-en-monagas-impulsan-proyecto-para-generar-energia-a-traves-del-gas-natural/",
+        "https://mundour.com/2026/11/05/trabajadores-de-la-salud-en-monagas-exigen-pago-del-bono-de-profesionalizacion/"
+      ],
+      "rationale": "Cobertura territorial comprobada con dateline Maturín y actores del Colegio de Ingenieros de Monagas; otra nota del 5 de noviembre aborda reclamo de médicos locales. Consulta restringida a topónimos en titular y excluye términos de sucesos.",
+      "sample_article": {
+        "url": "https://mundour.com/2026/11/08/ingenieros-en-monagas-impulsan-proyecto-para-generar-energia-a-traves-del-gas-natural/",
+        "date": "2026-11-08",
+        "title_short": "Ingenieros proponen energía con gas en Monagas",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "primary_editorial_evidence",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "publisher_article_and_date_observed; native_feed_not_evidenced; RADAR_query_constructed_not_runtime_parsed"
+      },
+      "territorial_scope": "title_filter",
+      "id": "77958e3ee815478a",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "08 - Maturín / Monagas",
+      "name": "RADAR — Fedecámaras Radio | Monagas",
+      "website": "https://fedecamarasradio.com/",
+      "feed": "https://news.google.com/rss/search?q=site%3Afedecamarasradio.com+%28intitle%3AMatur%C3%ADn+OR+intitle%3AMaturin+OR+intitle%3AMonagas%29+when%3A45d&hl=es-419&gl=VE&ceid=VE%3Aes-419",
+      "provider": "google-news-search",
+      "publisher_country": "Venezuela",
+      "evidence_urls": [
+        "https://fedecamarasradio.com/regionales/fedecamaras-monagas-propone-instalar-empresa-termoelectrica-en-maturin/"
+      ],
+      "rationale": "Entrevista firmada con dirigente gremial de Monagas sobre energía e inversión; aporta economía territorial. Medio vinculado al gremio empresarial, perspectiva que debe quedar identificada. Titular restringido a Monagas/Maturín; no es fuente general para esta carpeta.",
+      "sample_article": {
+        "url": "https://fedecamarasradio.com/regionales/fedecamaras-monagas-propone-instalar-empresa-termoelectrica-en-maturin/",
+        "date": "2026-11-02",
+        "title_short": "Propuesta termoeléctrica para Maturín",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "primary_editorial_evidence",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "publisher_article_author_date_in_connected_search; homepage_403; native_feed_not_evidenced; RADAR_query_constructed_not_runtime_parsed"
+      },
+      "territorial_scope": "title_filter",
+      "id": "cad9d4db27a045b8",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "08 - Maturín / Monagas",
+      "name": "RADAR — Otilca Radio | Cultura en Maturín",
+      "website": "https://radio.otilca.org/",
+      "feed": "https://news.google.com/rss/search?q=site%3Aradio.otilca.org+%28intitle%3AMatur%C3%ADn+OR+intitle%3AMaturin+OR+intitle%3AMonagas%29+when%3A45d&hl=es-419&gl=VE&ceid=VE%3Aes-419",
+      "provider": "google-news-search",
+      "publisher_country": "Venezuela",
+      "evidence_urls": [
+        "https://radio.otilca.org/",
+        "https://radio.otilca.org/maturin-se-prepara-para-el-tercer-festival-de-la-empanada-con-pan/"
+      ],
+      "rationale": "Opción complementaria cultural: noticia verificable de evento en calle Chimborazo de Maturín. Medio con sede en Margarita; cobertura local ocasional y nota de prensa identificada, no redacción permanente en Monagas. Prioridad inferior a MundoUR y Fedecámaras Radio.",
+      "sample_article": {
+        "url": "https://radio.otilca.org/maturin-se-prepara-para-el-tercer-festival-de-la-empanada-con-pan/",
+        "date": "2026-11-09",
+        "title_short": "Festival gastronómico de Maturín",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "primary_editorial_evidence",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "publisher_article_and_date_observed; native_feed_not_evidenced; RADAR_query_constructed_not_runtime_parsed"
+      },
+      "territorial_scope": "title_filter",
+      "id": "07dddb428481ad08",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "09 - Startups y Capital",
+      "name": "OFICIAL — Startup Valencia | Ecosistema emprendedor",
+      "website": "https://startupvalencia.org/es/category/noticias/",
+      "feed": "https://startupvalencia.org/es/feed/",
+      "provider": "publisher",
+      "publisher_country": "España",
+      "evidence_urls": [
+        "https://startupvalencia.org/es/",
+        "https://startupvalencia.org/es/category/noticias/",
+        "https://startupvalencia.org/es/caixabank-dayone-startup-valencia-alianza/",
+        "https://startupvalencia.org/es/feed/"
+      ],
+      "rationale": "Organización del ecosistema valenciano; anuncios originales de alianzas, acceso a inversores y eventos de startups en español.",
+      "sample_article": {
+        "url": "https://startupvalencia.org/es/caixabank-dayone-startup-valencia-alianza/",
+        "date": "2026-11-09",
+        "title_short": "CaixaBank DayOne renueva su alianza con Startup Valencia",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "rss_content_type_observed",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "Endpoint convencional consultado una vez por herramienta web: Unsupported content-type: application/rss+xml. Evidencia de tipo RSS del host editorial, distinta de un enlace RSS declarado. XML no parseado; no se verificaron contenido, idioma del feed, número de ítems ni estado HTTP real. Página y artículo reciente en español observados."
+      },
+      "territorial_scope": "not_applicable",
+      "id": "0ca3f3d558bb3339",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "09 - Startups y Capital",
+      "name": "RADAR — SpainCap | Capital privado y venture capital",
+      "website": "https://www.spaincap.org/comunicacion/noticias",
+      "feed": "https://news.google.com/rss/search?q=site%3Aspaincap.org%2Fcomunicacion%2Fnoticias+when%3A45d&hl=es&gl=ES&ceid=ES%3Aes",
+      "provider": "google-news-search",
+      "publisher_country": "España",
+      "evidence_urls": [
+        "https://www.spaincap.org/",
+        "https://www.spaincap.org/comunicacion/noticias",
+        "https://www.spaincap.org/comunicacion/noticias/everwood-asegura-un-compromiso-de-inversion-de-100-millones-de-euros-del-fondo-europeo-de-inversiones-para-su-nuevo-fondo-vi-de-energia-dedicado-a-biometano-baterias-y-transicion-energetica-en-el-sur-de-europa"
+      ],
+      "rationale": "Asociación sectorial del capital privado: operaciones, fondos y estadísticas originales. Cobertura incluye private equity además de venture capital.",
+      "sample_article": {
+        "url": "https://www.spaincap.org/comunicacion/noticias/everwood-asegura-un-compromiso-de-inversion-de-100-millones-de-euros-del-fondo-europeo-de-inversiones-para-su-nuevo-fondo-vi-de-energia-dedicado-a-biometano-baterias-y-transicion-energetica-en-el-sur-de-europa",
+        "date": "2026-11-03",
+        "title_short": "FEI compromete 100 millones al fondo Everwood VI",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "primary_editorial_evidence",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "Página editorial y artículo fechado observados mediante herramienta web. No se evidenció RSS nativo declarado en las páginas revisadas; consulta Google News restringida al editor. Feed RADAR propuesto, no descargado ni parseado; indexación y cantidad de resultados no verificadas."
+      },
+      "territorial_scope": "not_applicable",
+      "id": "5f81d25771570f72",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "09 - Startups y Capital",
+      "name": "RADAR — Enisa | Financiación de startups",
+      "website": "https://www.enisa.es/actualidad/noticias/",
+      "feed": "https://news.google.com/rss/search?q=site%3Aenisa.es%2Factualidad%2Fnoticia+when%3A45d&hl=es&gl=ES&ceid=ES%3Aes",
+      "provider": "google-news-search",
+      "publisher_country": "España",
+      "evidence_urls": [
+        "https://www.enisa.es/actualidad/",
+        "https://www.enisa.es/actualidad/noticias/",
+        "https://www.enisa.es/actualidad/noticia/?slug=10000-prestamos-Enisa"
+      ],
+      "rationale": "Entidad pública de financiación: convocatorias, certificación de empresas emergentes, préstamos y apoyo al emprendimiento innovador.",
+      "sample_article": {
+        "url": "https://www.enisa.es/actualidad/noticia/?slug=10000-prestamos-Enisa",
+        "date": "2026-10-27",
+        "title_short": "Enisa supera los 10.000 préstamos participativos",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "primary_editorial_evidence",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "Página editorial y artículo fechado observados mediante herramienta web. No se evidenció RSS nativo declarado en las páginas revisadas; consulta Google News restringida al editor. Feed RADAR propuesto, no descargado ni parseado; indexación y cantidad de resultados no verificadas."
+      },
+      "territorial_scope": "not_applicable",
+      "id": "9a5da4aca912eaec",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "10 - Empresas y Economía",
+      "name": "MEDIO — Ámbito | Economía",
+      "website": "https://www.ambito.com/economia",
+      "feed": "https://www.ambito.com/rss/pages/economia.xml",
+      "provider": "publisher",
+      "publisher_country": "Argentina",
+      "evidence_urls": [
+        "https://www.ambito.com/contenidos/rss.html",
+        "https://www.ambito.com/rss/pages/economia.xml",
+        "https://www.ambito.com/economia/la-inflacion-eeuu-subio-mas-lo-previsto-octubre-y-presiona-las-tasas-la-fed-n6343564"
+      ],
+      "rationale": "Añade una redacción económica argentina con RSS temático declarado.",
+      "sample_article": {
+        "url": "https://www.ambito.com/economia/la-inflacion-eeuu-subio-mas-lo-previsto-octubre-y-presiona-las-tasas-la-fed-n6343564",
+        "date": "2026-11-10",
+        "title_short": "Inflación y tasas en Estados Unidos",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "publisher_declared",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "publisher_declared_endpoint; browser reports text/xml; XML not parsed"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "35a54dbf4e0e904d",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "10 - Empresas y Economía",
+      "name": "MEDIO — Economía Digital",
+      "website": "https://www.economiadigital.es/",
+      "feed": "https://www.economiadigital.es/feed",
+      "provider": "publisher",
+      "publisher_country": "España",
+      "evidence_urls": [
+        "https://www.economiadigital.es/",
+        "https://www.economiadigital.es/feed",
+        "https://www.economiadigital.es/empresas/telefonica-digi-afrontan-semana-clave-caja-foco-inversor-rentabilidad-politico.html"
+      ],
+      "rationale": "Nueva cabecera de empresas y economía; endpoint identificado en directorio y tipo RSS observado por herramienta web.",
+      "sample_article": {
+        "url": "https://www.economiadigital.es/empresas/telefonica-digi-afrontan-semana-clave-caja-foco-inversor-rentabilidad-politico.html",
+        "date": "2026-11-10",
+        "title_short": "Telefónica y Digi ante resultados",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "rss_content_type_observed",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "rss_content_type_observed; browser reports application/rss+xml; XML not parsed; exact endpoint corroborated by RSS directory"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "18f06f4adeac367e",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    },
+    {
+      "category": "11 - Investigación y Gestión",
+      "name": "MEDIO — Estudios de la Gestión | UASB",
+      "website": "https://revistas.uasb.edu.ec/index.php/eg/",
+      "feed": "https://revistas.uasb.edu.ec/index.php/eg/gateway/plugin/WebFeedGatewayPlugin/rss2",
+      "provider": "publisher",
+      "publisher_country": "Ecuador",
+      "evidence_urls": [
+        "https://revistas.uasb.edu.ec/index.php/eg/",
+        "https://revistas.uasb.edu.ec/index.php/eg/about",
+        "https://revistas.uasb.edu.ec/index.php/eg/gateway/plugin/WebFeedGatewayPlugin/rss2"
+      ],
+      "rationale": "Revista académica de administración y organizaciones de la Universidad Andina Simón Bolívar.",
+      "sample_article": {
+        "url": "https://revistas.uasb.edu.ec/index.php/eg/article/view/6259",
+        "date": "2026-06-26",
+        "title_short": "Gobernanza corporativa y diálogo social",
+        "date_basis": "issue_publication"
+      },
+      "verification": {
+        "method": "rss_content_type_observed",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "rss_content_type_observed; browser reports application/rss+xml; XML not parsed; date is issue publication shown by publisher"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "1768187848d8ff5f",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es/en"
+    },
+    {
+      "category": "11 - Investigación y Gestión",
+      "name": "MEDIO — Cuadernos de Gestión | Español e inglés",
+      "website": "https://ojs.ehu.eus/index.php/CG/",
+      "feed": "https://ojs.ehu.eus/index.php/CG/gateway/plugin/WebFeedGatewayPlugin/rss2",
+      "provider": "publisher",
+      "publisher_country": "España",
+      "evidence_urls": [
+        "https://ojs.ehu.eus/index.php/CG/",
+        "https://ojs.ehu.eus/index.php/CG/article/view/28830",
+        "https://ojs.ehu.eus/index.php/CG/gateway/plugin/WebFeedGatewayPlugin/rss2"
+      ],
+      "rationale": "Revista de economía de la empresa de la Universidad del País Vasco; títulos y resúmenes españoles con artículos también en inglés.",
+      "sample_article": {
+        "url": "https://ojs.ehu.eus/index.php/CG/article/view/28830",
+        "date": "2026-07-29",
+        "title_short": "Autenticidad de marca y lealtad en pymes",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "rss_content_type_observed",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "rss_content_type_observed; browser reports application/rss+xml; XML not parsed"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "59176cd0f1179733",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es/en"
+    },
+    {
+      "category": "11 - Investigación y Gestión",
+      "name": "RADAR — Retos | Administración y economía",
+      "website": "https://retos.ups.edu.ec/index.php/retos/",
+      "feed": "https://news.google.com/rss/search?q=site%3Aretos.ups.edu.ec%2Fretos%2Farticle%2Fview+when%3A730d&hl=es&gl=ES&ceid=ES%3Aes",
+      "provider": "google-news-search",
+      "publisher_country": "Ecuador",
+      "evidence_urls": [
+        "https://retos.ups.edu.ec/index.php/retos/",
+        "https://retos.ups.edu.ec/retos/article/view/13051"
+      ],
+      "rationale": "Revista académica de la Universidad Politécnica Salesiana; consulta limitada a artículos con ventana académica de 730 días.",
+      "sample_article": {
+        "url": "https://retos.ups.edu.ec/retos/article/view/13051",
+        "date": "2026-09-30",
+        "title_short": "Emprendimiento femenino en contextos fronterizos",
+        "date_basis": "article_publication"
+      },
+      "verification": {
+        "method": "primary_editorial_evidence",
+        "feed_xml_parsed": false,
+        "http_status": null,
+        "entries_observed": null,
+        "response_sha256": null,
+        "details": "primary_article_observed; native endpoint inaccessible to browser; RADAR query constructed, XML and yield not measured"
+      },
+      "territorial_scope": "not_applicable",
+      "id": "94a0b84c432c0678",
+      "verified_at": "2026-11-10T18:45:18Z",
+      "content_language": "es"
+    }
+  ],
+  "not_added": [
+    {
+      "name": "OdiseIA",
+      "reason": "The dated sample was older than the news retention window; replaced by a current Spanish primary feed."
+    },
+    {
+      "name": "DiarioAbierto",
+      "reason": "RSS declared, but recent in-window publication could not be established in retrieved publisher pages."
+    },
+    {
+      "name": "AméricaEconomía",
+      "reason": "Publisher page unavailable to research tool; insufficient recent primary evidence."
+    },
+    {
+      "name": "Revista Universidad y Empresa",
+      "reason": "Publisher rate limited the research request; no retries or operational claims."
+    }
+  ]
+}
