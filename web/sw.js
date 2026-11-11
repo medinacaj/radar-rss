@@ -2,7 +2,7 @@
    Estrategia: primero la red (siempre lo más reciente); si no hay conexión, la última
    copia guardada. Solo se guardan archivos del propio sitio, nunca imágenes ni enlaces externos.
    Las URL se guardan sin parámetros (?v=, ?check=) para que la caché no crezca sin límite. */
-const CACHE = 'radar-rss-v65';
+const CACHE = 'radar-rss-v67';
 const SHELL = [
   './', './index.html', './manifest.webmanifest', './radar-rss-mark.png', './radar-rss-favicon-64.png', './radar-rss-social-card.png',
   './radar-rss-icon-192.png', './radar-rss-icon-512.png', './radar-rss-maskable-512.png', './radar-rss-apple-touch-icon.png',

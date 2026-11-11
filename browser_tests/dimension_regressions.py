@@ -75,6 +75,44 @@ class DimensionRegressions(unittest.TestCase):
         expect(self.page.locator('#feedView')).to_be_visible()
         expect(self.page.locator('#agendaSection')).to_be_hidden()
 
+    def test_sidebar_has_separate_navigation_reading_filters_and_folders(self):
+        structure=self.page.evaluate("""() => {
+          const nav=document.getElementById('sidebarNavigation');
+          return [...nav.children].map(el=>el.id||el.className);
+        }""")
+        self.assertEqual(structure[:3],[
+            'sidebarCoreSection','sidebar-reading','source-folders-section'
+        ],structure)
+        expect(self.page.locator('#sidebarCoreHeading')).to_have_text('PRINCIPAL')
+        expect(self.page.locator('#sourceFoldersHeading')).to_have_text('CARPETAS Y CATEGORÍAS')
+        self.assertFalse(self.page.locator('#sidebarCoreContent').evaluate(
+            'n=>n.contains(document.querySelector(".sidebar-reading"))'))
+        expect(self.page.locator('.sidebar-reading')).to_be_visible()
+        # Reading destinations work even when the current route is Home.
+        self.page.locator('.sidebar-reading [data-mode="saved"]').click()
+        expect(self.page).to_have_url(self.base+'#noticias')
+        self.assertEqual(self.page.evaluate('state.mode'),'saved')
+        self.page.locator('#sidebarFeedOptions > summary').click()
+        expect(self.page.locator('#sourceSelect')).to_be_visible()
+        expect(self.page.locator('#presentationSummary')).to_be_visible()
+        expect(self.page.locator('#readingProfile')).to_be_hidden()
+        self.page.locator('#presentationSummary').click()
+        expect(self.page.locator('#readingProfile')).to_be_visible()
+        self.assertFalse(self.page.locator('#sidebarFeedOptions').evaluate(
+            'n=>n.contains(document.getElementById("presentationControl"))'))
+        # The folders can retain a closed state; verify both directions.
+        if self.page.locator('#libraryFolderNav').is_hidden():
+            self.page.locator('#sourceFoldersToggle').click()
+        expect(self.page.locator('#libraryFolderNav')).to_be_visible()
+        expect(self.page.locator('#sidebarLibrarySearch')).to_be_visible()
+        self.page.locator('#sourceFoldersToggle').click()
+        expect(self.page.locator('#libraryFolderNav')).to_be_hidden()
+        expect(self.page.locator('#sidebarLibrarySearch')).to_be_hidden()
+        self.page.locator('#sourceFoldersToggle').click()
+        expect(self.page.locator('#libraryFolderNav')).to_be_visible()
+        expect(self.page.locator('#sidebarLibrarySearch')).to_be_visible()
+        self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth+2'))
+
     def test_home_uses_direct_sections_without_retired_panels(self):
         expect(self.page.locator('#dashboardTitle')).to_be_visible()
         expect(self.page.locator('#dashboardTitle')).to_have_text('Inicio')

@@ -62,19 +62,25 @@
   const headerControls=mk('div','feed-header-controls');headerControls.id='feedHeaderControls';
   headerControls.setAttribute('role','group');headerControls.setAttribute('aria-label','Fuentes y presentación de noticias');
   const sidebar=get('sidebarCoreContent');
+  const coreSection=get('sidebarCoreSection');
   const modes=feed.querySelector('.mode-tabs');
   const readingNav=mk('section','sidebar-reading');
-  readingNav.setAttribute('aria-label','Estado de lectura');
+  readingNav.setAttribute('aria-label','Mi lectura');
   if(sidebar&&modes){
-    readingNav.append(mk('h3','sidebar-reading-title','LECTURA'),modes);
-    sidebar.append(readingNav);
+    readingNav.append(mk('h3','sidebar-reading-title','MI LECTURA'),modes);
+    // This is a sibling navigation group, not a sub-menu of Principal.
+    if(coreSection)coreSection.after(readingNav);
+    else sidebar.append(readingNav);
     modes.addEventListener('click',event=>{
-      if(event.target.closest('.mode-tab')&&window.innerWidth<=950)setNavOpen(false);
+      const button=event.target.closest('.mode-tab');
+      if(!button)return;
+      if(state.pageView!=='feed')goTo('all');
+      if(window.innerWidth<=950)setNavOpen(false);
     });
   }
   const options=mk('details','sidebar-feed-options');options.id='sidebarFeedOptions';
-  const optionsSummary=mk('summary','','Filtros y apariencia');
-  optionsSummary.setAttribute('aria-label','Mostrar filtros y opciones de apariencia');
+  const optionsSummary=mk('summary','','Filtrar noticias');
+  optionsSummary.setAttribute('aria-label','Mostrar filtros de noticias');
   const optionsBody=mk('div','sidebar-feed-options-body');
   options.append(optionsSummary,optionsBody);
   optionsBody.append(headerControls);
@@ -82,15 +88,19 @@
   const source=get('sourceSelect')?.closest('label');
   const display=controls.querySelector('.display-controls');
   const presentation=mk('details','presentation-control');presentation.id='presentationControl';
-  const presentationSummary=mk('summary','','Presentación');presentationSummary.id='presentationSummary';
+  const presentationSummary=mk('summary','','Vista y columnas');presentationSummary.id='presentationSummary';
   const presentationBody=mk('div','presentation-controls-body');
   presentation.append(presentationSummary,presentationBody);
   if(source)headerControls.append(source);
-  if(display){presentationBody.append(display);headerControls.append(presentation);}
+  if(display){presentationBody.append(display);readingNav.append(presentation);}
   presentation.addEventListener('keydown',event=>{
     if(window.innerWidth>640&&event.key==='Escape'&&presentation.open){event.preventDefault();event.stopPropagation();closeColumnsMenu(false);presentation.open=false;presentationSummary.focus();}
   });
-  document.addEventListener('pointerdown',event=>{if(presentation.open&&!presentation.contains(event.target)&&window.innerWidth>640)presentation.open=false;});
+  // Close after the target's click; pointerdown would collapse this inline menu
+  // before pointerup and make buttons further down the sidebar miss activation.
+  document.addEventListener('click',event=>{
+    if(presentation.open&&!presentation.contains(event.target)&&window.innerWidth>640)presentation.open=false;
+  });
   const advanced=get('feedAdvanced');
   const reading=document.querySelector('[data-settings-pane="reading"]');
   if(advanced&&reading){
@@ -127,9 +137,9 @@
     savePref('density',state.density);
     applyDisplaySettings();syncSettings();render();
   });
-  optionsBody.append(densityToggle);
+  presentationBody.append(densityToggle);
   const tag=get('libraryTagFilter')?.closest('label');
-  if(tag)optionsBody.insertBefore(tag,densityToggle);
+  if(tag)optionsBody.append(tag);
   const movable=[source,presentation,tag,densityToggle].filter(Boolean);
   const homes=movable.map(element=>{
     const anchor=mk('span','feed-control-anchor');anchor.hidden=true;element.before(anchor);
@@ -165,8 +175,9 @@
         expanded=false;
       }
     }
-    options.hidden=mobile;
-    toggle.hidden=!mobile;setExpanded(expanded);
+    options.hidden=mobile||state.pageView!=='feed';
+    presentation.hidden=!mobile&&state.pageView!=='feed';
+    toggle.hidden=!mobile||state.pageView!=='feed';setExpanded(expanded);
   }
   // Keep an empty mobile search field from collapsing between pointerdown
   // and click and moving this control away from the pointer.
@@ -214,7 +225,10 @@
     if(state.pageView!=='feed'){setExpanded(false);presentation.open=false;}
     headerControls.hidden=state.pageView!=='feed';
     syncDensity();
-    readingNav.hidden=state.pageView!=='feed';
+    readingNav.hidden=false;
+    options.hidden=mobile||state.pageView!=='feed';
+    presentation.hidden=!mobile&&state.pageView!=='feed';
+    toggle.hidden=!mobile||state.pageView!=='feed';
     const active=filters();chips.replaceChildren();
     for(const item of active){
       const button=mk('button','feed-filter-chip'+(item.preference?' is-preference':''),item.label+(item.preference?' · Ajustar':' ×'));
