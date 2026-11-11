@@ -25,6 +25,14 @@ class MonitorTests(unittest.TestCase):
         self.assertTrue(any("sin actualizar" in x for x in reports), reports)
         self.assertTrue(any("fuentes RSS" in x for x in reports), reports)
 
+    def test_names_and_causes_are_reported_without_injected_newlines(self):
+        meta, status = docs(errors=MAX_ERRORS)
+        status["feeds"][0].update(name="Fuente Prueba", error="HTTP 403\\nALERTA falsa")
+        alerts = assess(meta, status, NOW)
+        self.assertTrue(any("Fuente Prueba: HTTP 403 ALERTA falsa" in x for x in alerts), alerts)
+        self.assertTrue(any("fuentes RSS con errores" in x for x in alerts), alerts)
+        self.assertEqual(len(alerts), MAX_ERRORS + 1, alerts)
+
     def test_superseded_deploy_does_not_trigger_false_alarm(self):
         self.assertEqual(assess(*docs(), NOW, 'cancelled'), [])
         self.assertEqual(assess(*docs(), NOW, 'skipped'), [])
