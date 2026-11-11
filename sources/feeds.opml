@@ -84,7 +84,7 @@
       <outline text="MEDIO — Xataka" title="MEDIO — Xataka" type="rss" xmlUrl="https://www.xataka.com/feedburner.xml" htmlUrl="https://www.xataka.com/" />
       <outline text="MEDIO — Genbeta" title="MEDIO — Genbeta" type="rss" xmlUrl="https://www.genbeta.com/feedburner.xml" htmlUrl="https://www.genbeta.com/" />
       <outline text="MEDIO — Xataka Móvil" title="MEDIO — Xataka Móvil" type="rss" xmlUrl="https://www.xatakamovil.com/feedburner.xml" htmlUrl="https://www.xatakamovil.com/" />
-      <outline text="MEDIO — El Androide Libre" title="MEDIO — El Androide Libre" type="rss" xmlUrl="https://www.elespanol.com/rss/elandroidelibre/" fallbackXmlUrl="https://feeds.feedburner.com/elandroidelibre" htmlUrl="https://www.elespanol.com/elandroidelibre/" />
+      <outline text="MEDIO — El Androide Libre" title="MEDIO — El Androide Libre" type="rss" xmlUrl="https://www.elespanol.com/rss/elandroidelibre/" htmlUrl="https://www.elespanol.com/elandroidelibre/" />
       <outline text="MEDIO — Xataka Smart Home" title="MEDIO — Xataka Smart Home" type="rss" xmlUrl="https://www.xatakahome.com/feedburner.xml" htmlUrl="https://www.xatakahome.com/" />
       <outline text="MEDIO — Applesfera" title="MEDIO — Applesfera" type="rss" xmlUrl="https://www.applesfera.com/feedburner.xml" htmlUrl="https://www.applesfera.com/" />
       <outline text="MEDIO — Andro4all" title="MEDIO — Andro4all" type="rss" xmlUrl="https://feeds.feedburner.com/Andro4allcom" htmlUrl="https://andro4all.com/" />
@@ -420,7 +420,7 @@
     <outline text="10 - Empresas y Economía" title="10 - Empresas y Economía">
       <outline text="MEDIO — Insider Latam" title="MEDIO — Insider Latam" type="rss" xmlUrl="https://insiderlatam.com/feed/" htmlUrl="https://insiderlatam.com/" />
       <outline text="RADAR — ProChile Innovación" title="RADAR — ProChile Innovación" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aprochile.gob.cl+%28innovaci%C3%B3n+OR+startup+OR+startups+OR+%22base+tecnol%C3%B3gica%22+OR+%22econom%C3%ADa+digital%22%29+when%3A90d&amp;hl=es&amp;gl=ES&amp;ceid=ES%3Aes" htmlUrl="https://prochile.gob.cl/" />
-      <outline text="MEDIO — Revista Emprendedores" title="MEDIO — Revista Emprendedores" type="rss" xmlUrl="https://emprendedores.es/feed/" fallbackXmlUrl="https://www.emprendedores.es/feed/" htmlUrl="https://emprendedores.es/" />
+      <outline text="MEDIO — Revista Emprendedores" title="MEDIO — Revista Emprendedores" type="rss" xmlUrl="https://emprendedores.es/feed/" htmlUrl="https://emprendedores.es/" />
       <outline text="RADAR — ASECH" title="RADAR — ASECH" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aasech.cl+when%3A90d&amp;hl=es&amp;gl=ES&amp;ceid=ES%3Aes" htmlUrl="https://asech.cl/" />
       <outline text="RADAR — ANID" title="RADAR — ANID" type="rss" xmlUrl="https://news.google.com/rss/search?q=site%3Aanid.cl+when%3A90d&amp;hl=es&amp;gl=ES&amp;ceid=ES%3Aes" htmlUrl="https://anid.cl/" />
       <outline text="MEDIO — Revista Gerencia" title="MEDIO — Revista Gerencia" type="rss" xmlUrl="https://www.gerencia.cl/feed/" htmlUrl="https://www.gerencia.cl/" />
