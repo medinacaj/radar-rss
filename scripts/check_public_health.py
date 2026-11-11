@@ -50,9 +50,16 @@ def assess(meta: dict, status: dict, now: datetime, deploy_conclusion: str = "")
         malformed = sum(not isinstance(feed, dict) or not isinstance(feed.get("state"), str) or not feed["state"].strip() for feed in feeds)
         if malformed:
             warnings.append(f"{malformed} entradas RSS sin estado válido.")
-        errors = sum(isinstance(feed, dict) and feed.get("state") == "error" for feed in feeds)
-        if errors >= MAX_ERRORS:
-            warnings.append(f"{errors} fuentes RSS con errores (umbral {MAX_ERRORS})")
+        failures = [feed for feed in feeds if isinstance(feed, dict) and feed.get("state") == "error"]
+        if len(failures) >= MAX_ERRORS:
+            warnings.append(f"{len(failures)} fuentes RSS con errores (umbral {MAX_ERRORS})")
+            # Actionable diagnostics, not just a count. Limit size and remove
+            # line breaks so remote error text cannot inject issue content.
+            for feed in failures[:12]:
+                name = str(feed.get("name") or feed.get("id") or "Fuente sin nombre")
+                cause = str(feed.get("error") or "sin detalle")
+                clean = lambda value, limit: " ".join(value.split())[:limit]
+                warnings.append(f"  {clean(name, 70)}: {clean(cause, 130)}")
     if type(meta.get("total_articles")) is not int or meta["total_articles"] < 50:
         warnings.append("Historial público vacío o incompleto.")
     return warnings
