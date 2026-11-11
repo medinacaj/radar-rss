@@ -121,23 +121,19 @@ def main():
                 page.locator('#editorialType').select_option('opinion')
                 expect(page.locator('#articleGrid .article-card')).to_have_count(1)
                 expect(page.locator('#allCount')).to_have_text('1')
-                expect(page.locator('[data-filter="content-type"]')).to_be_visible()
-                if width<=640:
-                    page.locator('#feedFiltersDone').click()
-                    page.locator('#menuClose').click()
-                page.locator('[data-filter="content-type"]').click()
+                expect(page.locator('#feedActiveFilters')).to_be_hidden()
+                # The type selector and reset live together in the existing menu.
+                page.locator('#editorialType').select_option('all')
                 expect(page.locator('#editorialType')).to_have_value('all')
                 expect(page.locator('#articleGrid .article-card')).to_have_count(24)
-                if width<=640:
-                    page.locator('#menuToggle').click()
-                    page.locator('#feedFiltersToggle').click()
                 page.locator('#editorialType').select_option('unknown')
                 expect(page.locator('#articleGrid .article-card')).to_have_count(20)
+                expect(page.locator('#feedClearFilters')).to_be_visible()
+                page.locator('#feedClearFilters').click()
+                expect(page.locator('#editorialType')).to_have_value('all')
                 if width<=640:
                     page.locator('#feedFiltersDone').click()
                     page.locator('#menuClose').click()
-                page.locator('#feedClearFilters').click()
-                expect(page.locator('#editorialType')).to_have_value('all')
                 # Type is a view filter, so it never changes stored preferences.
                 assert page.evaluate("!Object.keys(localStorage).some(k=>k.includes('editorial-type'))")
                 page.evaluate("goTo('home')")
