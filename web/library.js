@@ -535,8 +535,9 @@ buildNav=function(){
 function renderFolderNav(){
   const nav=$('libraryFolderNav');
   // Actualiza solo las carpetas manuales; las del catálogo permanecen intactas.
-  nav.querySelectorAll('.library-folder-row').forEach(row=>row.remove());
+  nav.querySelectorAll('.library-folder-row,.library-personal-heading').forEach(row=>row.remove());
   const entries=Object.entries(folders);
+  if(entries.length)nav.append(mk('h4','library-personal-heading','MIS CARPETAS'));
   entries.forEach(([name,ids])=>{
     const wrapper=mk('div','library-folder-row');
     const b=mk('button','nav-link'+(activeFolder===name?' active':''));
@@ -905,7 +906,7 @@ function mount(){
   toggle.setAttribute('aria-controls','libraryFolderNav');
   toggle.setAttribute('aria-expanded','true');
   toggle.setAttribute('aria-label','Contraer carpetas de fuentes');
-  const heading=mk('span','','CARPETAS DE FUENTES');
+  const heading=mk('span','','CARPETAS Y CATEGORÍAS');
   heading.id='sourceFoldersHeading';
   const arrow=mk('span','sidebar-section-chevron');
   arrow.setAttribute('aria-hidden','true');
@@ -924,7 +925,7 @@ function mount(){
   const nav=mk('nav','library-folder-nav library-system-folders');
   nav.id='libraryFolderNav';
   nav.hidden=false;
-  nav.setAttribute('aria-label','Carpetas de fuentes del catálogo y creadas por ti');
+  nav.setAttribute('aria-label','Categorías del catálogo y carpetas personales');
   foldersSection.append(header,nav);
   $('sidebarCoreSection').after(foldersSection);
   const setExpanded=expanded=>{
