@@ -980,3 +980,45 @@ body.radar-hybrid.dimension #cardMenu [data-card-action="open"] {
 @media(prefers-reduced-motion:reduce){
   body.radar-hybrid.dimension .sidebar :is(.nav-link,.sidebar-section-toggle,.mode-tab,.sidebar-feed-options>summary,.presentation-control>summary) {transition:none;}
 }
+
+/* No second active-filter toolbar: the side menu owns those actions. */
+body.radar-hybrid.dimension #feedView > #feedActiveFilters {
+  display:none!important;
+  height:0!important;
+  margin:0!important;
+  padding:0!important;
+}
+body.radar-hybrid.dimension .sidebar .sidebar-reading-title {
+  margin:0;padding:0;min-height:36px;
+}
+body.radar-hybrid.dimension .sidebar #sidebarReadingToggle {
+  width:100%;min-height:36px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 10px;text-align:left;
+}
+body.radar-hybrid.dimension .sidebar #sidebarReadingToggle .sidebar-section-chevron {
+  flex:0 0 auto;margin-left:auto;
+}
+body.radar-hybrid.dimension .sidebar #sidebarReadingContent {
+  display:flex;flex-direction:column;gap:2px;min-width:0;
+}
+body.radar-hybrid.dimension .sidebar #sidebarReadingContent[hidden] {
+  display:none!important;
+}
+body.radar-hybrid.dimension .sidebar #sidebarFeedOptions #feedClearFilters {
+  display:flex;justify-content:center;align-items:center;
+  width:100%;min-height:44px;margin:3px 0 0;
+  border:1px solid var(--editorial-quiet-line);
+  background:var(--surface);color:var(--muted);
+  font:600 12px/1.35 var(--font-ui);
+}
+body.radar-hybrid.dimension .sidebar #sidebarFeedOptions #feedClearFilters:hover {
+  background:var(--hover);color:var(--text);
+}
+body.radar-hybrid.dimension #feedClearFilters[hidden] {
+  display:none!important;
+}
+body.radar-hybrid.dimension #feedFilterPanel #feedClearFilters {
+  display:flex;justify-content:center;align-items:center;
+  width:100%;min-height:44px;flex:0 0 auto;
+}
