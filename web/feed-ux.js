@@ -96,7 +96,11 @@
   presentation.addEventListener('keydown',event=>{
     if(window.innerWidth>640&&event.key==='Escape'&&presentation.open){event.preventDefault();event.stopPropagation();closeColumnsMenu(false);presentation.open=false;presentationSummary.focus();}
   });
-  document.addEventListener('pointerdown',event=>{if(presentation.open&&!presentation.contains(event.target)&&window.innerWidth>640)presentation.open=false;});
+  // Close after the target's click; pointerdown would collapse this inline menu
+  // before pointerup and make buttons further down the sidebar miss activation.
+  document.addEventListener('click',event=>{
+    if(presentation.open&&!presentation.contains(event.target)&&window.innerWidth>640)presentation.open=false;
+  });
   const advanced=get('feedAdvanced');
   const reading=document.querySelector('[data-settings-pane="reading"]');
   if(advanced&&reading){
