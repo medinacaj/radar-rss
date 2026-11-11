@@ -100,12 +100,16 @@ class DimensionRegressions(unittest.TestCase):
         expect(self.page.locator('#readingProfile')).to_be_visible()
         self.assertFalse(self.page.locator('#sidebarFeedOptions').evaluate(
             'n=>n.contains(document.getElementById("presentationControl"))'))
-        # Collapsing the folder section also hides its search, not just its rows.
+        # The folders can retain a closed state; verify both directions.
+        if self.page.locator('#libraryFolderNav').is_hidden():
+            self.page.locator('#sourceFoldersToggle').click()
+        expect(self.page.locator('#libraryFolderNav')).to_be_visible()
         expect(self.page.locator('#sidebarLibrarySearch')).to_be_visible()
         self.page.locator('#sourceFoldersToggle').click()
         expect(self.page.locator('#libraryFolderNav')).to_be_hidden()
         expect(self.page.locator('#sidebarLibrarySearch')).to_be_hidden()
         self.page.locator('#sourceFoldersToggle').click()
+        expect(self.page.locator('#libraryFolderNav')).to_be_visible()
         expect(self.page.locator('#sidebarLibrarySearch')).to_be_visible()
         self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth+2'))
 
