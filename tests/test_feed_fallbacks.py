@@ -32,6 +32,10 @@ class FeedFallbackTests(TestCase):
                 "https://emprendedores.es/feed/",
                 "https://www.emprendedores.es/feed/",
             ),
+            "MEDIO — Revista Venezolana de Gerencia": (
+                "https://produccioncientificaluz.org/index.php/rvg/gateway/plugin/WebFeedGatewayPlugin/atom",
+                "https://produccioncientifica.luz.edu.ve/index.php/rvg/gateway/plugin/WebFeedGatewayPlugin/rss",
+            ),
         }
         for name, (primary, alternate) in expected.items():
             with self.subTest(name=name):
