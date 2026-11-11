@@ -44,6 +44,8 @@ RETRY_STATUS = {429, 500, 502, 503, 504}
 FEED_FALLBACKS = {
     'https://www.elespanol.com/rss/elandroidelibre/': 'https://feeds.feedburner.com/elandroidelibre',
     'https://emprendedores.es/feed/': 'https://www.emprendedores.es/feed/',
+    'https://produccioncientificaluz.org/index.php/rvg/gateway/plugin/WebFeedGatewayPlugin/atom':
+        'https://produccioncientifica.luz.edu.ve/index.php/rvg/gateway/plugin/WebFeedGatewayPlugin/rss',
 }
 
 RETRY_WAIT_SECONDS = 4
