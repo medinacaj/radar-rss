@@ -107,10 +107,19 @@ def exercise(browser, base, width):
         expect(page.locator('#sidebarSourceResults button')).to_be_focused()
         page.locator('#sidebarSourceResults button').press('Enter')
         expect(page.locator('#sourceSelect')).to_have_value('medio-0')
-        expect(page.locator('.feed-filter-chip[data-filter="source"]')).to_be_visible()
-        assert page.locator('#feedActiveFilters').evaluate('n=>getComputedStyle(n).position') == 'sticky'
-        page.locator('.feed-filter-chip[data-filter="source"]').click()
+        expect(page.locator('#feedActiveFilters')).to_be_hidden()
+        assert page.locator('#feedActiveFilters').evaluate('n=>getComputedStyle(n).display') == 'none'
+        # The actual source control remains in the side menu, not a chip over the feed.
+        if width<=950 and page.locator('#appSidebar').evaluate('n=>n.inert'):
+            page.locator('#menuToggle').click()
+        if width<=640:
+            page.locator('#feedFiltersToggle').click()
+        elif not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'):
+            page.locator('#sidebarFeedOptions > summary').click()
+        page.locator('#sourceSelect').select_option('')
         expect(page.locator('#sourceSelect')).to_have_value('')
+        if width<=640:page.locator('#feedFiltersDone').click()
+        if width<=950:page.locator('#menuClose').click()
 
         # Reader closing restores the same article and viewport, including after a profile render.
         card = page.locator('#articleGrid>.article-card').nth(4)
