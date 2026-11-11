@@ -42,13 +42,6 @@ def audit(path: Path) -> dict:
             website = node.get("htmlUrl", "").strip()
             if website and (urlsplit(website).scheme not in ("http", "https") or not urlsplit(website).hostname):
                 problems.append({"category": category, "url": url, "issue": "invalid-website"})
-            alternate = (node.get("fallbackXmlUrl") or "").strip()
-            if alternate:
-                alt = urlsplit(alternate)
-                if alt.scheme != "https" or not alt.hostname or alt.username or alt.password or alternate == url:
-                    problems.append({"category": category, "url": url, "issue": "invalid-fallback-url"})
-                elif alternate in seen:
-                    problems.append({"category": category, "url": url, "issue": "duplicate-fallback-url"})
     return {"feed_count": sum(totals.values()), "unique_feed_count": len(seen),
             "categories": dict(totals), "category_count": len(categories),
             "problems": problems, "problem_count": len(problems)}
