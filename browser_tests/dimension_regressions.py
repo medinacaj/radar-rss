@@ -125,6 +125,22 @@ class DimensionRegressions(unittest.TestCase):
         expect(self.page.locator('#sidebarLibrarySearch')).to_be_visible()
         self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth+2'))
 
+    def test_reading_section_expansion_survives_reload(self):
+        toggle=self.page.locator('#sidebarReadingToggle')
+        panel=self.page.locator('#sidebarReadingContent')
+        expect(toggle).to_have_attribute('aria-expanded','true')
+        toggle.click()
+        expect(panel).to_be_hidden()
+        self.assertEqual(self.page.evaluate("localStorage.getItem('radar-reading-open')"),'false')
+        self.page.reload();self.page.wait_for_function('()=>state.ready')
+        expect(toggle).to_have_attribute('aria-expanded','false')
+        expect(panel).to_be_hidden()
+        toggle.click()
+        self.assertEqual(self.page.evaluate("localStorage.getItem('radar-reading-open')"),'true')
+        self.page.reload();self.page.wait_for_function('()=>state.ready')
+        expect(toggle).to_have_attribute('aria-expanded','true')
+        expect(panel).to_be_visible()
+
     def test_reading_toggle_and_filter_reset_on_mobile_sidebar(self):
         self.page.set_viewport_size({'width':390,'height':850})
         self.page.locator('#menuToggle').click()

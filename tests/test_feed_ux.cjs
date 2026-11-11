@@ -62,6 +62,7 @@ window.RadarLibrary={getFeedFilters:()=>({folder:privateFolder,tag:privateTag}),
 window.RadarV12={getFeedGeo:()=>({id:geo,label:'Latinoamérica'})};
 const location={hash:'#noticias'};
 const context={window,document,state,location,console,mk:(tag,cls,text)=>node(tag,null,cls,text),sourceLabel:x=>x,categoryLabel:x=>x,
+  storeGet:()=>null,
   savePref:(k,v)=>prefWrites.push([k,v]),selectedTab:name=>{settingsTab=name;},
   syncSettings(){},applyDisplaySettings(){displayChanges++;},goTo(){privateFolder=null;geo='all';state.category='all';state.feed='';location.hash='#noticias';context.render();window.emit('hashchange');},
   fillSelect(){sourceSelect.value=state.feed;},hasHistory:()=>false,newsCountsUnavailable:()=>false,
@@ -95,9 +96,11 @@ assert.ok(readingContent.contains(modes),'reading content owns the three modes')
 readingToggle.click();
 assert.equal(readingToggle.getAttribute('aria-expanded'),'false');
 assert.equal(readingContent.hidden,true);
+assert.ok(prefWrites.some(([k,v])=>k==='reading-open'&&v===false),'collapsed state is saved');
 readingToggle.click();
 assert.equal(readingToggle.getAttribute('aria-expanded'),'true');
 assert.equal(readingContent.hidden,false);
+assert.ok(prefWrites.some(([k,v])=>k==='reading-open'&&v===true),'expanded state is saved');
 assert.equal(get('feedClearFilters').parentNode.className,'sidebar-feed-options-body');
 assert.equal(get('feedDensityToggle').getAttribute('aria-pressed'),'false');
 get('feedDensityToggle').click();
