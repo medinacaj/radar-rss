@@ -85,22 +85,14 @@
   options.append(optionsSummary,optionsBody);
   optionsBody.append(headerControls);
   readingNav.append(options);
-  // Presentation is a separate sibling group: filters never nest visual controls.
-  const viewOptions=mk('details','sidebar-feed-options sidebar-view-options');
-  viewOptions.id='sidebarViewOptions';
-  const viewSummary=mk('summary','','Vista y columnas');
-  viewSummary.setAttribute('aria-label','Mostrar opciones de vista y columnas');
-  const viewBody=mk('div','sidebar-feed-options-body');
-  viewOptions.append(viewSummary,viewBody);
-  readingNav.append(viewOptions);
   const source=get('sourceSelect')?.closest('label');
   const display=controls.querySelector('.display-controls');
   const presentation=mk('details','presentation-control');presentation.id='presentationControl';
-  const presentationSummary=mk('summary','','Presentación');presentationSummary.id='presentationSummary';
+  const presentationSummary=mk('summary','','Vista y columnas');presentationSummary.id='presentationSummary';
   const presentationBody=mk('div','presentation-controls-body');
   presentation.append(presentationSummary,presentationBody);
   if(source)headerControls.append(source);
-  if(display){presentationBody.append(display);viewBody.append(presentation);}
+  if(display){presentationBody.append(display);readingNav.append(presentation);}
   presentation.addEventListener('keydown',event=>{
     if(window.innerWidth>640&&event.key==='Escape'&&presentation.open){event.preventDefault();event.stopPropagation();closeColumnsMenu(false);presentation.open=false;presentationSummary.focus();}
   });
@@ -141,7 +133,7 @@
     savePref('density',state.density);
     applyDisplaySettings();syncSettings();render();
   });
-  viewBody.append(densityToggle);
+  presentationBody.append(densityToggle);
   const tag=get('libraryTagFilter')?.closest('label');
   if(tag)optionsBody.append(tag);
   const movable=[source,presentation,tag,densityToggle].filter(Boolean);
@@ -180,7 +172,7 @@
       }
     }
     options.hidden=mobile||state.pageView!=='feed';
-    viewOptions.hidden=mobile||state.pageView!=='feed';
+    presentation.hidden=!mobile&&state.pageView!=='feed';
     toggle.hidden=!mobile||state.pageView!=='feed';setExpanded(expanded);
   }
   // Keep an empty mobile search field from collapsing between pointerdown
@@ -231,7 +223,7 @@
     syncDensity();
     readingNav.hidden=false;
     options.hidden=mobile||state.pageView!=='feed';
-    viewOptions.hidden=mobile||state.pageView!=='feed';
+    presentation.hidden=!mobile&&state.pageView!=='feed';
     toggle.hidden=!mobile||state.pageView!=='feed';
     const active=filters();chips.replaceChildren();
     for(const item of active){
