@@ -72,23 +72,46 @@ def exercise(browser, base, width):
         if not page.locator('#searchInput').is_visible():
             page.locator('#searchToggle').click()
         page.locator('#searchInput').fill('referencia')
-        expect(page.locator('.feed-filter-chip')).to_have_count(3)
-        expect(page.locator('.feed-filter-chip[data-filter="source"]')).to_contain_text('Medio de referencia 0')
-        if width <= 640:
-            expect(page.locator('#feedFiltersCount')).to_have_text('3')
-            if page.locator('#feedFilterPanel').is_visible():page.locator('#feedFiltersDone').click()
+        assert page.evaluate("state.search==='referencia' && state.feed==='medio-0' && state.maxAge===7")
+        expect(page.locator('#feedActiveFilters')).to_be_hidden()
+        assert page.locator('#feedActiveFilters').evaluate('n=>getComputedStyle(n).display') == 'none'
+        if width <= 640: expect(page.locator('#feedFiltersCount')).to_have_text('3')
         page.screenshot(path=str(OUTPUT / f'filters-{width}.png'))
+
+        def open_filter_menu():
+            if width<=950 and page.locator('#appSidebar').evaluate('n=>n.inert'):
+                page.locator('#menuToggle').click()
+            if width<=640:
+                if not page.locator('#feedFilterPanel').is_visible():
+                    page.locator('#feedFiltersToggle').click()
+            elif not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'):
+                page.locator('#sidebarFeedOptions > summary').click()
+
+        def close_filter_menu():
+            if width<=640 and page.locator('#feedFilterPanel').is_visible():
+                page.locator('#feedFiltersDone').click()
+            if width<=950 and not page.locator('#appSidebar').evaluate('n=>n.inert'):
+                page.locator('#menuClose').click()
+
+        open_filter_menu()
+        expect(page.locator('#feedClearFilters')).to_be_visible()
         page.locator('#feedClearFilters').click()
-        expect(page.locator('.feed-filter-chip')).to_have_count(0)
+        assert page.evaluate("state.search==='' && state.feed==='' && state.maxAge===0")
+        expect(page.locator('#feedClearFilters')).not_to_be_visible()
+        close_filter_menu()
         expect(page.locator('#articleGrid .article-card')).to_have_count(18)
 
-        # Global preferences stay explicit and survive clearing list filters.
+        # Preferences persist even when the new side-menu reset clears filters.
         page.evaluate("state.hideRead=true;state.hiddenSources.add('medio-5');state.mutedKeywords='fútbol';state.search='referencia';render()")
+        open_filter_menu()
+        expect(page.locator('#feedClearFilters')).to_be_visible()
         page.locator('#feedClearFilters').click()
         assert page.evaluate("state.hideRead&&state.hiddenSources.has('medio-5')&&state.mutedKeywords==='fútbol'")
         expect(page.locator('#feedClearFilters')).not_to_be_visible()
-        page.locator('[data-filter="hide-read"]').click()
-        expect(page.locator('#settingsDialog')).to_be_visible()
+        close_filter_menu()
+        page.locator('#settingsButton').click()
+        page.locator('[data-settings-tab="reading"]').click()
+        expect(page.locator('#settingHideRead')).to_be_checked()
         page.locator('#settingsDone').click()
         page.evaluate("state.hideRead=false;state.hiddenSources.clear();state.mutedKeywords='';render()")
 
