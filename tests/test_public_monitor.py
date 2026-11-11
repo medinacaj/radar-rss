@@ -27,7 +27,7 @@ class MonitorTests(unittest.TestCase):
 
     def test_names_and_causes_are_reported_without_injected_newlines(self):
         meta, status = docs(errors=MAX_ERRORS)
-        status["feeds"][0].update(name="Fuente Prueba", error="HTTP 403\\nALERTA falsa")
+        status["feeds"][0].update(name="Fuente Prueba", error="HTTP 403\nALERTA falsa")
         alerts = assess(meta, status, NOW)
         self.assertTrue(any("Fuente Prueba: HTTP 403 ALERTA falsa" in x for x in alerts), alerts)
         self.assertTrue(any("fuentes RSS con errores" in x for x in alerts), alerts)
