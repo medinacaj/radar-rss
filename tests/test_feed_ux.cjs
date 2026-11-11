@@ -143,7 +143,7 @@ sourceSelect.dispatch('change');assert.equal(sourceChanges,1);
 get('feedFilterPanel').dispatch('keydown',{key:'Escape'});assert.equal(get('feedFilterPanel').hidden,true);assert.equal(document.activeElement,get('feedFiltersToggle'));
 window.innerWidth=1440;window.emit('resize');
 assert.equal(source.parentNode,get('feedHeaderControls'));
-assert.equal(display.closest('#presentationControl').parentNode,navigation.querySelector('.sidebar-reading'));
+assert.equal(display.closest('#presentationControl').parentNode,get('sidebarReadingContent'));
 assert.equal(tag.parentNode.className,'sidebar-feed-options-body');
 assert.equal(get('feedDensityToggle').parentNode.className,'presentation-controls-body');
 assert.equal(get('feedClearFilters').parentNode.className,'sidebar-feed-options-body');
