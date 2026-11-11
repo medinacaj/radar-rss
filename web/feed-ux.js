@@ -91,8 +91,14 @@
     readingToggle.setAttribute('aria-expanded',String(value));
     readingToggle.setAttribute('aria-label',value?'Contraer Mi lectura':'Expandir Mi lectura');
   };
-  setReadingExpanded(true);
-  readingToggle.addEventListener('click',()=>setReadingExpanded(readingContent.hidden));
+  // Save the reader's choice locally; a blocked/private storage still defaults open.
+  const savedReadingOpen=typeof storeGet==='function'?storeGet('radar-reading-open'):null;
+  setReadingExpanded(savedReadingOpen!=='false');
+  readingToggle.addEventListener('click',()=>{
+    const expanded=readingContent.hidden;
+    setReadingExpanded(expanded);
+    savePref('reading-open',expanded);
+  });
   readingNav.append(readingHead,readingContent);
   if(sidebar&&modes){
     readingContent.append(modes);
