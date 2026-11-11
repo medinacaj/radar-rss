@@ -39,6 +39,13 @@ HEADERS = {"User-Agent": AGENT,
            "Accept": "application/rss+xml, application/atom+xml, application/xml;q=0.9, text/xml;q=0.9, */*;q=0.6",
            "Accept-Language": "es-CL,es;q=0.9,en;q=0.7"}
 RETRY_STATUS = {429, 500, 502, 503, 504}
+# Public syndication alternatives, independent of OPML identities and catalog
+# snapshots. Never override a publisher feed while it responds successfully.
+FEED_FALLBACKS = {
+    'https://www.elespanol.com/rss/elandroidelibre/': 'https://feeds.feedburner.com/elandroidelibre',
+    'https://emprendedores.es/feed/': 'https://www.emprendedores.es/feed/',
+}
+
 RETRY_WAIT_SECONDS = 4
 RETRY_MAX_WAIT_SECONDS = 30
 # Prefijos del OPML que solo organizan las suscripciones. Los que informan al lector
@@ -78,15 +85,11 @@ def parse_opml(path: str | Path) -> list[dict]:
             urls.add(url)
             name = node.get('title') or node.get('text') or urlsplit(url).hostname or 'RSS'
             website = safe_web_url(node.get('htmlUrl', '')) or ''
-            # A fallback does not change the canonical source identity or saved
-            # article/source references; only use publisher-provided public feeds.
-            fallback = (node.get('fallbackXmlUrl') or '').strip()
             out.append({
                 'id': sha256(url.encode()).hexdigest()[:16],
                 'name': name,
                 'category': category,
                 'url': url,
-                'fallback_url': fallback if safe_web_url(fallback) and urlsplit(fallback).scheme == 'https' and fallback != url else None,
                 'website': website,
                 'is_radar': (urlsplit(url).hostname or '').lower() == 'news.google.com',
             })
@@ -539,8 +542,9 @@ def get_one(source: dict, now: datetime, per_feed: int) -> tuple[list[dict], dic
     status = {'id': source['id'], 'name': source['name'], 'category': source['category'], 'state': 'error',
               'count': 0, 'last_published_at': None, 'last_success_at': None, 'error': None}
     urls = [source['url']]
-    if source.get('fallback_url') and source['fallback_url'] != source['url']:
-        urls.append(source['fallback_url'])
+    alternate = FEED_FALLBACKS.get(source['url'])
+    if alternate and alternate != source['url']:
+        urls.append(alternate)
     failures = []
     for index, url in enumerate(urls):
         try:
