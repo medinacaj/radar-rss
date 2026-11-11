@@ -7,18 +7,28 @@
   if(!bar||!controls||document.getElementById('feedActiveFilters'))return;
   const get=id=>document.getElementById(id);
   const region=mk('div','feed-active-filters');region.id='feedActiveFilters';
-  region.setAttribute('role','region');region.setAttribute('aria-label','Filtros activos');region.tabIndex=-1;
+  // Legacy chip nodes remain available to extensions, but never duplicate
+  // the sidebar controls or create an extra row above the news.
+  region.hidden=true;region.setAttribute('aria-hidden','true');
   const chips=mk('div','feed-filter-chips');chips.id='feedFilterChips';
   const clear=mk('button','feed-clear-filters','Limpiar filtros');clear.id='feedClearFilters';clear.type='button';
   clear.title='Quitar búsqueda, fuente, fecha, estado, carpeta, región, etiqueta y solo nuevas. Conserva las preferencias de lectura.';
   const scope=mk('p','feed-filter-scope','Conserva las preferencias: ocultar leídas, fuentes ocultas y palabras silenciadas.');
   scope.id='feedFilterScope';clear.setAttribute('aria-describedby',scope.id);
-  region.append(chips,clear,scope);bar.after(region);
+  region.append(chips,scope);bar.after(region);
 
   const library=()=>window.RadarLibrary?.getFeedFilters()||{folder:null,tag:''};
   const geo=()=>window.RadarV12?.getFeedGeo()||{id:'all',label:''};
   const hasScope=()=>Boolean(library().folder||state.category!=='all'||geo().id!=='all');
-  function refresh(focus=false){state.page=1;render();if(focus)region.focus({preventScroll:true});}
+  function refresh(focus=false){
+    state.page=1;render();
+    if(focus){
+      const target=window.innerWidth<=640
+        ? (panel.open?get('feedFiltersDone'):get('feedFiltersToggle'))
+        : optionsSummary;
+      target?.focus({preventScroll:true});
+    }
+  }
   function clearSearch(){state.search='';get('searchInput').value='';}
   function clearAge(){state.maxAge=0;savePref('max-age',0);if(get('settingAge'))get('settingAge').value='0';if(get('v12Date'))get('v12Date').value='0';}
   function openPreference(tab,id){
@@ -65,9 +75,27 @@
   const coreSection=get('sidebarCoreSection');
   const modes=feed.querySelector('.mode-tabs');
   const readingNav=mk('section','sidebar-reading');
-  readingNav.setAttribute('aria-label','Mi lectura');
+  readingNav.setAttribute('aria-labelledby','sidebarReadingHeading');
+  const readingHead=mk('h3','sidebar-reading-title');readingHead.id='sidebarReadingHeading';
+  const readingToggle=mk('button','sidebar-section-toggle sidebar-reading-toggle');
+  readingToggle.type='button';readingToggle.id='sidebarReadingToggle';
+  readingToggle.setAttribute('aria-controls','sidebarReadingContent');
+  const readingTitle=mk('span','','MI LECTURA');
+  const readingChevron=mk('span','sidebar-section-chevron');
+  readingChevron.setAttribute('aria-hidden','true');
+  readingToggle.append(readingTitle,readingChevron);
+  readingHead.append(readingToggle);
+  const readingContent=mk('div','sidebar-reading-content');readingContent.id='sidebarReadingContent';
+  const setReadingExpanded=value=>{
+    readingContent.hidden=!value;
+    readingToggle.setAttribute('aria-expanded',String(value));
+    readingToggle.setAttribute('aria-label',value?'Contraer Mi lectura':'Expandir Mi lectura');
+  };
+  setReadingExpanded(true);
+  readingToggle.addEventListener('click',()=>setReadingExpanded(readingContent.hidden));
+  readingNav.append(readingHead,readingContent);
   if(sidebar&&modes){
-    readingNav.append(mk('h3','sidebar-reading-title','MI LECTURA'),modes);
+    readingContent.append(modes);
     // This is a sibling navigation group, not a sub-menu of Principal.
     if(coreSection)coreSection.after(readingNav);
     else sidebar.append(readingNav);
@@ -84,7 +112,7 @@
   const optionsBody=mk('div','sidebar-feed-options-body');
   options.append(optionsSummary,optionsBody);
   optionsBody.append(headerControls);
-  readingNav.append(options);
+  readingContent.append(options);
   const source=get('sourceSelect')?.closest('label');
   const display=controls.querySelector('.display-controls');
   const presentation=mk('details','presentation-control');presentation.id='presentationControl';
@@ -92,7 +120,7 @@
   const presentationBody=mk('div','presentation-controls-body');
   presentation.append(presentationSummary,presentationBody);
   if(source)headerControls.append(source);
-  if(display){presentationBody.append(display);readingNav.append(presentation);}
+  if(display){presentationBody.append(display);readingContent.append(presentation);}
   presentation.addEventListener('keydown',event=>{
     if(window.innerWidth>640&&event.key==='Escape'&&presentation.open){event.preventDefault();event.stopPropagation();closeColumnsMenu(false);presentation.open=false;presentationSummary.focus();}
   });
@@ -123,7 +151,7 @@
   const fields=mk('div','feed-sheet-fields');fields.id='feedFilterFields';
   const done=mk('button','feed-sheet-done','Ver noticias');done.id='feedFiltersDone';done.type='button';
   panel.append(panelHead,fields,done);
-  readingNav.append(toggle);document.body.append(panel);
+  readingContent.append(toggle);document.body.append(panel);
   const densityToggle=mk('button','feed-density-toggle','Compacto');
   densityToggle.id='feedDensityToggle';densityToggle.type='button';
   densityToggle.title='Alternar entre espaciado cómodo y compacto';
@@ -140,7 +168,9 @@
   presentationBody.append(densityToggle);
   const tag=get('libraryTagFilter')?.closest('label');
   if(tag)optionsBody.append(tag);
-  const movable=[source,presentation,tag,densityToggle].filter(Boolean);
+  // Clear stays in the existing filters group, not in a second toolbar.
+  optionsBody.append(clear);
+  const movable=[source,presentation,tag,densityToggle,clear].filter(Boolean);
   const homes=movable.map(element=>{
     const anchor=mk('span','feed-control-anchor');anchor.hidden=true;element.before(anchor);
     return {element,anchor};
@@ -236,8 +266,9 @@
       button.setAttribute('aria-label',(item.preference?'Revisar preferencia: ':'Quitar filtro: ')+item.label);
       button.addEventListener('click',item.remove);chips.append(button);
     }
-    region.hidden=state.pageView!=='feed'||!active.length;
-    clear.hidden=!active.some(item=>!item.preference);scope.hidden=!active.some(item=>item.preference);
+    region.hidden=true;
+    clear.hidden=state.pageView!=='feed'||!active.some(item=>!item.preference);
+    scope.hidden=!active.some(item=>item.preference);
     count.textContent=String(active.length);count.hidden=!active.length;
     toggle.setAttribute('aria-label','Filtros'+(active.length?' · '+active.length+' activos':''));
     // The new row owns this chip, avoiding a second copy in the old context row.
