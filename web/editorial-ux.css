@@ -1022,3 +1022,9 @@ body.radar-hybrid.dimension #feedFilterPanel #feedClearFilters {
   display:flex;justify-content:center;align-items:center;
   width:100%;min-height:44px;flex:0 0 auto;
 }
+
+/* Keyboard focus must remain apparent in Safari even after scripted focus. */
+body.radar-hybrid.dimension #themeToggle:focus {
+  outline:3px solid var(--accent);
+  outline-offset:3px;
+}
