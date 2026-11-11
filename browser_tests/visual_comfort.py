@@ -62,11 +62,11 @@ def main():
                 assert page.evaluate('state.columns')=='6'
                 if mobile:
                     page.locator('#sourceSelect').select_option('medio-1')
+                    expect(page.locator('#feedActiveFilters')).to_be_hidden()
+                    page.locator('#sourceSelect').select_option('')
                     page.locator('#feedFiltersDone').click()
                     expect(page.locator('#feedFiltersToggle')).to_be_focused()
                     page.locator('#menuClose').click()
-                    expect(page.locator('.feed-filter-chip[data-filter="source"]')).to_be_visible()
-                    page.locator('.feed-filter-chip[data-filter="source"]').click()
                 else:
                     page.keyboard.press('Escape')
                     expect(page.locator('#readingProfile')).to_be_hidden()
