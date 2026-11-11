@@ -62,7 +62,7 @@ window.RadarLibrary={getFeedFilters:()=>({folder:privateFolder,tag:privateTag}),
 window.RadarV12={getFeedGeo:()=>({id:geo,label:'Latinoamérica'})};
 const location={hash:'#noticias'};
 const context={window,document,state,location,console,mk:(tag,cls,text)=>node(tag,null,cls,text),sourceLabel:x=>x,categoryLabel:x=>x,
-  storeGet:key=>key==='radar-reading-open'?null:null,
+  storeGet:()=>null,
   savePref:(k,v)=>prefWrites.push([k,v]),selectedTab:name=>{settingsTab=name;},
   syncSettings(){},applyDisplaySettings(){displayChanges++;},goTo(){privateFolder=null;geo='all';state.category='all';state.feed='';location.hash='#noticias';context.render();window.emit('hashchange');},
   fillSelect(){sourceSelect.value=state.feed;},hasHistory:()=>false,newsCountsUnavailable:()=>false,
