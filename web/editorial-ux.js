@@ -250,7 +250,8 @@
       // Returning focus to the hidden toolbar would strand keyboard users.
       (window.innerWidth<=640?$('menuToggle'):$('sidebarFeedOptions')?.querySelector('summary'))?.focus({preventScroll:true});
     });
-    chips.append(chip); region.hidden = false;
+    // Keep the compatibility chip for programmatic consumers only.
+    chips.append(chip); region.hidden = true;
     if ($('feedClearFilters')) $('feedClearFilters').hidden = false;
     const count = chips.childElementCount;
     if ($('feedFiltersCount')) { $('feedFiltersCount').textContent = String(count); $('feedFiltersCount').hidden = false; }
