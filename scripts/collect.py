@@ -78,11 +78,15 @@ def parse_opml(path: str | Path) -> list[dict]:
             urls.add(url)
             name = node.get('title') or node.get('text') or urlsplit(url).hostname or 'RSS'
             website = safe_web_url(node.get('htmlUrl', '')) or ''
+            # A fallback does not change the canonical source identity or saved
+            # article/source references; only use publisher-provided public feeds.
+            fallback = (node.get('fallbackXmlUrl') or '').strip()
             out.append({
                 'id': sha256(url.encode()).hexdigest()[:16],
                 'name': name,
                 'category': category,
                 'url': url,
+                'fallback_url': fallback if safe_web_url(fallback) and urlsplit(fallback).scheme == 'https' and fallback != url else None,
                 'website': website,
                 'is_radar': (urlsplit(url).hostname or '').lower() == 'news.google.com',
             })
@@ -534,24 +538,34 @@ def make_item(entry, source: dict, now: datetime) -> dict | None:
 def get_one(source: dict, now: datetime, per_feed: int) -> tuple[list[dict], dict]:
     status = {'id': source['id'], 'name': source['name'], 'category': source['category'], 'state': 'error',
               'count': 0, 'last_published_at': None, 'last_success_at': None, 'error': None}
-    try:
-        raw = get_feed(source['url'])
-        parsed = feedparser.parse(raw)
-        if parsed.get('bozo') and not parsed.entries:
-            raise ValueError('RSS/Atom no válido o sin datos interpretables')
-        entries = list(parsed.entries[:per_feed])
-        items = [r for e in entries if (r := make_item(e, source, now)) is not None]
-        dates = [entry_date(e) for e in parsed.entries if entry_date(e)]
-        last = max(dates) if dates else None
-        status.update(state='ok' if items else 'empty', count=len(items),
-                      last_published_at=iso(last), last_success_at=iso(now))
-        if last and last < now - timedelta(days=365):
-            status['state'] = 'stale'  # Revisión humana: no eliminar automáticamente.
-        return items, status
-    except Exception as exc:
-        # Mostrar la causa resumida sin exponer datos de entorno ni claves.
-        status['error'] = f'{type(exc).__name__}: {str(exc)[:160]}'
-        return [], status
+    urls = [source['url']]
+    if source.get('fallback_url') and source['fallback_url'] != source['url']:
+        urls.append(source['fallback_url'])
+    failures = []
+    for index, url in enumerate(urls):
+        try:
+            raw = get_feed(url)
+            parsed = feedparser.parse(raw)
+            if parsed.get('bozo') and not parsed.entries:
+                raise ValueError('RSS/Atom no válido o sin datos interpretables')
+            entries = list(parsed.entries[:per_feed])
+            items = [r for e in entries if (r := make_item(e, source, now)) is not None]
+            dates = [entry_date(e) for e in parsed.entries if entry_date(e)]
+            last = max(dates) if dates else None
+            status.update(state='ok' if items else 'empty', count=len(items),
+                          last_published_at=iso(last), last_success_at=iso(now))
+            if last and last < now - timedelta(days=365):
+                status['state'] = 'stale'  # Revisión humana: no eliminar automáticamente.
+            if index:
+                status['fallback_used'] = True
+                status['primary_error'] = failures[0]
+            return items, status
+        except Exception as exc:
+            # Never hide either failure. A 403 remains a 403 unless an
+            # explicitly configured public alternate RSS feed succeeds.
+            failures.append(f'{type(exc).__name__}: {str(exc)[:150]}')
+    status['error'] = ' | '.join(failures)[:320]
+    return [], status
 
 
 def load_json(path: Path, fallback: dict) -> dict:
