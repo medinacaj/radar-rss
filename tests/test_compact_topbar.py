@@ -24,10 +24,12 @@ class CompactTopbarTests(unittest.TestCase):
         self.assertNotIn('id="refreshCycleProgress"',html)
         self.assertNotIn('id="refreshCycleFill"',html)
 
-    def test_keep_15_min_client_and_three_hour_source_distinct(self):
+    def test_keep_15_min_client_and_hourly_source_distinct(self):
         self.assertIn('const CHECK_INTERVAL_MS=15*60*1000',self.app)
         self.assertIn('cada 15 minutos',self.app)
-        self.assertIn('cada 3 horas',self.app)
+        self.assertIn('cada hora',self.app)
+        workflow=(ROOT/'.github/workflows/deploy.yml').read_text(encoding='utf-8')
+        self.assertIn('cron: "17 * * * *"',workflow)
         self.assertIn('refreshPublishedData()',self.app)
         self.assertIn("('refreshNow').addEventListener('click'",self.app)
         self.assertIn('id="lastUpdate"',self.html)
