@@ -10,7 +10,7 @@ Proyecto público sin backend ni cuentas. El catálogo contiene 311 suscripcione
 
 ```mermaid
 flowchart LR
-  A[OPML: 311 feeds] --> B[GitHub Actions: cada 3 horas]
+  A[OPML: 311 feeds] --> B[GitHub Actions: cada hora]
   B --> C[Python: RSS/Atom y deduplicación]
   C --> D[JSON estáticos]
   D --> E[GitHub Pages]
@@ -140,7 +140,7 @@ Abrir `http://localhost:8000` (no abrir el archivo HTML haciendo doble clic: `fe
 
 ## Actualización y edición
 
-- **Automática:** aproximadamente cada tres horas mediante cron UTC `17 */3 * * *`. GitHub puede retrasar u omitir alguna ejecución; en repos públicos, la programación puede desactivarse por inactividad prolongada. El flujo también puede iniciarse manualmente.
+- **Automática:** aproximadamente cada hora mediante cron UTC `17 * * * *`. GitHub puede retrasar u omitir alguna ejecución; en repos públicos, la programación puede desactivarse por inactividad prolongada. El flujo también puede iniciarse manualmente.
 - **Modificar fuentes:** editar `sources/feeds.opml`, confirmar y esperar el siguiente flujo. No existe límite fijo de fuentes en la aplicación, pero más fuentes incrementan consumo de Actions y tiempo de recopilación.
 - **Número de artículos:** 12 por feed por ciclo, hasta 5.000 noticias en caché y un máximo de 45 días por defecto. Ajustable en `deploy.yml` / `collect.py`.
 - **Sitio sin noticias después de publicar:** revisar los detalles de `Actions` y `data/status.json`. La aplicación no inventa noticias ni reemplaza automáticamente feeds problemáticos.

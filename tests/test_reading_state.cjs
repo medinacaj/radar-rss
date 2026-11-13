@@ -108,6 +108,8 @@ test('manual refresh applies new published news immediately while preserving rea
   assert.equal(h.window.scrollY,640);
   assert.equal(h.el('publicationNotice').hidden,true);
   assert.match(h.el('refreshStatus').textContent,/Noticias actualizadas/);
+  assert.match(h.el('refreshStatus').textContent,/1 nueva/);
+  assert.match(h.el('refreshStatus').textContent,/Última recopilación:/);
 });
 
 test('manual refresh with no new publication confirms the check instead of remaining silent',async()=>{
@@ -116,6 +118,7 @@ test('manual refresh with no new publication confirms the check instead of remai
   h.setFetch(()=>h.state.feedMeta);
   await h.run('refreshPublishedData({manual:true})');
   assert.match(h.el('refreshStatus').textContent,/No hay novedades publicadas/);
+  assert.match(h.el('refreshStatus').textContent,/Última recopilación:/);
   assert.equal(h.state.generated,OLD);
   assert.equal(h.el('refreshNow').disabled,false);
 });
