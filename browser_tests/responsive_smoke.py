@@ -741,6 +741,7 @@ def main():
                             if width<=640:page.locator('#feedFiltersToggle').click()
                             elif not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'):page.locator('#sidebarFeedOptions > summary').click()
                         page.locator("#sourceSelect").select_option("medio-3")
+                        if width>640:expect(page.locator("#sidebarFeedOptions")).not_to_have_attribute("open","")
                         if page.locator("#feedFilterPanel").is_visible():page.locator("#feedFiltersDone").click()
                         if width<=950 and not page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuClose').click()
                         page.locator('#settingsButton').click()
