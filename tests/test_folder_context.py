@@ -30,6 +30,15 @@ class FolderContextTests(unittest.TestCase):
         self.assertIn("equipFolder(wrapper,b,'manual',name)",self.library)
         self.assertIn("const menu=mk('div','folder-popup-menu')",self.library)
 
+    def test_create_folder_only_from_context_menu(self):
+        self.assertIn("['create','Crear carpeta']",self.library)
+        self.assertIn("if(command==='create')createFolder()",self.library)
+        self.assertIn("function createFolder(){openFolderEditor('manual',null,true);}",self.library)
+        self.assertIn("forAll?!['read','unread','view','sources'].includes(command)",self.library)
+        self.assertNotIn("add.title='Crear carpeta de fuentes'",self.library)
+        self.assertNotIn("mk('button','settings-secondary','Crear carpeta')",self.library)
+        self.assertIn('clic derecho sobre una carpeta o categoría',self.library)
+
     def test_updated_assets(self):
         self.assertRegex(self.html,r'<script src="\./library\.js\?v=[^"]+" defer></script>')
         self.assertRegex(self.html,r'<link rel="stylesheet" href="\./library\.css\?v=[^"]+">')
