@@ -153,6 +153,8 @@ class CountRegressions(unittest.TestCase):
         self.page.locator('#sidebarFeedOptions > summary').click()
         self.page.select_option('#sourceSelect', 'medio-7')
         self.expect_count('#allCount', 625)
+        # The desktop filter flyout now closes after applying a source.
+        self.page.locator('#sidebarFeedOptions > summary').click()
         self.page.select_option('#sourceSelect', '')
         self.page.locator('#searchInput').fill('Archivo exclusivo')
         self.expect_count('#allCount', 1)
