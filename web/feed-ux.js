@@ -112,7 +112,14 @@
   };
   // Keep non-navigation controls collapsed to avoid a crowded sidebar.
   const savedReadingOpen=typeof storeGet==='function'?storeGet('radar-tools-open'):null;
-  setReadingExpanded(savedReadingOpen==='true');
+  let narrowTools=window.innerWidth<=640;
+  setReadingExpanded(narrowTools||savedReadingOpen==='true');
+  window.addEventListener('resize',()=>{
+    const narrow=window.innerWidth<=640;
+    if(narrow===narrowTools)return;
+    narrowTools=narrow;
+    setReadingExpanded(narrow||storeGet('radar-tools-open')==='true');
+  });
   readingToggle.addEventListener('click',()=>{
     const expanded=readingContent.hidden;
     setReadingExpanded(expanded);
