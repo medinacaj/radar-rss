@@ -181,6 +181,12 @@
   if(tag)optionsBody.append(tag);
   // Clear stays in the existing filters group, not in a second toolbar.
   optionsBody.append(clear);
+  // Dismiss the floating desktop filter menu after applying a selection.
+  // Otherwise it can cover the article buttons and saved-search shortcuts.
+  optionsBody.addEventListener('change',event=>{
+    if(window.innerWidth>640&&['SELECT','INPUT'].includes(event.target.tagName))options.open=false;
+  });
+  clear.addEventListener('click',()=>{if(window.innerWidth>640)options.open=false;});
   const movable=[source,presentation,tag,densityToggle,clear].filter(Boolean);
   const homes=movable.map(element=>{
     const anchor=mk('span','feed-control-anchor');anchor.hidden=true;element.before(anchor);
