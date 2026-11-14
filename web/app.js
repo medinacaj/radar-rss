@@ -57,6 +57,7 @@ const VECTOR_PATHS={
   list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke-linecap="round"/>',
   clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/>',
   settings:'<path d="M4 7h16M4 17h16"/><rect x="7" y="4" width="4" height="6" rx="2" fill="currentColor"/><rect x="14" y="14" width="4" height="6" rx="2" fill="currentColor"/>',
+  filter:'<path d="M3 5h18l-7 8v6l-4 2v-8Z"/>',
   sun:'<circle cx="12" cy="12" r="4" fill="currentColor" fill-opacity=".25"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>',
   moon:'<path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z" fill="currentColor" fill-opacity=".25"/><path d="M18 3v4m-2-2h4"/>',
   external:'<path d="M12 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7M13 3h8v8M10 14 21 3"/>',
@@ -563,6 +564,8 @@ function initSettingsHandlers(){
 }
 function buildNav() {
   const nav=$('categoryNav');
+  // Preserve the single reader-mode group when rebuilding navigation.
+  const readingModes=nav.querySelector('#sidebarReadingModes');
   nav.replaceChildren();
   const core=[{id:'home',label:'Inicio'},{id:'all',label:'Noticias'},{id:'agenda',label:'Agenda'}];
   const folders=state.categories.map(id=>({id,label:categoryLabel(id)}));
@@ -570,7 +573,7 @@ function buildNav() {
   if(sourceFolderNav)sourceFolderNav.replaceChildren();
   function addRow(entry,index,parent){
     const active=entry.id==='home'?state.pageView==='dashboard':entry.id==='agenda'?state.pageView==='agenda':
-      state.pageView==='feed'&&state.category===entry.id;
+      state.pageView==='feed'&&state.category===entry.id&&(entry.id!=='all'||state.mode==='all');
     const isFolder=!['home','all','agenda'].includes(entry.id);
     const button=mk('button','nav-link'+(active?' active':'')+(isFolder?' system-folder-link':''));
     button.type='button';button.dataset.destination=entry.id;
@@ -585,10 +588,11 @@ function buildNav() {
     const sources=entry.id==='all'?state.sources.filter(s=>!state.hiddenSources.has(s.id)):
       state.sources.filter(s=>s.category===entry.id&&!state.hiddenSources.has(s.id));
     button.append(left,mk('span','nav-count',['home','agenda'].includes(entry.id)?'':String(sources.length)));
-    button.addEventListener('click',()=>goTo(entry.id));
+    button.addEventListener('click',()=>{if(entry.id==='all')state.mode='all';goTo(entry.id);});
     parent.append(button);
   }
   core.forEach((entry,index)=>addRow(entry,index,nav));
+  if(readingModes)nav.insertBefore(readingModes,nav.querySelector('[data-destination="agenda"]'));
   if(sourceFolderNav){
     folders.forEach((entry,index)=>addRow(entry,index+2,sourceFolderNav));
   }else if(folders.length){
@@ -643,7 +647,11 @@ function initMobileNav(){
   $('sidebarBackdrop').addEventListener('click',()=>setNavOpen(false));
   document.addEventListener('keydown',event=>{
     if(!MOBILE_NAV.matches||!document.body.classList.contains('nav-open')||document.querySelector('dialog[open]'))return;
-    if(event.key==='Escape'){event.preventDefault();setNavOpen(false);return;}
+    // A visible folder context menu handles Escape itself; keep the mobile drawer open.
+    if(event.key==='Escape'){
+      if(document.querySelector('#folderMenu:not([hidden])'))return;
+      event.preventDefault();setNavOpen(false);return;
+    }
     if(event.key==='Tab'){
       const sidebar=$('appSidebar');
       const focusable=[...sidebar.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),[tabindex="0"]')]
@@ -1338,7 +1346,7 @@ function markRead(id,value,memberIds=[id],options={}){
   if(returnFocus){
     const target=[...document.querySelectorAll('#articleGrid .article-card, #dashboardFeature .article-card')]
       .find(el=>el.dataset.articleId===id)?.querySelector('.article-read-toggle');
-    (target||$('articleGrid').querySelector('.article-read-toggle')||document.querySelector('.mode-tab.active'))?.focus({preventScroll:true});
+    (target||$('articleGrid').querySelector('.article-read-toggle')||document.querySelector('#categoryNav .nav-link.active, .mode-tab.active:not([hidden])'))?.focus({preventScroll:true});
   }
 }
 function markArticlesRead(items){
@@ -1431,7 +1439,14 @@ function renderFeed() {
     grid.replaceChildren();
     $('loadMore').hidden=true;
   }
-  document.querySelectorAll('.mode-tab').forEach(button=>button.classList.toggle('active',button.dataset.mode === state.mode));
+  const allNewsActive=state.pageView==='feed'&&state.category==='all'&&state.mode==='all';
+  const allNewsLink=$('categoryNav')?.querySelector('[data-destination="all"]');
+  if(allNewsLink){allNewsLink.classList.toggle('active',allNewsActive);allNewsLink.setAttribute('aria-current',allNewsActive?'page':'false');}
+  document.querySelectorAll('.mode-tab').forEach(button=>{
+    const active=button.dataset.mode===state.mode&&state.pageView==='feed'&&state.category==='all';
+    button.classList.toggle('active',active);
+    button.setAttribute('aria-current',active?'page':'false');
+  });
   document.querySelectorAll('.view-button').forEach(button=>button.classList.toggle('active',button.dataset.view === state.layout));
   document.body.classList.toggle('layout-list',state.layout==='list');
   syncColumnsControl();
@@ -1536,7 +1551,7 @@ function publishNewRSSNews(previousIds=null){
 }
 
 // Comprobación LOCAL de publicaciones nuevas: cada 15 min.
-// La recopilación de RSS de origen la programa el servidor en GitHub Actions.
+// La recopilación de RSS de origen sigue aproximadamente cada hora por GitHub Actions.
 const CHECK_INTERVAL_MS=15*60*1000;
 const PUBLICATION_STALE_MS=4*60*60*1000;
 let nextCheckAt=Date.now()+CHECK_INTERVAL_MS;
@@ -1555,11 +1570,10 @@ function publicationIsDelayed(){
   return Number.isFinite(generated)&&Date.now()-generated>PUBLICATION_STALE_MS;
 }
 function updateScheduleProgress(){
-  const delayed=publicationIsDelayed();
   $('lastUpdate').textContent=feedRefreshBusy?'Buscando novedades…':
-    (delayed?'Recopilación pendiente · ':'')+freshnessLabel();
+    (publicationIsDelayed()?'Recopilación pendiente · ':'')+freshnessLabel();
   const exact=state.generated?' Última recopilación: '+shortDate(state.generated)+'.':'';
-  const description='Se comprueban las noticias ya publicadas cada 15 minutos. La recopilación de los medios depende del servidor.'+exact;
+  const description='Radar-RSS comprueba si hay nuevas publicaciones cada 15 minutos; los medios se recopilan aproximadamente cada hora.'+exact;
   $('refreshCycle').title=description;
   $('lastUpdate').title=description;
   $('refreshNow').disabled=feedRefreshBusy||bootBusy;
@@ -1570,15 +1584,14 @@ function refreshFeedback(message,status='success'){
   $('refreshStatus').textContent=message;
   $('refreshStatus').dataset.state=status;
 }
-function reportPublicationCheck(updated=false,older=false){
+function reportPublicationCheck(message,updated=false){
   if(publicationIsDelayed()){
     const prefix=updated?'Se cargó la última publicación disponible. ':'';
     refreshFeedback(prefix+'La última recopilación del servidor fue '+ageDate(state.generated).toLowerCase()+
       '. Sigue pendiente una publicación reciente.','warning');
     return;
   }
-  refreshFeedback(updated?'Noticias actualizadas.':older?
-    'No hay una publicación más reciente disponible.':'No hay novedades publicadas.');
+  refreshFeedback(message);
 }
 function scheduleNextCheck(){
   window.clearTimeout(checkTimer);
@@ -1592,7 +1605,7 @@ async function refreshPublishedData({manual=false}={}){
   if(feedRefreshBusy||bootBusy)return;
   if((!state.ready&&!manual)||document.hidden){scheduleNextCheck();return;}
   feedRefreshBusy=true;updateScheduleProgress();
-  if(manual)refreshFeedback('Comprobando publicaciones…','loading');
+  if(manual)refreshFeedback('Comprobando las últimas noticias publicadas…','loading');
   else refreshFeedback('','idle');
   const controller=new AbortController();
   const timeout=window.setTimeout(()=>controller.abort(),15_000);
@@ -1602,18 +1615,18 @@ async function refreshPublishedData({manual=false}={}){
     const generatedTime=typeof meta?.generated_at==='string'?Date.parse(meta.generated_at):NaN;
     if(!Number.isFinite(generatedTime))throw Error('Fecha de publicación RSS incompatible');
     if(pendingPublication&&generatedTime<=Date.parse(pendingPublication.meta.generated_at)){
-      if(manual){applyPendingPublication();reportPublicationCheck(true);}
+      if(manual){applyPendingPublication();reportPublicationCheck('Noticias actualizadas. Última recopilación: '+shortDate(state.generated)+'.',true);}
       return;
     }
     if(meta.generated_at===state.generated){
       if(!newsCountsComplete()&&!state.historyLoading){
         state.feedMeta=meta;state.historyLoaded=false;state.historyFailed=false;render();
       }
-      if(manual)reportPublicationCheck();
+      if(manual)reportPublicationCheck('No hay novedades publicadas. Última recopilación: '+shortDate(state.generated)+'.');
       return;
     }
     if(generatedTime<=Date.parse(state.generated)){
-      if(manual)reportPublicationCheck(false,true);
+      if(manual)reportPublicationCheck('No hay una publicación más reciente disponible. Última recopilación: '+shortDate(state.generated)+'.');
       return;
     }
     const [sources,latest,status]=await Promise.all([
@@ -1634,7 +1647,14 @@ async function refreshPublishedData({manual=false}={}){
       throw Error('Publicación RSS incompatible');
     }
     pendingPublication={meta,sources,latest,status};
-    if(manual){applyPendingPublication();reportPublicationCheck(true);return;}
+    if(manual){
+      const previousIds=new Set(state.items.map(item=>item.id));
+      const added=latest.items.filter(item=>!previousIds.has(item.id)).length;
+      applyPendingPublication();
+      const exact=' Última recopilación: '+shortDate(state.generated)+'.';
+      reportPublicationCheck(added?'Noticias actualizadas: '+format.format(added)+(added===1?' nueva.':' nuevas.')+exact:'Noticias actualizadas. Sin titulares adicionales en la última carga.'+exact,true);
+      return;
+    }
     const previousIds=new Set(state.items.map(item=>item.id));
     const added=new Set(latest.items.filter(item=>!previousIds.has(item.id)).map(item=>item.id)).size;
     $('publicationMessage').textContent=added?`Hay ${format.format(added)} ${added===1?'noticia nueva':'noticias nuevas'}`:'Hay una actualización disponible';

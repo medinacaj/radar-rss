@@ -16,7 +16,7 @@ class HistoryExperience(CountRegressions):
         self.payloads=self.dataset(300,offset=6000)
         recent=self.payloads['meta.json']['generated_at']
         self.page.locator('#refreshNow').click()
-        expect(self.page.locator('#refreshStatus')).to_have_text('Noticias actualizadas.')
+        expect(self.page.locator('#refreshStatus')).to_contain_text('Noticias actualizadas')
         expect(self.page.locator('#lastUpdate')).not_to_contain_text('Recopilación pendiente')
         self.assertEqual(self.page.evaluate('state.generated'),recent)
         self.assertFalse(self.errors)

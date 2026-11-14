@@ -68,72 +68,75 @@
     return active;
   }
 
-  // One set of controls: compact sidebar disclosure on desktop, existing sheet on mobile.
+  // One set of controls: topbar popovers on desktop, shared modal sheet on mobile.
   const headerControls=mk('div','feed-header-controls');headerControls.id='feedHeaderControls';
   headerControls.setAttribute('role','group');headerControls.setAttribute('aria-label','Fuentes y presentación de noticias');
-  const sidebar=get('sidebarCoreContent');
-  const coreSection=get('sidebarCoreSection');
+  const topbarTools=get('topbarTools');
+  const primaryNav=get('categoryNav');
   const modes=feed.querySelector('.mode-tabs');
-  const readingNav=mk('section','sidebar-reading');
-  readingNav.setAttribute('aria-labelledby','sidebarReadingHeading');
-  const readingHead=mk('h3','sidebar-reading-title');readingHead.id='sidebarReadingHeading';
-  const readingToggle=mk('button','sidebar-section-toggle sidebar-reading-toggle');
-  readingToggle.type='button';readingToggle.id='sidebarReadingToggle';
-  readingToggle.setAttribute('aria-controls','sidebarReadingContent');
-  const readingTitle=mk('span','','MI LECTURA');
-  const readingChevron=mk('span','sidebar-section-chevron');
-  readingChevron.setAttribute('aria-hidden','true');
-  readingToggle.append(readingTitle,readingChevron);
-  readingHead.append(readingToggle);
-  const readingContent=mk('div','sidebar-reading-content');readingContent.id='sidebarReadingContent';
-  const setReadingExpanded=value=>{
-    readingContent.hidden=!value;
-    readingToggle.setAttribute('aria-expanded',String(value));
-    readingToggle.setAttribute('aria-label',value?'Contraer Mi lectura':'Expandir Mi lectura');
-  };
-  // Save the reader's choice locally; a blocked/private storage still defaults open.
-  const savedReadingOpen=typeof storeGet==='function'?storeGet('radar-reading-open'):null;
-  setReadingExpanded(savedReadingOpen!=='false');
-  readingToggle.addEventListener('click',()=>{
-    const expanded=readingContent.hidden;
-    setReadingExpanded(expanded);
-    savePref('reading-open',expanded);
-  });
-  readingNav.append(readingHead,readingContent);
-  if(sidebar&&modes){
-    readingContent.append(modes);
-    // This is a sibling navigation group, not a sub-menu of Principal.
-    if(coreSection)coreSection.after(readingNav);
-    else sidebar.append(readingNav);
+  // One navigation: Noticias already opens "Todas"; only unread/saved need links.
+  if(primaryNav&&modes){
+    modes.id='sidebarReadingModes';
+    const allMode=modes.querySelector('[data-mode="all"]');
+    if(allMode){allMode.hidden=true;allMode.setAttribute('aria-hidden','true');allMode.tabIndex=-1;}
+    for(const mode of ['unread','saved']){
+      const button=modes.querySelector('[data-mode="'+mode+'"]');
+      if(!button)continue;
+      const count=button.querySelector('.mode-tab-count');
+      const label=mode==='unread'?'Sin leer':'Guardadas';
+      const glyph=mk('span','nav-glyph');glyph.append(svgIcon(mode==='unread'?'mail':'bookmark'));
+      const left=mk('span','nav-left');left.append(glyph,mk('span','nav-label',label));
+      button.classList.add('nav-link','reader-mode-link');
+      if(count){count.classList.add('nav-count');button.replaceChildren(left,count);}
+      else button.replaceChildren(left);
+    }
+    primaryNav.insertBefore(modes,primaryNav.querySelector('[data-destination="agenda"]'));
+  }
+  if(modes){
     modes.addEventListener('click',event=>{
       const button=event.target.closest('.mode-tab');
       if(!button)return;
-      if(state.pageView!=='feed')goTo('all');
+      if(window.location.hash!=='#noticias')goTo('all');
       if(window.innerWidth<=950)setNavOpen(false);
     });
   }
   const options=mk('details','sidebar-feed-options');options.id='sidebarFeedOptions';
-  const optionsSummary=mk('summary','','Filtrar noticias');
-  optionsSummary.setAttribute('aria-label','Mostrar filtros de noticias');
+  const optionsSummary=mk('summary','','Filtros');
+  optionsSummary.setAttribute('aria-label','Filtrar noticias');
+  optionsSummary.title='Filtrar noticias';optionsSummary.prepend(svgIcon('filter'));
+  const topbarFilterCount=mk('span','feed-filters-count topbar-filter-badge');
+  topbarFilterCount.id='topbarFilterCount';topbarFilterCount.hidden=true;
+  topbarFilterCount.setAttribute('aria-hidden','true');optionsSummary.append(topbarFilterCount);
   const optionsBody=mk('div','sidebar-feed-options-body');
   options.append(optionsSummary,optionsBody);
   optionsBody.append(headerControls);
-  readingContent.append(options);
+  topbarTools?.append(options);
   const source=get('sourceSelect')?.closest('label');
   const display=controls.querySelector('.display-controls');
   const presentation=mk('details','presentation-control');presentation.id='presentationControl';
-  const presentationSummary=mk('summary','','Vista y columnas');presentationSummary.id='presentationSummary';
+  const presentationSummary=mk('summary','','Vista');presentationSummary.id='presentationSummary';
+  presentationSummary.setAttribute('aria-label','Vista y columnas');
+  presentationSummary.title='Vista y columnas';presentationSummary.prepend(svgIcon('grid'));
   const presentationBody=mk('div','presentation-controls-body');
   presentation.append(presentationSummary,presentationBody);
   if(source)headerControls.append(source);
-  if(display){presentationBody.append(display);readingContent.append(presentation);}
+  if(display)presentationBody.append(display);
+  topbarTools?.append(presentation);
   presentation.addEventListener('keydown',event=>{
     if(window.innerWidth>640&&event.key==='Escape'&&presentation.open){event.preventDefault();event.stopPropagation();closeColumnsMenu(false);presentation.open=false;presentationSummary.focus();}
   });
-  // Close after the target's click; pointerdown would collapse this inline menu
-  // before pointerup and make buttons further down the sidebar miss activation.
+  // Only one popover at a time. Click outside or press Escape to dismiss.
+  options.addEventListener('toggle',()=>{if(options.open)presentation.open=false;});
+  presentation.addEventListener('toggle',()=>{if(presentation.open&&window.innerWidth>640)options.open=false;});
+  options.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&options.open){event.preventDefault();event.stopPropagation();options.open=false;optionsSummary.focus();}
+  });
   document.addEventListener('click',event=>{
-    if(presentation.open&&!presentation.contains(event.target)&&window.innerWidth>640)presentation.open=false;
+    if(window.innerWidth<=640)return;
+    if(options.open&&!options.contains(event.target))options.open=false;
+    if(presentation.open&&!presentation.contains(event.target)){
+      closeColumnsMenu(false);presentation.open=false;
+    }
   });
   const advanced=get('feedAdvanced');
   const reading=document.querySelector('[data-settings-pane="reading"]');
@@ -146,18 +149,23 @@
   }
 
   const toggle=mk('button','feed-filters-toggle');toggle.id='feedFiltersToggle';toggle.type='button';
+  toggle.title='Filtrar noticias';toggle.prepend(svgIcon('filter'));
   toggle.setAttribute('aria-controls','feedFilterPanel');toggle.setAttribute('aria-expanded','false');
   const toggleLabel=mk('span','','Filtros');
   const count=mk('span','feed-filters-count');count.id='feedFiltersCount';toggle.append(toggleLabel,count);
+  const viewToggle=mk('button','topbar-mobile-view','Vista');viewToggle.id='feedViewToggle';viewToggle.type='button';
+  viewToggle.title='Vista y columnas';viewToggle.setAttribute('aria-label','Vista y columnas');
+  viewToggle.setAttribute('aria-controls','feedFilterPanel');viewToggle.setAttribute('aria-haspopup','dialog');
+  viewToggle.prepend(svgIcon('grid'));
   const panel=mk('dialog','feed-filter-panel');panel.id='feedFilterPanel';panel.hidden=true;
   panel.setAttribute('aria-labelledby','feedFiltersTitle');
-  const panelHead=mk('div','feed-sheet-head'),panelTitle=mk('h2','','Filtros de noticias');panelTitle.id='feedFiltersTitle';
+  const panelHead=mk('div','feed-sheet-head'),panelTitle=mk('h2','','Filtros y vista');panelTitle.id='feedFiltersTitle';
   const panelClose=mk('button','feed-sheet-close','Cerrar');panelClose.id='feedFiltersClose';panelClose.type='button';
   panelClose.setAttribute('aria-label','Cerrar filtros');panelHead.append(panelTitle,panelClose);
   const fields=mk('div','feed-sheet-fields');fields.id='feedFilterFields';
   const done=mk('button','feed-sheet-done','Ver noticias');done.id='feedFiltersDone';done.type='button';
   panel.append(panelHead,fields,done);
-  readingContent.append(toggle);document.body.append(panel);
+  topbarTools?.append(toggle,viewToggle);document.body.append(panel);
   const densityToggle=mk('button','feed-density-toggle','Compacto');
   densityToggle.id='feedDensityToggle';densityToggle.type='button';
   densityToggle.title='Alternar entre espaciado cómodo y compacto';
@@ -176,6 +184,12 @@
   if(tag)optionsBody.append(tag);
   // Clear stays in the existing filters group, not in a second toolbar.
   optionsBody.append(clear);
+  // Dismiss the floating desktop filter menu after applying a selection.
+  // Otherwise it can cover the article buttons and saved-search shortcuts.
+  optionsBody.addEventListener('change',event=>{
+    if(window.innerWidth>640&&['SELECT','INPUT'].includes(event.target.tagName))options.open=false;
+  });
+  clear.addEventListener('click',()=>{if(window.innerWidth>640)options.open=false;});
   const movable=[source,presentation,tag,densityToggle,clear].filter(Boolean);
   const homes=movable.map(element=>{
     const anchor=mk('span','feed-control-anchor');anchor.hidden=true;element.before(anchor);
@@ -183,8 +197,8 @@
   });
   let mobile=false,expanded=false,desktopAdvancedOpen=Boolean(advanced?.open);
   function setExpanded(value){
-    expanded=Boolean(mobile&&value&&state.pageView==='feed');
-    toggle.setAttribute('aria-expanded',String(expanded));
+    expanded=Boolean(mobile&&value);
+    toggle.setAttribute('aria-expanded',String(expanded));viewToggle.setAttribute('aria-expanded',String(expanded));
     if(expanded){panel.hidden=false;if(!panel.open){presentation.open=true;panel.showModal();panelClose.focus();}}
     else{if(panel.open)panel.close();panel.hidden=true;}
   }
@@ -192,8 +206,8 @@
   done.addEventListener('click',()=>setExpanded(false));
   panel.addEventListener('close',()=>{
     if(panel.open)return;
-    expanded=false;panel.hidden=true;toggle.setAttribute('aria-expanded','false');
-    if(mobile&&state.pageView==='feed')toggle.focus({preventScroll:true});
+    expanded=false;panel.hidden=true;toggle.setAttribute('aria-expanded','false');viewToggle.setAttribute('aria-expanded','false');
+    if(mobile)toggle.focus({preventScroll:true});
   });
   function placeControls(){
     const next=window.innerWidth<=640;
@@ -211,14 +225,20 @@
         expanded=false;
       }
     }
-    options.hidden=mobile||state.pageView!=='feed';
-    presentation.hidden=!mobile&&state.pageView!=='feed';
-    toggle.hidden=!mobile||state.pageView!=='feed';setExpanded(expanded);
+    // Desktop popovers stay in the topbar; mobile uses the existing modal sheet.
+    options.hidden=mobile;
+    presentation.hidden=false;
+    toggle.hidden=!mobile;viewToggle.hidden=!mobile;setExpanded(expanded);
   }
   // Keep an empty mobile search field from collapsing between pointerdown
   // and click and moving this control away from the pointer.
   toggle.addEventListener('pointerdown',event=>{if(event.button===0)event.preventDefault();});
   toggle.addEventListener('click',()=>{setExpanded(!expanded);if(!expanded)toggle.focus({preventScroll:true});});
+  viewToggle.addEventListener('click',()=>{
+    setExpanded(true);presentation.open=true;
+    presentationSummary.scrollIntoView({block:'nearest'});
+    presentationSummary.focus({preventScroll:true});
+  });
   panel.addEventListener('keydown',event=>{
     if(event.key==='Escape'&&expanded){setExpanded(false);toggle.focus({preventScroll:true});event.stopPropagation();}
   });
@@ -258,14 +278,16 @@
     el.append(heading,hint,actions);return el;
   };
   function update(){
-    if(state.pageView!=='feed'){setExpanded(false);presentation.open=false;}
-    headerControls.hidden=state.pageView!=='feed';
+    headerControls.hidden=false;
     syncDensity();
-    readingNav.hidden=false;
-    options.hidden=mobile||state.pageView!=='feed';
-    presentation.hidden=!mobile&&state.pageView!=='feed';
-    toggle.hidden=!mobile||state.pageView!=='feed';
+    options.hidden=mobile;
+    presentation.hidden=false;
+    toggle.hidden=!mobile;viewToggle.hidden=!mobile;
     const active=filters();chips.replaceChildren();
+    const activeCount=active.filter(item=>!item.preference).length;
+    topbarFilterCount.textContent=String(activeCount);
+    topbarFilterCount.hidden=activeCount===0;
+    optionsSummary.setAttribute('aria-label',activeCount?`Filtrar noticias, ${activeCount} filtros activos`:'Filtrar noticias');
     for(const item of active){
       const button=mk('button','feed-filter-chip'+(item.preference?' is-preference':''),item.label+(item.preference?' · Ajustar':' ×'));
       button.type='button';button.dataset.filter=item.id;
@@ -273,7 +295,7 @@
       button.addEventListener('click',item.remove);chips.append(button);
     }
     region.hidden=true;
-    clear.hidden=state.pageView!=='feed'||!active.some(item=>!item.preference);
+    clear.hidden=!active.some(item=>!item.preference);
     scope.hidden=!active.some(item=>item.preference);
     count.textContent=String(active.length);count.hidden=!active.length;
     toggle.setAttribute('aria-label','Filtros'+(active.length?' · '+active.length+' activos':''));

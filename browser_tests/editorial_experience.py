@@ -113,7 +113,6 @@ def main():
                 page.evaluate("state.hiddenSources.clear(); goTo('all')")
                 page.wait_for_function("() => state.pageView==='feed'")
                 if width <= 640:
-                    page.locator('#menuToggle').click()
                     page.locator('#feedFiltersToggle').click()
                 else:
                     page.locator('#sidebarFeedOptions > summary').click()
@@ -122,18 +121,20 @@ def main():
                 expect(page.locator('#articleGrid .article-card')).to_have_count(1)
                 expect(page.locator('#allCount')).to_have_text('1')
                 expect(page.locator('#feedActiveFilters')).to_be_hidden()
-                # The type selector and reset live together in the existing menu.
+                # Desktop topbar filters close after each change; reopen to adjust again.
+                if width>640:page.locator('#sidebarFeedOptions > summary').click()
                 page.locator('#editorialType').select_option('all')
                 expect(page.locator('#editorialType')).to_have_value('all')
                 expect(page.locator('#articleGrid .article-card')).to_have_count(24)
+                if width>640:page.locator('#sidebarFeedOptions > summary').click()
                 page.locator('#editorialType').select_option('unknown')
                 expect(page.locator('#articleGrid .article-card')).to_have_count(20)
+                if width>640:page.locator('#sidebarFeedOptions > summary').click()
                 expect(page.locator('#feedClearFilters')).to_be_visible()
                 page.locator('#feedClearFilters').click()
                 expect(page.locator('#editorialType')).to_have_value('all')
                 if width<=640:
                     page.locator('#feedFiltersDone').click()
-                    page.locator('#menuClose').click()
                 # Type is a view filter, so it never changes stored preferences.
                 assert page.evaluate("!Object.keys(localStorage).some(k=>k.includes('editorial-type'))")
                 page.evaluate("goTo('home')")

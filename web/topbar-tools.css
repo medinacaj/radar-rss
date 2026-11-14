@@ -1,0 +1,88 @@
+/* RadarRSS: a single set of news tools in the top navigation. */
+body.radar-hybrid.dimension #topbarTools {
+  display:flex;align-items:center;gap:6px;flex:0 0 auto;min-width:0;
+}
+body.radar-hybrid.dimension #topbarTools > details {position:relative;min-width:0;margin:0;border:0;background:transparent}
+body.radar-hybrid.dimension #topbarTools > [hidden] {display:none!important}
+body.radar-hybrid.dimension #topbarTools > details > summary,
+body.radar-hybrid.dimension #topbarTools > button {
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  min-height:42px;min-width:44px;width:auto;margin:0;padding:8px 12px;
+  border:1px solid var(--line);border-radius:11px;
+  background:var(--surface2);color:var(--text);
+  font:650 12px/1.3 var(--font-ui);
+  box-shadow:none;list-style:none;white-space:nowrap;cursor:pointer;
+}
+body.radar-hybrid.dimension #topbarTools > details > summary::-webkit-details-marker {display:none}
+body.radar-hybrid.dimension #topbarTools > details > summary::after {
+  content:'⌄';margin-left:1px;color:var(--muted);font-size:15px;
+}
+body.radar-hybrid.dimension #topbarTools > details[open] > summary::after {content:'⌃'}
+body.radar-hybrid.dimension #topbarTools > details > summary:hover,
+body.radar-hybrid.dimension #topbarTools > details[open] > summary,
+body.radar-hybrid.dimension #topbarTools > button:hover,
+body.radar-hybrid.dimension #topbarTools > button[aria-expanded='true'] {
+  background:var(--hover);border-color:var(--accent);color:var(--text);
+}
+body.radar-hybrid.dimension #topbarTools :is(summary,button):focus-visible {
+  outline:2px solid var(--accent);outline-offset:2px;
+}
+body.radar-hybrid.dimension #topbarTools .ui-icon {flex:0 0 auto;width:17px;height:17px}
+body.radar-hybrid.dimension #topbarTools #sidebarFeedOptions > .sidebar-feed-options-body,
+body.radar-hybrid.dimension #topbarTools #presentationControl > .presentation-controls-body {
+  position:absolute;inset:auto 0 auto auto;top:calc(100% + 9px);
+  z-index:80;width:min(340px,calc(100vw - 30px));max-height:min(70dvh,570px);
+  min-width:0;box-sizing:border-box;margin:0;padding:14px;
+  display:flex;flex-direction:column;gap:10px;overflow-y:auto;overscroll-behavior:contain;
+  border:1px solid var(--line);border-radius:13px;
+  background:var(--surface);color:var(--text);box-shadow:0 14px 35px #00000020;
+}
+body.radar-hybrid.dimension #topbarTools #sidebarFeedOptions:not([open]) > .sidebar-feed-options-body,
+body.radar-hybrid.dimension #topbarTools #presentationControl:not([open]) > .presentation-controls-body {
+  display:none!important;
+}
+body.radar-hybrid.dimension #topbarTools .feed-header-controls {
+  display:flex;flex-direction:column;align-items:stretch;flex-wrap:nowrap;
+  gap:10px;width:100%;min-width:0;margin:0;padding:0;
+}
+body.radar-hybrid.dimension #topbarTools :is(.source-filter,.editorial-type-field,.library-tag-filter-wrap) {
+  display:flex;flex-direction:column;align-items:stretch;gap:6px;
+  width:100%;min-width:0;max-width:100%;margin:0;
+}
+body.radar-hybrid.dimension #topbarTools :is(select,.editorial-type-field select) {
+  display:block;width:100%;min-width:0;max-width:100%;min-height:42px;
+  background:var(--surface);color:var(--text);
+}
+body.radar-hybrid.dimension #topbarTools #feedClearFilters {
+  width:100%;min-height:42px;justify-content:center;
+}
+body.radar-hybrid.dimension #topbarTools #feedClearFilters[hidden] {display:none!important}
+body.radar-hybrid.dimension #topbarTools .presentation-controls-body .display-controls {
+  display:flex;flex-direction:column;align-items:stretch;width:100%;gap:10px;
+}
+body.radar-hybrid.dimension #topbarTools .presentation-controls-body :is(.experience-profile,.experience-title-size) {
+  display:flex;flex-direction:column;align-items:stretch;gap:5px;
+}
+body.radar-hybrid.dimension #topbarTools .presentation-controls-body :is(.experience-profile select,.experience-title-size select) {
+  width:100%;max-width:100%;
+}
+body.radar-hybrid.dimension #topbarTools .presentation-controls-body .feed-density-toggle {
+  width:100%;max-width:none;min-height:42px;margin:0;
+}
+body.radar-hybrid.dimension #topbarTools #feedFiltersToggle[hidden],
+body.radar-hybrid.dimension #topbarTools #feedViewToggle[hidden] {display:none!important}
+@media(max-width:710px) {
+  body.radar-hybrid.dimension #topbarTools {gap:4px}
+  body.radar-hybrid.dimension #topbarTools > details > summary,
+  body.radar-hybrid.dimension #topbarTools > button {
+    width:40px;min-width:40px;min-height:42px;padding:9px 7px;
+    font-size:0;gap:0;
+  }
+  body.radar-hybrid.dimension #topbarTools > details > summary::after {display:none}
+  body.radar-hybrid.dimension #topbarTools #feedFiltersToggle > span:not(.feed-filters-count) {display:none}
+  body.radar-hybrid.dimension #topbarTools .feed-filters-count {
+    font-size:10px;line-height:1;position:absolute;transform:translate(13px,-13px);
+  }
+  body.radar-hybrid.dimension .topbar-tools .ui-icon {width:19px;height:19px}
+  body.radar-hybrid.dimension .topbar-actions {gap:4px}
+}

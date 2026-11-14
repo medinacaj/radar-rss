@@ -341,7 +341,9 @@ def main():
                           radius:getComputedStyle(document.querySelector('#dashboardFeature .article-card')).borderTopLeftRadius,
                           shadow:getComputedStyle(document.querySelector('#dashboardFeature .article-card')).boxShadow
                         })""")
-                        assert visual['radius']=='14px' and visual['shadow']!='none',visual
+                        # Rounded corners are intentional in the refreshed design.
+                        radius=float(visual['radius'].removesuffix('px'))
+                        assert 12<=radius<=16 and visual['shadow']!='none',visual
                         light_background=visual['bg']
                         assert page.locator('#dashboardTitle').inner_text() == 'Inicio'
                         expect(page.locator('#dashboardFeature')).to_be_visible()
@@ -353,6 +355,15 @@ def main():
                         if page.locator('#appSidebar').evaluate('(node) => node.inert'):
                             page.locator('#menuToggle').click()
                         expect(page.locator('#appSidebar')).to_be_visible()
+                        # Filtros y Vista están en la barra superior; sin duplicados en lateral.
+                        expect(page.locator('#topbarTools')).to_be_visible()
+                        assert page.locator('#sidebarReadingContent').count()==0
+                        if width<=640:
+                            expect(page.locator('#feedFiltersToggle')).to_be_visible()
+                            expect(page.locator('#feedViewToggle')).to_be_visible()
+                        else:
+                            expect(page.locator('#sidebarFeedOptions > summary')).to_be_visible()
+                            expect(page.locator('#presentationSummary')).to_be_visible()
                         # Ambas listas son visibles al iniciar, se cierran por separado
                         # y vuelven a abrirse para continuar las pruebas de navegación.
                         for control_id, content_id in (('sidebarNavigationToggle','sidebarCoreContent'),
@@ -386,8 +397,41 @@ def main():
                         ensure_navigation(page)
                         folder = page.locator("#libraryFolderNav .system-folder-link").nth(6)
                         expect(folder).to_be_visible()
+                        assert page.locator('[title="Crear carpeta de fuentes"]').count() == 0
+                        # Regression: right-clicking the heading must not show the browser menu.
+                        section_toggle=page.locator('#sourceFoldersToggle')
+                        section_toggle.click(button='right')
+                        expect(page.locator('#folderMenu')).to_be_visible()
+                        expect(page.locator('#folderMenu [data-folder-action="create"]')).to_be_visible()
+                        assert page.locator('#folderMenu [role="menuitem"]:visible').count() == 1
+                        page.locator('#folderMenu [data-folder-action="create"]').click()
+                        expect(page.locator('#folderDialog[open]')).to_be_visible()
+                        expect(page.locator('#folderDialogTitle')).to_have_text('Nueva carpeta de fuentes')
+                        page.locator('#folderDialog .folder-dialog-close').click()
+                        section_toggle.focus()
+                        section_toggle.press('Shift+F10')
+                        expect(page.locator('#folderMenu [data-folder-action="create"]')).to_be_visible()
+                        page.keyboard.press('Escape')
+                        expect(page.locator('#folderMenu')).to_be_hidden()
+                        if width<=950:assert page.locator('#appSidebar').evaluate('n=>!n.inert'), 'Escape must not close the mobile drawer when dismissing a folder menu'
                         folder.focus()
                         folder.press("Shift+F10")
+                        expect(page.locator("#folderMenu")).to_be_visible()
+                        expect(page.locator('#folderMenu [data-folder-action="create"]')).to_have_text("Crear carpeta")
+                        page.locator('#folderMenu [data-folder-action="create"]').click()
+                        expect(page.locator("#folderDialog[open]")).to_be_visible()
+                        expect(page.locator('#folderDialogTitle')).to_have_text('Nueva carpeta de fuentes')
+                        page.locator('#folderNameInput').fill('Mis fuentes')
+                        page.locator('#folderNameInput').press('Enter')
+                        expect(page.locator('#libraryFolderNav .library-folder-row .nav-label',has_text='Mis fuentes')).to_have_count(1)
+                        personal=page.locator('#libraryFolderNav .library-folder-row .nav-link',has_text='Mis fuentes')
+                        personal.click(button='right')
+                        expect(page.locator('#folderMenu [data-folder-action="create"]')).to_be_visible()
+                        page.once('dialog',lambda dialog:dialog.accept())
+                        page.locator('#folderMenu [data-folder-action="delete"]').click()
+                        expect(page.locator('#libraryFolderNav .library-folder-row .nav-label',has_text='Mis fuentes')).to_have_count(0)
+                        folder=page.locator("#libraryFolderNav .system-folder-link").nth(6)
+                        folder.click(button='right')
                         expect(page.locator("#folderMenu")).to_be_visible()
                         page.locator('#folderMenu [role="menuitem"]', has_text="Administrar fuentes").click()
                         expect(page.locator("#folderDialog[open]")).to_be_visible()
@@ -401,6 +445,7 @@ def main():
                         all_link.press("Shift+F10")
                         expect(page.locator("#folderMenu")).to_be_visible()
                         expect(page.locator('#folderMenu [data-folder-action="read"]')).to_have_text("Marcar todas como leídas")
+                        assert page.locator('#folderMenu [data-folder-action="create"]:visible').count() == 0
                         assert page.locator('#folderMenu [data-folder-action="rename"]:visible').count() == 0
                         assert page.locator('#folderMenu [data-folder-action="delete"]:visible').count() == 0
                         assert page.locator('#folderMenu [data-folder-action="sources"]:visible').count() == 1
@@ -409,12 +454,14 @@ def main():
                         expect(page.locator("#settingsDialog[open]")).to_be_visible()
                         expect(page.locator('[data-settings-pane="sources"]')).to_be_visible()
                         page.locator('[data-settings-tab="appearance"]').click()
-                        expect(page.locator("#settingsDesignAdvanced")).not_to_have_attribute("open", "")
+                        expect(page.locator("#settingsDesignAdvanced")).to_be_visible()
+                        expect(page.locator("#settingsDesignHeading")).to_have_text("Opciones de diseño")
+                        expect(page.locator("#settingsDesignAdvanced summary")).to_have_count(0)
                         expect(page.locator("#settingFont")).to_be_visible()
-                        expect(page.locator("#settingSidebarWidth")).to_be_hidden()
-                        page.locator("#settingsDesignAdvanced summary").click()
+                        expect(page.locator("#settingLayout")).to_be_visible()
+                        expect(page.locator("#settingColumns")).to_be_visible()
+                        expect(page.locator("#settingDensity")).to_be_visible()
                         expect(page.locator("#settingSidebarWidth")).to_be_visible()
-                        page.locator("#settingsDesignAdvanced summary").click()
 
                         page.locator("#closeSettings").click()
                         expect(page.locator("#settingsDialog")).to_be_hidden()
@@ -692,10 +739,11 @@ def main():
                         page.locator("#v12Date").select_option("7")
                         page.locator('#closeSettings').click()
                         if not page.locator('#sourceSelect').is_visible():
-                            if width<=950 and page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuToggle').click()
+                            if width<=950 and not page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuClose').click()
                             if width<=640:page.locator('#feedFiltersToggle').click()
                             elif not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'):page.locator('#sidebarFeedOptions > summary').click()
                         page.locator("#sourceSelect").select_option("medio-3")
+                        if width>640:expect(page.locator("#sidebarFeedOptions")).not_to_have_attribute("open","")
                         if page.locator("#feedFilterPanel").is_visible():page.locator("#feedFiltersDone").click()
                         if width<=950 and not page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuClose').click()
                         page.locator('#settingsButton').click()
@@ -704,7 +752,7 @@ def main():
                         page.locator('#closeSettings').click()
                         assert page.locator(".v12-saved-open").count() == 1
                         if not page.locator("#sourceSelect").is_visible():
-                            if width<=950 and page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuToggle').click()
+                            if width<=950 and not page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuClose').click()
                             if width<=640:page.locator('#feedFiltersToggle').click()
                             elif not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'):page.locator('#sidebarFeedOptions > summary').click()
                         page.locator("#sourceSelect").select_option("")

@@ -30,10 +30,27 @@ class SidebarSectionsTests(unittest.TestCase):
         self.assertIn("nav.hidden=false", self.library)
         self.assertIn("toggle.addEventListener('click',()=>setExpanded(nav.hidden))", self.library)
         self.assertIn("$('sidebarCoreSection').after(foldersSection)", self.library)
-        self.assertIn("add.addEventListener('click',()=>{setExpanded(true);createFolder();})", self.library)
+        self.assertNotIn("add.addEventListener('click',()=>{setExpanded(true);createFolder();})", self.library)
+        self.assertNotIn("add.title='Crear carpeta de fuentes'", self.library)
+        self.assertIn("restore.append(svgIcon('rotate-ccw'));header.append(restore)", self.library)
         self.assertIn('#libraryFolderNav[hidden]{display:none!important}', self.style)
         self.assertNotIn('content:"Mostrar"', self.style)
         self.assertNotIn('content:"Ocultar"', self.style)
+
+    def test_principal_has_reading_without_duplicate_all_news(self):
+        feed = (ROOT / 'web/feed-ux.js').read_text(encoding='utf-8')
+        self.assertIn("modes.id='sidebarReadingModes'",feed)
+        self.assertIn("allMode.hidden=true",feed)
+        self.assertIn("primaryNav.insertBefore(modes",feed)
+        self.assertIn("const topbarTools=get('topbarTools')",feed)
+        self.assertIn('id="topbarTools"',self.html)
+        self.assertIn("topbarTools?.append(options)",feed)
+        self.assertIn("topbarTools?.append(presentation)",feed)
+        self.assertNotIn('sidebar-reading sidebar-tools',feed)
+        self.assertIn('topbar-tools.css?v=',self.html)
+        self.assertIn("if(entry.id==='all')state.mode='all'",self.app)
+        self.assertIn("if(readingModes)nav.insertBefore(readingModes",self.app)
+        self.assertIn('#sidebarReadingModes .mode-tab[hidden]',self.style)
 
     def test_footer_has_single_project_link_without_sidebar_button(self):
         footer = self.html[self.html.index('<footer class="footer">'):self.html.index('</footer>')]
