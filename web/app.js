@@ -1434,6 +1434,9 @@ function renderFeed() {
     grid.replaceChildren();
     $('loadMore').hidden=true;
   }
+  const allNewsActive=state.pageView==='feed'&&state.category==='all'&&state.mode==='all';
+  const allNewsLink=$('categoryNav')?.querySelector('[data-destination="all"]');
+  if(allNewsLink){allNewsLink.classList.toggle('active',allNewsActive);allNewsLink.setAttribute('aria-current',allNewsActive?'page':'false');}
   document.querySelectorAll('.mode-tab').forEach(button=>{
     const active=button.dataset.mode===state.mode&&state.pageView==='feed'&&state.category==='all';
     button.classList.toggle('active',active);
