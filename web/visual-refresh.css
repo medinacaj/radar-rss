@@ -400,6 +400,11 @@ body.radar-hybrid.dimension #dashboardView:not([hidden]) #dashboardRecent:empty:
   body.radar-hybrid.dimension #dashboardFeature>.article-card .article-actions {gap:2px}
   body.radar-hybrid.dimension .latest-carousel-controls button {padding-inline:9px}
 }
+@media(max-width:360px) {
+  /* Keep all six functional touch controls in one row; branding remains in sidebar/favicon. */
+  body.radar-hybrid.dimension .topbar-caption {display:none}
+  body.radar-hybrid.dimension .topbar {justify-content:space-between}
+}
 @media(prefers-reduced-motion:reduce) {
   body.radar-hybrid.dimension .action-toast,
   body.radar-hybrid.dimension #dashboardFeature:empty::before,
