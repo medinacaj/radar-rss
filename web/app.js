@@ -1536,8 +1536,9 @@ function publishNewRSSNews(previousIds=null){
 }
 
 // Comprobación LOCAL de publicaciones nuevas: cada 15 min.
-// La recopilación de RSS de origen sigue cada tres horas por GitHub Actions.
+// La recopilación de RSS de origen la programa el servidor en GitHub Actions.
 const CHECK_INTERVAL_MS=15*60*1000;
+const PUBLICATION_STALE_MS=4*60*60*1000;
 let nextCheckAt=Date.now()+CHECK_INTERVAL_MS;
 let checkStartedAt=Date.now();
 let checkTimer=null;
@@ -1549,10 +1550,16 @@ function freshnessLabel(){
   const age=ageDate(state.generated);
   return age==='Ahora'?'Actualizado ahora':'Actualizado '+age.charAt(0).toLowerCase()+age.slice(1);
 }
+function publicationIsDelayed(){
+  const generated=Date.parse(state.generated);
+  return Number.isFinite(generated)&&Date.now()-generated>PUBLICATION_STALE_MS;
+}
 function updateScheduleProgress(){
-  $('lastUpdate').textContent=feedRefreshBusy?'Buscando novedades…':freshnessLabel();
+  const delayed=publicationIsDelayed();
+  $('lastUpdate').textContent=feedRefreshBusy?'Buscando novedades…':
+    (delayed?'Recopilación pendiente · ':'')+freshnessLabel();
   const exact=state.generated?' Última recopilación: '+shortDate(state.generated)+'.':'';
-  const description='Radar-RSS busca noticias nuevas cada 15 minutos; los medios se recopilan aproximadamente cada 3 horas.'+exact;
+  const description='Se comprueban las noticias ya publicadas cada 15 minutos. La recopilación de los medios depende del servidor.'+exact;
   $('refreshCycle').title=description;
   $('lastUpdate').title=description;
   $('refreshNow').disabled=feedRefreshBusy||bootBusy;
@@ -1562,6 +1569,16 @@ function updateScheduleProgress(){
 function refreshFeedback(message,status='success'){
   $('refreshStatus').textContent=message;
   $('refreshStatus').dataset.state=status;
+}
+function reportPublicationCheck(updated=false,older=false){
+  if(publicationIsDelayed()){
+    const prefix=updated?'Se cargó la última publicación disponible. ':'';
+    refreshFeedback(prefix+'La última recopilación del servidor fue '+ageDate(state.generated).toLowerCase()+
+      '. Sigue pendiente una publicación reciente.','warning');
+    return;
+  }
+  refreshFeedback(updated?'Noticias actualizadas.':older?
+    'No hay una publicación más reciente disponible.':'No hay novedades publicadas.');
 }
 function scheduleNextCheck(){
   window.clearTimeout(checkTimer);
@@ -1585,18 +1602,18 @@ async function refreshPublishedData({manual=false}={}){
     const generatedTime=typeof meta?.generated_at==='string'?Date.parse(meta.generated_at):NaN;
     if(!Number.isFinite(generatedTime))throw Error('Fecha de publicación RSS incompatible');
     if(pendingPublication&&generatedTime<=Date.parse(pendingPublication.meta.generated_at)){
-      if(manual){applyPendingPublication();refreshFeedback('Noticias actualizadas.');}
+      if(manual){applyPendingPublication();reportPublicationCheck(true);}
       return;
     }
     if(meta.generated_at===state.generated){
       if(!newsCountsComplete()&&!state.historyLoading){
         state.feedMeta=meta;state.historyLoaded=false;state.historyFailed=false;render();
       }
-      if(manual)refreshFeedback('No hay novedades publicadas.');
+      if(manual)reportPublicationCheck();
       return;
     }
     if(generatedTime<=Date.parse(state.generated)){
-      if(manual)refreshFeedback('No hay una publicación más reciente disponible.');
+      if(manual)reportPublicationCheck(false,true);
       return;
     }
     const [sources,latest,status]=await Promise.all([
@@ -1617,7 +1634,7 @@ async function refreshPublishedData({manual=false}={}){
       throw Error('Publicación RSS incompatible');
     }
     pendingPublication={meta,sources,latest,status};
-    if(manual){applyPendingPublication();refreshFeedback('Noticias actualizadas.');return;}
+    if(manual){applyPendingPublication();reportPublicationCheck(true);return;}
     const previousIds=new Set(state.items.map(item=>item.id));
     const added=new Set(latest.items.filter(item=>!previousIds.has(item.id)).map(item=>item.id)).size;
     $('publicationMessage').textContent=added?`Hay ${format.format(added)} ${added===1?'noticia nueva':'noticias nuevas'}`:'Hay una actualización disponible';
