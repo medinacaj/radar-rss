@@ -35,6 +35,17 @@ class SidebarSectionsTests(unittest.TestCase):
         self.assertNotIn('content:"Mostrar"', self.style)
         self.assertNotIn('content:"Ocultar"', self.style)
 
+    def test_principal_has_reading_without_duplicate_all_news(self):
+        feed = (ROOT / 'web/feed-ux.js').read_text(encoding='utf-8')
+        self.assertIn("modes.id='sidebarReadingModes'",feed)
+        self.assertIn("allMode.hidden=true",feed)
+        self.assertIn("primaryNav.insertBefore(modes",feed)
+        self.assertIn("const readingTitle=mk('span','','HERRAMIENTAS')",feed)
+        self.assertIn("get('sidebarNavigation')?.append(readingNav)",feed)
+        self.assertIn("if(entry.id==='all')state.mode='all'",self.app)
+        self.assertIn("if(readingModes)nav.insertBefore(readingModes",self.app)
+        self.assertIn('#sidebarReadingModes .mode-tab[hidden]',self.style)
+
     def test_footer_has_single_project_link_without_sidebar_button(self):
         footer = self.html[self.html.index('<footer class="footer">'):self.html.index('</footer>')]
         self.assertIn('id="footerInfo">Sobre el proyecto</a>', footer)

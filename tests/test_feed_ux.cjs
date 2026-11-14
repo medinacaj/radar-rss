@@ -25,7 +25,7 @@ class Element {
   scrollIntoView(){}
   showModal(){this.open=true;}
   close(){this.open=false;this.dispatch("close");}
-  matches(selector){if(selector==='[data-settings-pane="reading"]')return this.dataset.settingsPane==='reading';if(selector.startsWith('#'))return this.id===selector.slice(1);if(selector.startsWith('.'))return this.classList.contains(selector.slice(1));return this.tagName.toLowerCase()===selector;}
+  matches(selector){if(selector==='[data-settings-pane="reading"]')return this.dataset.settingsPane==='reading';const attr=selector.match(/^\[data-(mode|destination)="([^"]+)"\]$/);if(attr)return this.dataset[attr[1]]===attr[2];if(selector.startsWith('#'))return this.id===selector.slice(1);if(selector.startsWith('.'))return this.classList.contains(selector.slice(1));return this.tagName.toLowerCase()===selector;}
   closest(selector){return this.matches(selector)?this:this.parentNode?.closest(selector);}
   querySelectorAll(selector){const selectors=selector.split(',').map(x=>x.trim());return this.children.flatMap(node=>[...(selectors.some(s=>node.matches(s))?[node]:[]),...node.querySelectorAll(selector)]);}
   querySelector(selector){return this.querySelectorAll(selector)[0]||null;}
@@ -36,10 +36,17 @@ const document={body,activeElement:null,createElement:tag=>new Element(tag),getE
 const node=(tag,id,cls,text='')=>{const el=new Element(tag);el.id=id;el.className=cls||'';el.textContent=text;return el;};
 const header=node('header',null,'topbar'),actions=node('div',null,'topbar-actions');header.append(node('div',null,'topbar-caption'),actions);body.append(header);
 const navigation=node('div','sidebarNavigation'),coreSection=node('section','sidebarCoreSection'),sidebar=node('div','sidebarCoreContent');
-coreSection.append(sidebar);navigation.append(coreSection);body.append(navigation);
+const primaryNav=node('nav','categoryNav');
+for(const destination of ['home','all','agenda']){const button=node('button',null,'nav-link',destination);button.dataset.destination=destination;primaryNav.append(button);}
+sidebar.append(primaryNav);coreSection.append(sidebar);navigation.append(coreSection);body.append(navigation);
 const feed=node('section','feedView');body.append(feed);
 const sectionHeading=node('div',null,'section-heading sr-only'),heading=node('h1','feedHeading',null,'Todas las noticias');sectionHeading.append(heading);feed.append(sectionHeading);
-const modes=node('div',null,'mode-tabs');modes.append(node('button',null,'mode-tab','Todas'));
+const modes=node('div',null,'mode-tabs');
+const modeButtons={};
+for(const [mode,label] of [['all','Todas'],['unread','Sin leer'],['saved','Guardadas']]){
+  const button=node('button',null,'mode-tab',label),count=node('span',mode+'Count','mode-tab-count','0');
+  button.dataset.mode=mode;button.append(count);modes.append(button);modeButtons[mode]=button;
+}
 const bar=node('div',null,'filter-bar'),controls=node('div',null,'filter-controls');bar.append(modes,controls);feed.append(bar);
 const source=node('label',null,'source-filter'),sourceSelect=node('select','sourceSelect');source.append(sourceSelect);
 const tag=node('label',null,'library-tag-filter-wrap'),tagSelect=node('select','libraryTagFilter');tag.append(tagSelect);
@@ -62,7 +69,7 @@ window.RadarLibrary={getFeedFilters:()=>({folder:privateFolder,tag:privateTag}),
 window.RadarV12={getFeedGeo:()=>({id:geo,label:'Latinoamérica'})};
 const location={hash:'#noticias'};
 const context={window,document,state,location,console,mk:(tag,cls,text)=>node(tag,null,cls,text),sourceLabel:x=>x,categoryLabel:x=>x,
-  storeGet:()=>null,
+  storeGet:()=>null,svgIcon:name=>node('svg',null,'ui-icon',name),
   savePref:(k,v)=>prefWrites.push([k,v]),selectedTab:name=>{settingsTab=name;},
   syncSettings(){},applyDisplaySettings(){displayChanges++;},goTo(){privateFolder=null;geo='all';state.category='all';state.feed='';location.hash='#noticias';context.render();window.emit('hashchange');},
   fillSelect(){sourceSelect.value=state.feed;},hasHistory:()=>false,newsCountsUnavailable:()=>false,
@@ -74,8 +81,15 @@ const get=id=>document.getElementById(id);
 const chip=name=>get('feedFilterChips')?.querySelectorAll('button').find(el=>el.dataset.filter===name);
 const refresh=()=>context.render();
 assert.equal(heading.parentNode,sectionHeading);assert.equal(sectionHeading.classList.contains('sr-only'),true);
-assert.ok(navigation.contains(modes),'reading modes are in the sidebar navigation');
-assert.ok(!sidebar.contains(modes),'reading is not nested inside Principal');
+assert.ok(sidebar.contains(modes),'reading modes are moved inside Principal');
+assert.equal(modes.parentNode,primaryNav,'reading shortcuts share the one main navigation');
+assert.equal(modes.id,'sidebarReadingModes');
+assert.deepEqual(primaryNav.children.map(el=>el.dataset.destination||el.id),['home','all','sidebarReadingModes','agenda']);
+assert.equal(modeButtons.all.hidden,true,'Noticias replaces duplicate Todas');
+assert.equal(modeButtons.all.getAttribute('aria-hidden'),'true');
+assert.equal(modeButtons.unread.classList.contains('nav-link'),true);
+assert.equal(modeButtons.saved.classList.contains('nav-link'),true);
+assert.equal(modeButtons.unread.querySelector('.mode-tab-count').id,'unreadCount','preserves article counter');
 assert.ok(navigation.contains(get('feedHeaderControls')),'source and type filters remain in navigation');
 assert.ok(navigation.contains(get('presentationControl')),'presentation is a sibling disclosure');
 assert.ok(!bar.contains(get('feedHeaderControls')),'no duplicated toolbar above the news');
@@ -89,18 +103,20 @@ assert.ok(get('feedActiveFilters'),'filter state remains available internally');
 assert.equal(get('feedActiveFilters').hidden,true,'no active-filter band is rendered above news');
 assert.equal(get('feedActiveFilters').getAttribute('aria-hidden'),'true');
 const readingToggle=get('sidebarReadingToggle'),readingContent=get('sidebarReadingContent');
-assert.ok(readingToggle,'Mi lectura has a disclosure toggle');
+assert.ok(readingToggle,'tools have a disclosure toggle');
 assert.equal(readingToggle.getAttribute('aria-controls'),'sidebarReadingContent');
-assert.equal(readingToggle.getAttribute('aria-expanded'),'true');
-assert.ok(readingContent.contains(modes),'reading content owns the three modes');
-readingToggle.click();
-assert.equal(readingToggle.getAttribute('aria-expanded'),'false');
+assert.equal(readingToggle.getAttribute('aria-expanded'),'false','tools start collapsed');
 assert.equal(readingContent.hidden,true);
-assert.ok(prefWrites.some(([k,v])=>k==='reading-open'&&v===false),'collapsed state is saved');
+assert.equal(get('sidebarReadingHeading').textContent,'HERRAMIENTAS');
+assert.equal(readingContent.contains(modes),false,'reading links are not repeated under tools');
 readingToggle.click();
 assert.equal(readingToggle.getAttribute('aria-expanded'),'true');
 assert.equal(readingContent.hidden,false);
-assert.ok(prefWrites.some(([k,v])=>k==='reading-open'&&v===true),'expanded state is saved');
+assert.ok(prefWrites.some(([k,v])=>k==='tools-open'&&v===true),'expanded state is saved');
+readingToggle.click();
+assert.equal(readingToggle.getAttribute('aria-expanded'),'false');
+assert.equal(readingContent.hidden,true);
+assert.ok(prefWrites.some(([k,v])=>k==='tools-open'&&v===false),'collapsed state is saved');
 assert.equal(get('feedClearFilters').parentNode.className,'sidebar-feed-options-body');
 assert.equal(get('feedDensityToggle').getAttribute('aria-pressed'),'false');
 get('feedDensityToggle').click();
@@ -139,12 +155,15 @@ assert.equal(privateFolder,null);assert.equal(state.search,'sin coincidencia');a
 // Existing listeners and node identities survive mobile placement and desktop restoration.
 let sourceChanges=0;sourceSelect.addEventListener('change',()=>sourceChanges++);
 window.innerWidth=390;window.emit('resize');
+assert.equal(readingContent.hidden,false,'small-screen filters are accessible without an extra hidden menu');
+assert.equal(readingToggle.getAttribute('aria-expanded'),'true');
 assert.equal(get('feedFiltersToggle').hidden,false);assert.equal(get('sidebarFeedOptions').hidden,true);assert.equal(source.parentNode,get('feedFilterFields'));assert.equal(tag.parentNode,get('feedFilterFields'));assert.equal(display.closest('#presentationControl').parentNode,get('feedFilterFields'));assert.equal(advanced.parentNode,null);
 assert.equal(get('feedFilterPanel').hidden,true);get('feedFiltersToggle').click();
 assert.equal(get('feedFilterPanel').hidden,false);assert.equal(get('feedFiltersToggle').getAttribute('aria-expanded'),'true');assert.equal(get('feedDensityToggle').parentNode,get('feedFilterFields'));assert.equal(get('feedClearFilters').parentNode,get('feedFilterFields'));assert.equal(get('v12Date').closest('.settings-feed-actions').parentNode,reading);
 sourceSelect.dispatch('change');assert.equal(sourceChanges,1);
 get('feedFilterPanel').dispatch('keydown',{key:'Escape'});assert.equal(get('feedFilterPanel').hidden,true);assert.equal(document.activeElement,get('feedFiltersToggle'));
 window.innerWidth=1440;window.emit('resize');
+assert.equal(readingContent.hidden,true,'desktop restores collapsed tool preference');
 assert.equal(source.parentNode,get('feedHeaderControls'));
 assert.equal(display.closest('#presentationControl').parentNode,get('sidebarReadingContent'));
 assert.equal(tag.parentNode.className,'sidebar-feed-options-body');

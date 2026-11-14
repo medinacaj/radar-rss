@@ -563,6 +563,8 @@ function initSettingsHandlers(){
 }
 function buildNav() {
   const nav=$('categoryNav');
+  // Preserve the single reader-mode group when rebuilding navigation.
+  const readingModes=nav.querySelector('#sidebarReadingModes');
   nav.replaceChildren();
   const core=[{id:'home',label:'Inicio'},{id:'all',label:'Noticias'},{id:'agenda',label:'Agenda'}];
   const folders=state.categories.map(id=>({id,label:categoryLabel(id)}));
@@ -570,7 +572,7 @@ function buildNav() {
   if(sourceFolderNav)sourceFolderNav.replaceChildren();
   function addRow(entry,index,parent){
     const active=entry.id==='home'?state.pageView==='dashboard':entry.id==='agenda'?state.pageView==='agenda':
-      state.pageView==='feed'&&state.category===entry.id;
+      state.pageView==='feed'&&state.category===entry.id&&(entry.id!=='all'||state.mode==='all');
     const isFolder=!['home','all','agenda'].includes(entry.id);
     const button=mk('button','nav-link'+(active?' active':'')+(isFolder?' system-folder-link':''));
     button.type='button';button.dataset.destination=entry.id;
@@ -585,10 +587,11 @@ function buildNav() {
     const sources=entry.id==='all'?state.sources.filter(s=>!state.hiddenSources.has(s.id)):
       state.sources.filter(s=>s.category===entry.id&&!state.hiddenSources.has(s.id));
     button.append(left,mk('span','nav-count',['home','agenda'].includes(entry.id)?'':String(sources.length)));
-    button.addEventListener('click',()=>goTo(entry.id));
+    button.addEventListener('click',()=>{if(entry.id==='all')state.mode='all';goTo(entry.id);});
     parent.append(button);
   }
   core.forEach((entry,index)=>addRow(entry,index,nav));
+  if(readingModes)nav.insertBefore(readingModes,nav.querySelector('[data-destination="agenda"]'));
   if(sourceFolderNav){
     folders.forEach((entry,index)=>addRow(entry,index+2,sourceFolderNav));
   }else if(folders.length){
@@ -1338,7 +1341,7 @@ function markRead(id,value,memberIds=[id],options={}){
   if(returnFocus){
     const target=[...document.querySelectorAll('#articleGrid .article-card, #dashboardFeature .article-card')]
       .find(el=>el.dataset.articleId===id)?.querySelector('.article-read-toggle');
-    (target||$('articleGrid').querySelector('.article-read-toggle')||document.querySelector('.mode-tab.active'))?.focus({preventScroll:true});
+    (target||$('articleGrid').querySelector('.article-read-toggle')||document.querySelector('#categoryNav .nav-link.active, .mode-tab.active:not([hidden])'))?.focus({preventScroll:true});
   }
 }
 function markArticlesRead(items){
@@ -1431,7 +1434,14 @@ function renderFeed() {
     grid.replaceChildren();
     $('loadMore').hidden=true;
   }
-  document.querySelectorAll('.mode-tab').forEach(button=>button.classList.toggle('active',button.dataset.mode === state.mode));
+  const allNewsActive=state.pageView==='feed'&&state.category==='all'&&state.mode==='all';
+  const allNewsLink=$('categoryNav')?.querySelector('[data-destination="all"]');
+  if(allNewsLink){allNewsLink.classList.toggle('active',allNewsActive);allNewsLink.setAttribute('aria-current',allNewsActive?'page':'false');}
+  document.querySelectorAll('.mode-tab').forEach(button=>{
+    const active=button.dataset.mode===state.mode&&state.pageView==='feed'&&state.category==='all';
+    button.classList.toggle('active',active);
+    button.setAttribute('aria-current',active?'page':'false');
+  });
   document.querySelectorAll('.view-button').forEach(button=>button.classList.toggle('active',button.dataset.view === state.layout));
   document.body.classList.toggle('layout-list',state.layout==='list');
   syncColumnsControl();
