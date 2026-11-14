@@ -115,7 +115,7 @@ jobs:
           node tests/test_reader_ux.cjs
           node tests/test_reading_state.cjs
       - name: Investigar fuentes nuevas cuando corresponda (cada 48 horas)
-        run: python scripts/source_discovery.py --runtime-opml "$RUNNER_TEMP/effective-feeds.opml"
+        run: python scripts/source_discovery.py --recover-published --runtime-opml "$RUNNER_TEMP/effective-feeds.opml"
       - name: Conservar revisión incluso si la ingesta posterior falla
         uses: actions/cache/save@v4
         with:
@@ -154,6 +154,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: radar-public-data-${{ github.run_id }}
+          overwrite: true
           path: |
             web/data/articles.json
             web/data/sources.json

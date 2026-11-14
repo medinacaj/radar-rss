@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 import source_discovery as discovery
 import collect
+import safe_publisher
 
 NOW = datetime(2026, 11, 14, 12, tzinfo=timezone.utc)
 CATEGORY = '01 - Inteligencia Artificial'
@@ -181,6 +182,14 @@ class DiscoveryStateTests(unittest.TestCase):
         self.assertEqual(result['sources'], [source])
         self.assertEqual(result['last_checked_at'], collect.iso(NOW))
 
+    def test_transient_article_dns_failure_does_not_revoke_accepted_registry_source(self):
+        fetcher = FixtureFetcher(self.documents())
+        def unavailable(host):
+            raise discovery.FetchError('DNS unavailable')
+        fetcher.verify_article_host = unavailable
+        result = discovery.discover([], {CATEGORY: RULE}, {'sources': [accepted()]}, fetcher, NOW)
+        self.assertEqual(result['sources'], [accepted()])
+
     def test_conclusive_failed_revalidation_excludes_invalid_feed(self):
         result, _ = self.run_scan(state={'sources': [accepted()]}, documents={
             'https://nuevo.example/feed': b'<html>Not RSS</html>'})
@@ -203,6 +212,53 @@ class DiscoveryStateTests(unittest.TestCase):
         result, _ = self.run_scan(curated=curated, documents=docs)
         self.assertEqual(len(result['sources']), 1)
         self.assertEqual(result['sources'][0]['url'], 'https://nuevo.example/feed')
+
+    def test_publisher_scoped_curated_radar_blocks_duplicate_but_broad_radar_does_not(self):
+        curated_radar = dict(accepted(), url='https://news.google.com/rss/search?q=site:nuevo.example',
+                             is_radar=True)
+        result, fetcher = self.run_scan(curated=[curated_radar], documents=self.documents())
+        self.assertEqual(result['sources'], [])
+        self.assertNotIn('https://nuevo.example/', fetcher.calls)
+        broad = dict(curated_radar, website='https://news.google.com/')
+        result, _ = self.run_scan(curated=[broad], documents=self.documents())
+        self.assertEqual(len(result['sources']), 1)
+
+    def test_missing_or_invalid_cache_recovers_published_registry_with_same_validation(self):
+        remote = {'version': 1, 'sources': [accepted()], 'last_checked_at': collect.iso(NOW-timedelta(days=1))}
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp)/'state.json'
+            for local in (None, {'version': 1, 'sources': [dict(accepted(), url='https://127.0.0.1/feed')]}):
+                if local is not None:
+                    path.write_text(json.dumps(local))
+                fetcher = FixtureFetcher({discovery.PUBLIC_STATE_URL: json.dumps(remote).encode()})
+                result = discovery.recover_state(path, {CATEGORY: RULE}, NOW, fetcher=fetcher)
+                self.assertEqual(result['sources'], [accepted()])
+                self.assertEqual(fetcher.calls, [discovery.PUBLIC_STATE_URL])
+            path.write_text(json.dumps(dict(remote, last_checked_at=collect.iso(NOW))))
+            fetcher = FixtureFetcher({})
+            result = discovery.recover_state(path, {CATEGORY: RULE}, NOW, fetcher=fetcher)
+            self.assertEqual(fetcher.calls, [])
+            self.assertEqual(result['last_checked_at'], collect.iso(NOW))
+
+    def test_unavailable_recovery_is_retried_until_published_state_can_be_restored(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp)/'state.json'
+            failed = discovery.recover_state(path, {CATEGORY: RULE}, NOW, fetcher=FixtureFetcher({}))
+            self.assertTrue(failed['recovery_pending'])
+            failed['last_checked_at'] = collect.iso(NOW)
+            path.write_text(json.dumps(failed))
+            remote = {'version': 1, 'sources': [accepted()], 'last_checked_at': collect.iso(NOW-timedelta(days=1))}
+            restored = discovery.recover_state(path, {CATEGORY: RULE}, NOW,
+                                               fetcher=FixtureFetcher({discovery.PUBLIC_STATE_URL: json.dumps(remote).encode()}))
+            self.assertEqual(restored['sources'], [accepted()])
+            self.assertFalse(restored.get('recovery_pending', False))
+
+    def test_first_published_registry_404_is_legitimate_empty_initial_state(self):
+        with tempfile.TemporaryDirectory() as temp:
+            fetcher = FixtureFetcher({discovery.PUBLIC_STATE_URL: discovery.FetchError('404', reason='http_404')})
+            result = discovery.recover_state(Path(temp)/'state.json', {CATEGORY: RULE}, NOW, fetcher=fetcher)
+            self.assertEqual(result['sources'], [])
+            self.assertFalse(result['recovery_pending'])
 
     def test_every_folder_seed_is_investigated_even_after_addition_limit(self):
         policy = {f'{i:02} - Topic': dict(RULE, query=f'topic {i}') for i in range(11)}
@@ -254,7 +310,7 @@ class DiscoveryStateTests(unittest.TestCase):
         before = path.read_bytes()
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp)/'runtime.opml'
-            discovery.write_runtime_opml(path, {'sources': [accepted()]}, output)
+            discovery.write_runtime_opml(path, {'sources': [accepted()]}, output, now=NOW)
             original = collect.parse_opml(path)
             runtime = collect.parse_opml(output)
         self.assertEqual(len(original), 443)
@@ -291,9 +347,12 @@ class DiscoveryStateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             runtime = root/'runtime.opml'
-            discovery.write_runtime_opml(ROOT/'sources/feeds.opml', {'sources': [accepted()]}, runtime)
+            discovery.write_runtime_opml(ROOT/'sources/feeds.opml', {'sources': [accepted()]}, runtime, now=NOW)
             with patch.object(collect, 'NOW', return_value=NOW), \
-                    patch.object(collect, 'get_feed', return_value=rss()), redirect_stdout(io.StringIO()):
+                    patch.object(collect, 'get_feed', return_value=rss()), \
+                    patch.object(safe_publisher.SafeFetcher, 'get', return_value=rss()), \
+                    patch.object(safe_publisher.SafeFetcher, 'verify_article_host'), \
+                    patch.dict(os.environ, {}, clear=True), redirect_stdout(io.StringIO()):
                 result = collect.collect(runtime, root/'web/data', 45, 1, 12)
             sources = json.loads((root/'web/data/sources.json').read_text())['sources']
             articles = json.loads((root/'web/data/articles.json').read_text())
@@ -313,7 +372,7 @@ class DiscoveryStateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp)/'runtime.opml'
             for source in cases:
-                discovery.write_runtime_opml(ROOT/'sources/feeds.opml', {'sources': [source]}, output)
+                discovery.write_runtime_opml(ROOT/'sources/feeds.opml', {'sources': [source]}, output, now=NOW)
                 self.assertEqual(len(collect.parse_opml(output)), 443)
 
     def test_state_loader_rejects_untrusted_or_oversized_entries(self):
@@ -334,8 +393,8 @@ class NetworkSafetyTests(unittest.TestCase):
 
     def test_configured_proxy_prevents_dns_or_socket_and_preserves_accepted_state(self):
         with patch.dict(os.environ, {'HTTPS_PROXY': 'http://proxy.example:8080'}), \
-                patch('source_discovery.socket.getaddrinfo') as dns, \
-                patch('source_discovery.socket.create_connection') as connect:
+                patch('safe_publisher.socket.getaddrinfo') as dns, \
+                patch('safe_publisher.socket.create_connection') as connect:
             fetcher = self.fetcher()
             with self.assertRaises(discovery.FetchError):
                 fetcher.get('https://example.com/feed')
@@ -348,7 +407,7 @@ class NetworkSafetyTests(unittest.TestCase):
     def fetcher(self):
         return discovery.SafeFetcher()
 
-    @patch('source_discovery.socket.getaddrinfo', return_value=[(socket.AF_INET, socket.SOCK_STREAM, 6, '', ('93.184.216.34', 443))])
+    @patch('safe_publisher.socket.getaddrinfo', return_value=[(socket.AF_INET, socket.SOCK_STREAM, 6, '', ('93.184.216.34', 443))])
     def test_rejects_unsafe_urls_and_mixed_private_dns_without_connecting(self, dns):
         unsafe = ['http://example.com/', 'https://user:pass@example.com/', 'https://127.0.0.1/',
                   'https://[::1]/', 'https://localhost/', 'https://example.com:444/',
@@ -400,8 +459,8 @@ class NetworkSafetyTests(unittest.TestCase):
         response.read1.return_value = b'x'*11
         connection = unittest.mock.Mock()
         connection.getresponse.return_value = response
-        with patch('source_discovery.resolve_public', return_value='93.184.216.34'), \
-                patch('source_discovery.PinnedHTTPSConnection', return_value=connection):
+        with patch('safe_publisher.resolve_public', return_value='93.184.216.34'), \
+                patch('safe_publisher.PinnedHTTPSConnection', return_value=connection):
             with self.assertRaises(discovery.FetchError):
                 fetcher._request('https://example.com/feed', 10)
         response.read.assert_not_called()
@@ -427,7 +486,7 @@ class NetworkSafetyTests(unittest.TestCase):
             release.wait(1)
             return []
         try:
-            with patch('source_discovery.socket.getaddrinfo', side_effect=stuck_dns):
+            with patch('safe_publisher.socket.getaddrinfo', side_effect=stuck_dns):
                 with self.assertRaises(discovery.FetchError):
                     discovery.resolve_public('example.com', timeout=.001)
         finally:
@@ -435,11 +494,13 @@ class NetworkSafetyTests(unittest.TestCase):
 
     def test_tls_connection_uses_verified_pinned_ip_and_original_hostname(self):
         context = unittest.mock.Mock()
-        with patch('source_discovery.socket.create_connection') as connect:
+        with patch('safe_publisher.socket.socket') as constructor:
             connection = discovery.PinnedHTTPSConnection('example.com', '93.184.216.34', 5, context)
             connection.connect()
-            self.assertEqual(connect.call_args.args[0], ('93.184.216.34', 443))
-            context.wrap_socket.assert_called_once_with(connect.return_value, server_hostname='example.com')
+            constructor.return_value.connect.assert_called_once_with(('93.184.216.34', 443))
+            context.wrap_socket.assert_called_once_with(constructor.return_value, server_hostname='example.com',
+                                                        do_handshake_on_connect=False)
+            context.wrap_socket.return_value.do_handshake.assert_called_once()
 
     def test_workflow_caches_state_uses_runtime_and_attempt_specific_pages_artifact(self):
         workflow = (ROOT/'.github/workflows/deploy.yml').read_text()
@@ -452,6 +513,8 @@ class NetworkSafetyTests(unittest.TestCase):
         self.assertIn('artifact_name: ${{ needs.build.outputs.artifact_name }}', workflow)
         self.assertIn('actions/cache/restore@v4', workflow)
         self.assertIn('actions/cache/save@v4', workflow)
+        backup = workflow[workflow.index('      - name: Resguardar JSON públicos'):workflow.index('      - name: Configurar Pages')]
+        self.assertIn('overwrite: true', backup)
         self.assertLess(workflow.index('actions/cache/save@v4'), workflow.index('      - name: Obtener noticias'))
 
 

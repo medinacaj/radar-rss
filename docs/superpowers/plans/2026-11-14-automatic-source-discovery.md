@@ -39,3 +39,5 @@
 - [x] Review diff, verify again, commit and report SHA to parent for independent review.
 
 Decisiones de implementación: rechazar transporte directo si hay proxy heredado; validación del estado caduca a los 90 días para permitir dos rotaciones completas; publicar resultados de búsqueda diferenciados de indisponibilidad. La revisión independiente y la integración/publicación corresponden al agente coordinador.
+
+Correcciones tras revisión independiente: extracción de `safe_publisher.py` y `auto_sources.py` sin importaciones circulares; AUTO siempre usa TLS fijado y filtro de entradas actual, con 12 segundos/ocho solicitudes y sin OG. Watchdog aborta también cabeceras/chunks (fixtures antes: ~21 segundos; después: ~50 ms). Reloj inyectado en OPML/tests; respaldo con overwrite; recuperación de Pages para cache ausente/inválida; deduplicación incluye RADAR de editor específico. Pruebas RED→GREEN y batería completa se ejecutan antes del commit de corrección.

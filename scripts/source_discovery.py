@@ -11,23 +11,16 @@ from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
 from html.parser import HTMLParser
-import http.client
-import ipaddress
 import json
-import os
 from pathlib import Path
-from queue import Empty, Queue
-import re
-import socket
-import ssl
-import time
-from threading import Thread
-import unicodedata
-from urllib.parse import urlencode, urljoin, urlsplit, urlunsplit
-from urllib.robotparser import RobotFileParser
+from urllib.parse import urlencode, urljoin, urlsplit
 import xml.etree.ElementTree as ET
 
-from collect import AGENT, entry_date, extract_html, feedparser, iso, parse_opml
+from collect import iso, parse_opml
+from safe_publisher import (BudgetExceeded, FetchError, UnsafeURL, SafeFetcher,
+                            PinnedHTTPSConnection, checked_url, publisher_key, resolve_public)
+from auto_sources import RejectedFeed, xml_root, validate_feed
+from site_config import DATA_URL
 
 INTERVAL = timedelta(hours=48)
 MAX_VALIDATION_AGE = timedelta(days=90)
@@ -41,269 +34,7 @@ MAX_BYTES = 1_000_000
 MAX_STATE_BYTES = 250_000
 REVALIDATE = 5
 METHOD = 'publisher-homepage-rss-autodiscovery'
-SPANISH = frozenset(('el la los las un una unos unas de del al en para por con sin que como '
-                     'se su sus es son mas nuevos nuevas nuevo nueva sobre entre desde hasta '
-                     'segun tras hacia ante durante y o este esta estos estas mejora anuncia '
-                     'inversion educacion investigacion tecnologia economia gestion').split())
-
-
-class FetchError(ValueError):
-    """Unavailable or disallowed public endpoint; do not bypass/retry."""
-    def __init__(self, message: str, *, reason: str = 'network'):
-        super().__init__(message)
-        self.reason = reason
-
-
-class UnsafeURL(FetchError):
-    """A URL or DNS answer is outside the permitted public publisher boundary."""
-
-
-class BudgetExceeded(FetchError):
-    """The cycle has exhausted its time or request budget."""
-
-
-class RejectedFeed(ValueError):
-    """Document fails reproducible feed/content checks."""
-
-
-def fold(value: str) -> str:
-    return ''.join(c for c in unicodedata.normalize('NFKD', value.lower()) if not unicodedata.combining(c))
-
-
-def publisher_key(host: str) -> str:
-    return host.lower().removeprefix('www.')
-
-
-def checked_url(url: str, publisher: str | None = None) -> str:
-    """Strict syntactic boundary; DNS is checked separately when connecting."""
-    try:
-        if not isinstance(url, str) or len(url) > 2048 or re.search(r'[\s\\\x00-\x1f\x7f]', url):
-            raise ValueError('invalid characters')
-        parsed = urlsplit(url)
-        host = parsed.hostname or ''
-        if (parsed.scheme != 'https' or parsed.username is not None or parsed.password is not None
-                or parsed.port not in (None, 443) or not host or '.' not in host
-                or host.endswith('.') or re.search(r'[^a-zA-Z0-9.-]', host)
-                or host.lower().endswith(('.local', '.internal', '.localhost', '.test', '.invalid'))):
-            raise ValueError('invalid public HTTPS URL')
-        try:
-            ipaddress.ip_address(host)
-        except ValueError:
-            pass
-        else:
-            raise ValueError('literal addresses are not publisher domains')
-        if publisher is not None and publisher_key(host) != publisher_key(publisher):
-            raise ValueError('different publisher')
-        return urlunsplit(('https', host.lower(), parsed.path or '/', parsed.query, ''))
-    except (ValueError, TypeError) as exc:
-        raise UnsafeURL('URL fuera del dominio público autorizado') from exc
-
-
-def resolve_public(host: str, timeout: float = 3) -> str:
-    # libc DNS has no per-call timeout. A daemon worker cannot hold up the build.
-    answers = Queue(maxsize=1)
-    def lookup():
-        try:
-            answers.put((True, socket.getaddrinfo(host, 443, type=socket.SOCK_STREAM)))
-        except OSError as exc:
-            answers.put((False, exc))
-    Thread(target=lookup, daemon=True).start()
-    try:
-        ok, addresses = answers.get(timeout=timeout)
-        if not ok:
-            raise FetchError('DNS no disponible')
-        if not addresses or not all(ipaddress.ip_address(row[4][0]).is_global for row in addresses):
-            raise UnsafeURL('DNS privado o no público')
-        return addresses[0][4][0]
-    except (Empty, OSError, ValueError) as exc:
-        if isinstance(exc, UnsafeURL):
-            raise
-        raise FetchError('DNS no disponible') from exc
-
-
-class PinnedHTTPSConnection(http.client.HTTPSConnection):
-    """Connect to a vetted IP; certificate verification and SNI use the domain."""
-    def __init__(self, host: str, address: str, timeout: float, context: ssl.SSLContext):
-        super().__init__(host, timeout=timeout, context=context)
-        self.address = address
-
-    def connect(self):
-        sock = socket.create_connection((self.address, 443), self.timeout)
-        try:
-            self.sock = self._context.wrap_socket(sock, server_hostname=self.host)
-        except Exception:
-            sock.close()
-            raise
-
-
-def configured_proxy() -> bool:
-    return any(os.environ.get(key) for key in
-               ('HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'http_proxy', 'https_proxy', 'all_proxy'))
-
-
-class SafeFetcher:
-    def __init__(self):
-        self.proxy_configured = configured_proxy()
-        self.requests_left = MAX_REQUESTS
-        self.deadline = time.monotonic() + MAX_SECONDS
-        self.robots: dict[str, RobotFileParser] = {}
-        self.last_requested: dict[str, float] = {}
-        self.context = ssl.create_default_context()
-
-    def _budget(self):
-        if self.proxy_configured or configured_proxy():
-            self.proxy_configured = True
-            # Direct pinned TLS cannot safely honor an inherited proxy. Never
-            # bypass it, disable it or expose its potentially secret URL.
-            raise FetchError('Proxy configurado: transporte de descubrimiento no disponible')
-        if self.requests_left <= 0 or time.monotonic() >= self.deadline:
-            raise BudgetExceeded('Límite de solicitudes o tiempo alcanzado')
-
-    def _request(self, url: str, limit: int) -> tuple[int, dict, bytes]:
-        self._budget()
-        self.requests_left -= 1
-        parsed = urlsplit(checked_url(url))
-        address = resolve_public(parsed.hostname, timeout=min(3, max(.01, self.deadline-time.monotonic())))
-        self._budget_time()
-        connection = PinnedHTTPSConnection(parsed.hostname, address,
-                                           min(5, max(.1, self.deadline-time.monotonic())), self.context)
-        end = min(self.deadline, time.monotonic() + 8)
-        try:
-            target = urlunsplit(('', '', parsed.path or '/', parsed.query, ''))
-            connection.request('GET', target, headers={'User-Agent': AGENT, 'Accept-Encoding': 'identity',
-                                                       'Accept-Language': 'es', 'Accept': '*/*'})
-            response = connection.getresponse()
-            headers = {key.lower(): value for key, value in response.getheaders()}
-            if headers.get('content-encoding', 'identity').lower() not in ('identity', ''):
-                raise FetchError('Respuesta comprimida no admitida')
-            length = headers.get('content-length')
-            if length is not None and int(length) > limit:
-                raise FetchError('Documento demasiado grande')
-            chunks, size = [], 0
-            while True:
-                remaining = end - time.monotonic()
-                if remaining <= 0:
-                    raise FetchError('Tiempo de descarga agotado')
-                if connection.sock:
-                    connection.sock.settimeout(min(3, remaining))
-                # read1 returns after one socket read, so a drip-fed body cannot
-                # keep resetting socket timeouts inside an unbounded read(n).
-                chunk = response.read1(min(16_384, limit-size+1))
-                size += len(chunk)
-                if size > limit:
-                    raise FetchError('Documento demasiado grande')
-                if not chunk:
-                    break
-                chunks.append(chunk)
-            return response.status, headers, b''.join(chunks)
-        except (OSError, http.client.HTTPException, ValueError) as exc:
-            if isinstance(exc, FetchError):
-                raise
-            raise FetchError('Endpoint público no disponible') from exc
-        finally:
-            connection.close()
-
-    def _budget_time(self):
-        if time.monotonic() >= self.deadline:
-            raise BudgetExceeded('Tiempo de revisión agotado')
-
-    def _allowed(self, url: str):
-        parsed = urlsplit(url)
-        origin = f'https://{parsed.hostname}'
-        if origin not in self.robots:
-            status, _, raw = self._read(origin+'/robots.txt', parsed.hostname, 64_000, robots=False)
-            parser = RobotFileParser()
-            if status == 404:
-                parser.parse([])
-            elif status == 200:
-                parser.parse(raw.decode('utf-8', errors='replace').splitlines())
-            else:
-                raise FetchError('robots.txt no disponible o acceso denegado', reason='robots')
-            self.robots[origin] = parser
-        parser = self.robots[origin]
-        delay = 0
-        for agent in ('RadarRSS', AGENT):
-            if not parser.can_fetch(agent, url):
-                raise FetchError('robots.txt no permite la consulta', reason='robots')
-            delay = max(delay, parser.crawl_delay(agent) or 0)
-            rate = parser.request_rate(agent)
-            if rate and rate.requests > 0:
-                delay = max(delay, rate.seconds / rate.requests)
-        if time.monotonic() < self.last_requested.get(origin, 0)+delay:
-            # Skip instead of waiting or defeating the publisher's crawl policy.
-            raise FetchError('robots.txt exige más tiempo entre consultas', reason='robots')
-
-    def _read(self, url: str, publisher: str | None, limit: int, *, robots: bool = True):
-        for _ in range(4):
-            self._budget()
-            url = checked_url(url, publisher)
-            if robots:
-                self._allowed(url)
-            status, headers, raw = self._request(url, limit)
-            if robots:
-                self.last_requested[f'https://{urlsplit(url).hostname}'] = time.monotonic()
-            if status in (301, 302, 303, 307, 308):
-                location = headers.get('location')
-                if not location:
-                    raise FetchError('Redirección sin destino')
-                url = urljoin(url, location)
-                continue
-            return status, headers, raw
-        raise FetchError('Demasiadas redirecciones')
-
-    def get(self, url: str, *, publisher: str | None = None, limit: int = MAX_BYTES) -> bytes:
-        status, _, raw = self._read(url, publisher, min(limit, MAX_BYTES))
-        if status != 200:
-            raise FetchError(f'HTTP {status}; no se reintenta ni se sortea el bloqueo')
-        return raw
-
-
-def xml_root(raw: bytes):
-    if (len(raw) > MAX_BYTES or b'\x00' in raw
-            or b'<!DOCTYPE' in raw.upper() or b'<!ENTITY' in raw.upper()):
-        raise RejectedFeed('XML excesivo o con entidades')
-    try:
-        root = ET.fromstring(raw)
-    except ET.ParseError as exc:
-        raise RejectedFeed('XML inválido') from exc
-    if root.tag not in ('rss', '{http://www.w3.org/2005/Atom}feed',
-                        '{http://www.w3.org/1999/02/22-rdf-syntax-ns#}RDF'):
-        raise RejectedFeed('No es RSS/Atom')
-    return root
-
-
-def validate_feed(raw: bytes, rule: dict, publisher: str, now: datetime) -> dict:
-    xml_root(raw)
-    parsed = feedparser.parse(raw)
-    seen_titles, seen_links = set(), set()
-    usable = spanish = relevant = 0
-    days = 730 if rule.get('days') == 730 else 45
-    cutoff = now-timedelta(days=days)
-    for entry in parsed.entries[:60]:
-        title = extract_html(str(entry.get('title', '')))[0].strip()
-        normalized = fold(title)
-        date = entry_date(entry)
-        try:
-            link = checked_url(entry.get('link', ''), publisher)
-        except UnsafeURL:
-            continue
-        if (len(title) < 18 or not date or not cutoff <= date <= now+timedelta(hours=6)
-                or normalized in seen_titles or link in seen_links):
-            continue
-        seen_titles.add(normalized)
-        seen_links.add(link)
-        usable += 1
-        words = set(re.findall(r'[a-z]+', normalized))
-        is_spanish = len(words & SPANISH) >= 2
-        spanish += is_spanish
-        matches = any(re.search(r'(?<!\w)'+re.escape(fold(term))+r'(?!\w)', normalized)
-                      for term in rule['terms'])
-        relevant += bool(is_spanish and matches)
-    if usable < 3 or spanish / usable < .6 or relevant < 2 or relevant / usable < .5:
-        raise RejectedFeed('Pocos titulares recientes en español o pertinencia insuficiente')
-    return {'usable_headlines': usable, 'spanish_headlines': spanish, 'relevant_headlines': relevant,
-            'window_days': days}
-
+PUBLIC_STATE_URL = DATA_URL+'discovered-sources.json'
 
 def seed_url(rule: dict) -> str:
     return 'https://news.google.com/rss/search?' + urlencode({
@@ -361,7 +92,7 @@ def cleaned_sources(state: dict, policy: dict, now: datetime | None = None, *, c
     return sources
 
 
-def load_state(path: Path, policy: dict) -> dict:
+def load_state(path: Path, policy: dict, *, now: datetime | None = None) -> dict:
     try:
         if path.stat().st_size > MAX_STATE_BYTES:
             raise ValueError('Estado demasiado grande')
@@ -370,8 +101,14 @@ def load_state(path: Path, policy: dict) -> dict:
             raise ValueError('Estado inválido')
     except (OSError, ValueError):
         state = {}
+    return sanitize_state(state, policy, now)
+
+
+def sanitize_state(state: dict, policy: dict, now: datetime | None = None) -> dict:
     result = {**{key: state.get(key) for key in ('last_checked_at', 'next_category', 'next_revalidation')},
-              'version': 1, 'sources': cleaned_sources(state, policy)}
+              'version': 1, 'sources': cleaned_sources(state, policy, now)}
+    if state.get('recovery_pending') is True:
+        result['recovery_pending'] = True
     scan = state.get('last_scan')
     if isinstance(scan, dict):
         result['last_scan'] = {key: min(1000, max(0, scan[key])) for key in
@@ -385,9 +122,55 @@ def load_state(path: Path, policy: dict) -> dict:
     return result
 
 
+def valid_registry(doc: dict, policy: dict, now: datetime) -> bool:
+    try:
+        if (not isinstance(doc, dict) or doc.get('version') != 1 or not isinstance(doc.get('sources'), list)
+                or len(doc['sources']) > MAX_SOURCES or len(cleaned_sources(doc, policy, now)) != len(doc['sources'])):
+            return False
+        stamp = datetime.fromisoformat(doc['last_checked_at'].replace('Z', '+00:00'))
+        return stamp.tzinfo is not None and stamp <= now+timedelta(minutes=5)
+    except (KeyError, ValueError, TypeError, AttributeError):
+        return False
+
+
+def recover_state(path: Path, policy: dict, now: datetime, *, fetcher=None) -> dict:
+    """Cache fallback is confined to the repository's single trusted public URL."""
+    cached = load_state(path, policy, now=now)
+    try:
+        raw = path.read_bytes() if path.stat().st_size <= MAX_STATE_BYTES else b''
+        doc = json.loads(raw)
+        if valid_registry(doc, policy, now) and not doc.get('recovery_pending'):
+            return cached  # Never replace a valid cache, including a newer one.
+    except (OSError, ValueError):
+        pass
+    cached['recovery_pending'] = True
+    try:
+        transport = fetcher if fetcher is not None else SafeFetcher(seconds=8, max_requests=4, exchange_seconds=6)
+        raw = transport.get(PUBLIC_STATE_URL, publisher=urlsplit(DATA_URL).hostname, limit=MAX_STATE_BYTES)
+        if len(raw) > MAX_STATE_BYTES:
+            raise ValueError('Registro publicado demasiado grande')
+        doc = json.loads(raw)
+        if not valid_registry(doc, policy, now):
+            raise ValueError('Registro publicado inválido')
+        # Use the same sanitization as a local cache, without writing an
+        # unvalidated response or introducing a second schema.
+        restored = dict(sanitize_state(doc, policy, now), recovery_pending=False)
+        print(f"Registro AUTO recuperado de Pages: {len(restored['sources'])} fuentes")
+        return restored
+    except FetchError as exc:
+        if exc.reason == 'http_404':
+            cached['recovery_pending'] = False
+            print('Pages aún no publica registro AUTO (404); se inicia con las fuentes curadas.')
+        else:
+            print('Registro AUTO publicado no disponible; se conserva el estado local y se reintentará recuperar.')
+    except (ValueError, TypeError):
+        print('Registro AUTO publicado inválido; se conserva el estado local y se reintentará recuperar.')
+    return cached
+
+
 def covered_publishers(sources: list[dict]) -> set[tuple[str, str]]:
     return {(publisher_key(urlsplit(s.get('website') or s['url']).hostname or ''), s['category'])
-            for s in sources if not s.get('is_radar') and urlsplit(s['url']).hostname != 'news.google.com'}
+            for s in sources if publisher_key(urlsplit(s.get('website') or s['url']).hostname or '') != 'news.google.com'}
 
 
 def discover(curated: list[dict], policy: dict, state: dict, fetcher, now: datetime) -> dict:
@@ -444,7 +227,8 @@ def discover(curated: list[dict], policy: dict, state: dict, fetcher, now: datet
     for source in checked_sources:
         try:
             raw = fetcher.get(source['url'], publisher=source['provenance']['publisher'])
-            evidence = validate_feed(raw, policy[source['category']], source['provenance']['publisher'], now)
+            evidence = validate_feed(raw, policy[source['category']], source['provenance']['publisher'], now,
+                                     verify_host=getattr(fetcher, 'verify_article_host', None))
             source['validated_at'] = iso(now)
             source['provenance']['usable_headlines'] = evidence['usable_headlines']
         except (UnsafeURL, RejectedFeed):
@@ -477,7 +261,8 @@ def discover(curated: list[dict], policy: dict, state: dict, fetcher, now: datet
                     continue
             for url in feed_urls[:MAX_FEEDS_PER_PUBLISHER]:
                 try:
-                    evidence = validate_feed(fetcher.get(url, publisher=host), policy[category], host, now)
+                    evidence = validate_feed(fetcher.get(url, publisher=host), policy[category], host, now,
+                                             verify_host=getattr(fetcher, 'verify_article_host', None))
                 except RejectedFeed:
                     rejected_feeds += 1
                     continue
@@ -507,14 +292,14 @@ def discover(curated: list[dict], policy: dict, state: dict, fetcher, now: datet
     return result
 
 
-def write_runtime_opml(curated_path: Path, state: dict, output: Path):
+def write_runtime_opml(curated_path: Path, state: dict, output: Path, *, now: datetime | None = None):
     tree = ET.parse(curated_path)
     body = tree.getroot().find('body')
     folders = {(node.get('text') or node.get('title')): node for node in body.findall('outline')}
     curated = parse_opml(curated_path)
     urls = {source['url'] for source in curated}
     covered = covered_publishers(curated)
-    for source in cleaned_sources(state, {category: {} for category in folders}, check_seed=False):
+    for source in cleaned_sources(state, {category: {} for category in folders}, now, check_seed=False):
         category = source['category']
         try:
             url = checked_url(source['url'], urlsplit(source['website']).hostname)
@@ -524,7 +309,7 @@ def write_runtime_opml(curated_path: Path, state: dict, output: Path):
         if category not in folders or url in urls or key in covered:
             continue
         ET.SubElement(folders[category], 'outline', {'text': source['name'], 'title': source['name'],
-                      'type': 'rss', 'xmlUrl': url, 'htmlUrl': source['website']})
+                      'type': 'rss', 'xmlUrl': url, 'htmlUrl': source['website'], 'radarAuto': 'validated-v1'})
         urls.add(url)
         covered.add(key)
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -537,20 +322,22 @@ def main():
     parser.add_argument('--policy', type=Path, default=Path('sources/discovery-policy.json'))
     parser.add_argument('--state', type=Path, default=Path('web/data/discovered-sources.json'))
     parser.add_argument('--runtime-opml', type=Path, required=True)
+    parser.add_argument('--recover-published', action='store_true', help='Recuperar registro AUTO de Pages si falta la cache')
     args = parser.parse_args()
     policy = json.loads(args.policy.read_text(encoding='utf-8'))['categories']
     curated = parse_opml(args.opml)
     if set(policy) != {source['category'] for source in curated}:
         raise ValueError('La política debe cubrir todas las carpetas del catálogo')
-    state = load_state(args.state, policy)
-    result = discover(curated, policy, state, SafeFetcher(), datetime.now(timezone.utc))
+    now = datetime.now(timezone.utc)
+    state = recover_state(args.state, policy, now) if args.recover_published else load_state(args.state, policy, now=now)
+    result = discover(curated, policy, state, SafeFetcher(), now)
     if result.get('last_scan', {}).get('network_unavailable'):
         print('Proxy configurado: no se intenta conexión directa; se conserva el catálogo validado vigente.')
     args.state.parent.mkdir(parents=True, exist_ok=True)
     temporary = args.state.with_suffix('.tmp')
     temporary.write_text(json.dumps(result, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
     temporary.replace(args.state)
-    write_runtime_opml(args.opml, result, args.runtime_opml)
+    write_runtime_opml(args.opml, result, args.runtime_opml, now=now)
     print(f"Descubrimiento: {len(result['sources'])} fuentes AUTO; última revisión {result.get('last_checked_at')}")
     print('Última revisión:', json.dumps(result.get('last_scan', {}), ensure_ascii=False))
 

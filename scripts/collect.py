@@ -30,6 +30,7 @@ except ModuleNotFoundError:
 import requests
 
 from insights import independent_publishers, trending_topics, write_feeds
+from auto_sources import current_entries as current_auto_entries
 
 # Agente identificable (convención "compatible" de lectores y buscadores) con enlace de contacto.
 AGENT = "Mozilla/5.0 (compatible; RadarRSS/1.1; +https://github.com/medinacaj/radar-rss)"
@@ -87,14 +88,17 @@ def parse_opml(path: str | Path) -> list[dict]:
             urls.add(url)
             name = node.get('title') or node.get('text') or urlsplit(url).hostname or 'RSS'
             website = safe_web_url(node.get('htmlUrl', '')) or ''
-            out.append({
+            source = {
                 'id': sha256(url.encode()).hexdigest()[:16],
                 'name': name,
                 'category': category,
                 'url': url,
                 'website': website,
                 'is_radar': (urlsplit(url).hostname or '').lower() == 'news.google.com',
-            })
+            }
+            if node.get('radarAuto') == 'validated-v1' or name.startswith('AUTO — '):
+                source['is_auto'] = True
+            out.append(source)
     return out
 
 
@@ -392,8 +396,11 @@ def recover_missing_images(articles: list[dict], now: datetime,
             if host:
                 hosts.add(host.removeprefix('www.'))
         catalog[source.get('id')] = hosts
+    auto_ids = {source['id'] for source in sources or [] if source.get('is_auto')}
     queued, per_host = [], {}
     for article in articles[:LATEST_COUNT]:
+        if auto_ids.intersection(article.get('source_ids') or []):
+            continue
         if article.get('image'):
             continue
         host = page_image_host(str(article.get('url') or ''))
@@ -545,18 +552,25 @@ def get_one(source: dict, now: datetime, per_feed: int) -> tuple[list[dict], dic
               'count': 0, 'last_published_at': None, 'last_success_at': None, 'error': None}
     urls = [source['url']]
     alternate = FEED_FALLBACKS.get(source['url'])
-    if alternate and alternate != source['url']:
+    if alternate and alternate != source['url'] and not source.get('is_auto'):
         urls.append(alternate)
     failures = []
     for index, url in enumerate(urls):
         try:
-            raw = get_feed(url)
-            parsed = feedparser.parse(raw)
-            if parsed.get('bozo') and not parsed.entries:
-                raise ValueError('RSS/Atom no válido o sin datos interpretables')
-            entries = list(parsed.entries[:per_feed])
+            if source.get('is_auto'):
+                all_entries = current_auto_entries(source, now)
+            else:
+                raw = get_feed(url)
+                parsed = feedparser.parse(raw)
+                if parsed.get('bozo') and not parsed.entries:
+                    raise ValueError('RSS/Atom no válido o sin datos interpretables')
+                all_entries = parsed.entries
+            entries = list(all_entries[:per_feed])
             items = [r for e in entries if (r := make_item(e, source, now)) is not None]
-            dates = [entry_date(e) for e in parsed.entries if entry_date(e)]
+            if source.get('is_auto'):
+                for item in items:
+                    item['image'] = None
+            dates = [entry_date(e) for e in all_entries if entry_date(e)]
             last = max(dates) if dates else None
             status.update(state='ok' if items else 'empty', count=len(items),
                           last_published_at=iso(last), last_success_at=iso(now))
@@ -760,7 +774,17 @@ def collect(opml: Path, out: Path, days: int, workers: int, max_per_feed: int, *
     merged = {}
     catalog = {source['id']: source for source in sources}
     valid_ids = set(catalog)
+    auto_ids = {source['id'] for source in sources if source.get('is_auto')}
+    auto_links = {sid: {item['url'] for item in current_items if sid in item['source_ids']} for sid in auto_ids}
     for item in prior_articles + current_items:
+        original_ids = item.get('source_ids') or []
+        if original_ids and original_ids[0] in auto_ids and item.get('url') not in auto_links[original_ids[0]]:
+            continue
+        if auto_ids.intersection(original_ids):
+            item = dict(item, image=None,
+                        source_ids=[sid for sid in original_ids if sid not in auto_ids or item.get('url') in auto_links[sid]],
+                        also_in=[alt for alt in item.get('also_in', []) if alt.get('source_id') not in auto_ids
+                                 or alt.get('url') in auto_links[alt['source_id']]])
         original_sources = item.get('source_ids') or []
         if original_sources and original_sources[0] not in valid_ids:
             alternatives = retained_alternatives(item, item.get('also_in') or [], valid_ids)
