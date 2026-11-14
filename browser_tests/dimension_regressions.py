@@ -915,7 +915,8 @@ class DimensionRegressions(unittest.TestCase):
     def test_manual_refresh_reports_unchanged_news_then_applies_a_new_publication(self):
         self.page.evaluate("goTo('all')")
         self.page.locator('#refreshNow').click()
-        expect(self.page.locator('#refreshStatus')).to_have_text('No hay novedades publicadas.')
+        expect(self.page.locator('#refreshStatus')).to_contain_text('No hay novedades publicadas.')
+        expect(self.page.locator('#refreshStatus')).to_contain_text('Última recopilación:')
         expect(self.page.locator('#refreshNow')).to_be_enabled()
         stamp=(datetime.fromisoformat(fixtures.STAMP.replace('Z','+00:00'))+timedelta(minutes=1)).isoformat()
         docs=deepcopy(fixtures.RESPONSES)
@@ -931,7 +932,7 @@ class DimensionRegressions(unittest.TestCase):
         self.page.route('**/data/**',publication)
         self.page.evaluate("()=>{state.saved.add('noticia-1');state.read.add('noticia-2');}")
         self.page.locator('#refreshNow').click()
-        expect(self.page.locator('#refreshStatus')).to_have_text('Noticias actualizadas.')
+        expect(self.page.locator('#refreshStatus')).to_contain_text('Noticias actualizadas')
         expect(self.page.locator('#articleGrid > [data-article-id="manual-new"]')).to_be_visible()
         expect(self.page.locator('#publicationNotice')).to_be_hidden()
         self.assertEqual(self.page.evaluate('state.generated'),stamp)
@@ -948,7 +949,7 @@ class DimensionRegressions(unittest.TestCase):
         self.assertEqual(self.page.evaluate('state.items.map(x=>x.id)'),before)
         self.page.unroute('**/data/meta.json*',offline)
         self.page.locator('#refreshNow').click()
-        expect(self.page.locator('#refreshStatus')).to_have_text('No hay novedades publicadas.')
+        expect(self.page.locator('#refreshStatus')).to_contain_text('No hay novedades publicadas.')
         expect(self.page.locator('#refreshStatus')).to_have_attribute('role','status')
 
     def test_manual_refresh_recovers_after_the_initial_news_download_fails(self):
@@ -959,7 +960,7 @@ class DimensionRegressions(unittest.TestCase):
         expect(self.page.locator('#refreshNow')).to_be_enabled()
         self.page.unroute('**/data/latest.json*',offline)
         self.page.locator('#refreshNow').click()
-        expect(self.page.locator('#refreshStatus')).to_have_text('Noticias actualizadas.')
+        expect(self.page.locator('#refreshStatus')).to_contain_text('Noticias actualizadas')
         self.assertTrue(self.page.evaluate('state.ready'))
         self.assertEqual(self.page.evaluate('state.items.length'),len(fixtures.ITEMS))
         expect(self.page.locator('#dashboardFeature > .article-card')).to_have_count(1)
