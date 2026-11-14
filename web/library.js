@@ -436,7 +436,7 @@ function installFolderUI(){
  });
  document.addEventListener('keydown',event=>{
   if(menu.hidden)return;
-  if(event.key==='Escape'){event.preventDefault();hideFolderMenu(true);}
+  if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();hideFolderMenu(true);}
   else if(['ArrowDown','ArrowUp'].includes(event.key)){
    event.preventDefault();const buttons=[...menu.querySelectorAll('button:not([hidden])')],i=buttons.indexOf(document.activeElement);
    buttons[(i+(event.key==='ArrowDown'?1:buttons.length-1))%buttons.length].focus();
