@@ -139,12 +139,14 @@ def check_header_overlap(page, label):
         '.topbar-actions', '.topbar-search'];
       const rects = selectors.map(s => document.querySelector(s)).filter(Boolean)
         .filter(el => getComputedStyle(el).display !== 'none')
-        .map(el => ({name: el.id || el.className, r: el.getBoundingClientRect()}))
+        .map(el => ({el,name: el.id || el.className, r: el.getBoundingClientRect()}))
         .filter(x => x.r.width > 1 && x.r.height > 1);
       const bad = [];
       for (let i = 0; i < rects.length; i++)
         for (let j = i + 1; j < rects.length; j++) {
           const a = rects[i], b = rects[j];
+          // A brand mark naturally sits inside the caption; that is not a collision.
+          if (a.el.contains(b.el) || b.el.contains(a.el)) continue;
           const x = Math.min(a.r.right,b.r.right) - Math.max(a.r.left,b.r.left);
           const y = Math.min(a.r.bottom,b.r.bottom) - Math.max(a.r.top,b.r.top);
           if (x > 3 && y > 3) bad.push([a.name,b.name]);
