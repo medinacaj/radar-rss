@@ -52,6 +52,7 @@ def exercise(browser, base, width):
         if width <= 640:
             page.locator('#feedFiltersToggle').click()
         else:
+            if page.locator('#sidebarReadingContent').is_hidden(): page.locator('#sidebarReadingToggle').click()
             page.locator('#sidebarFeedOptions > summary').click()
             page.locator('#presentationSummary').click()
         profile = page.locator('#readingProfile')
@@ -114,8 +115,9 @@ def exercise(browser, base, width):
             page.locator('#menuToggle').click()
         if width<=640:
             page.locator('#feedFiltersToggle').click()
-        elif not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'):
-            page.locator('#sidebarFeedOptions > summary').click()
+        else:
+            if page.locator('#sidebarReadingContent').is_hidden(): page.locator('#sidebarReadingToggle').click()
+            if not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'): page.locator('#sidebarFeedOptions > summary').click()
         page.locator('#sourceSelect').select_option('')
         expect(page.locator('#sourceSelect')).to_have_value('')
         if width<=640:page.locator('#feedFiltersDone').click()
