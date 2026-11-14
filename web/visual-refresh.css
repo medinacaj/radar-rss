@@ -347,6 +347,12 @@ body.radar-hybrid.dimension #dashboardView:not([hidden]) #dashboardRecent:empty:
   body.radar-hybrid.dimension #dashboardFeature>.article-card .article-title {font-size:clamp(21px,2.3vw,28px)}
   body.radar-hybrid.dimension #dashboardRecent>:is(.dashboard-latest-card,.dashboard-recent-row) {flex-basis:calc((100% - 14px)/2)}
 }
+@media(min-width:951px) and (max-width:1100px) {
+  /* A wide resizeable sidebar can reduce the content area below 550px. */
+  body.radar-hybrid.dimension .topbar {flex-wrap:wrap;row-gap:5px}
+  body.radar-hybrid.dimension .topbar-search {order:5;flex:1 1 100%;max-width:none;margin:0}
+  body.radar-hybrid.dimension .topbar-actions {margin-left:auto}
+}
 @media(max-width:950px) {
   body.radar-hybrid.dimension .topbar {gap:7px}
   body.radar-hybrid.dimension .dashboard-panel-head {margin-bottom:9px}
