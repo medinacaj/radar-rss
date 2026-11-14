@@ -17,8 +17,8 @@ on:
         required: false
         type: string
   schedule:
-    # Cada 3 horas (UTC); GitHub puede retrasar ejecuciones programadas.
-    - cron: "17 */3 * * *"
+    # Aproximadamente cada hora (UTC); GitHub puede retrasar las ejecuciones.
+    - cron: "17 * * * *"
 
 permissions:
   contents: read
@@ -32,6 +32,7 @@ jobs:
   build:
     outputs:
       generation: ${{ steps.generation.outputs.value }}
+      artifact_name: github-pages-${{ github.run_attempt }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -54,6 +55,13 @@ jobs:
           key: radar-history-v1-${{ github.run_id }}
           restore-keys: |
             radar-history-v1-
+      - name: Recuperar catálogo de fuentes descubiertas
+        uses: actions/cache/restore@v4
+        with:
+          path: web/data/discovered-sources.json
+          key: radar-discovery-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            radar-discovery-v1-
       - name: Restaurar copia de seguridad seleccionada (solo ejecución manual)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.restore_run_id != '' }}
         env:
@@ -69,6 +77,9 @@ jobs:
           python scripts/validate_restore.py "$RUNNER_TEMP/radar-restore"
           cp "$RUNNER_TEMP/radar-restore/articles.json" web/data/articles.json
           cp "$RUNNER_TEMP/radar-restore/status.json" web/data/status.json
+          if [ -f "$RUNNER_TEMP/radar-restore/discovered-sources.json" ]; then
+            cp "$RUNNER_TEMP/radar-restore/discovered-sources.json" web/data/discovered-sources.json
+          fi
           if [ -f "$RUNNER_TEMP/radar-restore/events.json" ]; then
             cp "$RUNNER_TEMP/radar-restore/events.json" web/data/events.json
           fi
@@ -103,8 +114,17 @@ jobs:
           node tests/test_feed_ux.cjs
           node tests/test_reader_ux.cjs
           node tests/test_reading_state.cjs
+      - name: Investigar fuentes nuevas cuando corresponda (cada 48 horas)
+        run: python scripts/source_discovery.py --runtime-opml "$RUNNER_TEMP/effective-feeds.opml"
+      - name: Conservar revisión incluso si la ingesta posterior falla
+        uses: actions/cache/save@v4
+        with:
+          path: web/data/discovered-sources.json
+          key: radar-discovery-v1-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Auditar catálogo efectivo (curado y AUTO)
+        run: python scripts/audit_feeds.py --opml "$RUNNER_TEMP/effective-feeds.opml"
       - name: Obtener noticias
-        run: python scripts/collect.py --opml sources/feeds.opml --out web/data --days 45 --workers 8 --image-fallback
+        run: python scripts/collect.py --opml "$RUNNER_TEMP/effective-feeds.opml" --out web/data --days 45 --workers 8 --image-fallback
       - name: Obtener actividades de los próximos 90 días
         run: |
           python scripts/collect_events.py --catalog sources/feeds.opml --config sources/events.json --direct-config sources/events-direct.json --out web/data/events.json --generation-from web/data/meta.json
@@ -140,6 +160,7 @@ jobs:
             web/data/status.json
             web/data/meta.json
             web/data/events.json
+            web/data/discovered-sources.json
           retention-days: 90
           if-no-files-found: error
       - name: Configurar Pages
@@ -147,6 +168,7 @@ jobs:
       - name: Preparar sitio
         uses: actions/upload-pages-artifact@v4
         with:
+          name: github-pages-${{ github.run_attempt }}
           path: web
   deploy:
     needs: build
@@ -170,6 +192,8 @@ jobs:
       - name: Publicar GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: ${{ needs.build.outputs.artifact_name }}
       - name: Comprobar publicación de noticias y estado RSS
         env:
           RADAR_EXPECTED_GENERATION: ${{ needs.build.outputs.generation }}
