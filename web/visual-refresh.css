@@ -348,10 +348,12 @@ body.radar-hybrid.dimension #dashboardView:not([hidden]) #dashboardRecent:empty:
   body.radar-hybrid.dimension #dashboardRecent>:is(.dashboard-latest-card,.dashboard-recent-row) {flex-basis:calc((100% - 14px)/2)}
 }
 @media(min-width:951px) and (max-width:1100px) {
-  /* A wide resizeable sidebar can reduce the content area below 550px. */
-  body.radar-hybrid.dimension .topbar {flex-wrap:wrap;row-gap:5px}
-  body.radar-hybrid.dimension .topbar-search {order:5;flex:1 1 100%;max-width:none;margin:0}
-  body.radar-hybrid.dimension .topbar-actions {margin-left:auto}
+  /* Compact icon buttons keep the header on one line even beside a wide sidebar. */
+  body.radar-hybrid.dimension .topbar {flex-wrap:nowrap;gap:5px}
+  body.radar-hybrid.dimension #topbarTools>details>summary {min-width:42px;width:42px;font-size:0;padding-inline:8px;gap:0}
+  body.radar-hybrid.dimension #topbarTools>details>summary::after {display:none}
+  body.radar-hybrid.dimension .topbar-search {order:0;flex:1 1 80px;max-width:none;min-width:0;margin:0}
+  body.radar-hybrid.dimension .topbar-actions {margin-left:auto;gap:4px}
 }
 @media(max-width:950px) {
   body.radar-hybrid.dimension .topbar {gap:7px}
@@ -364,7 +366,7 @@ body.radar-hybrid.dimension #dashboardView:not([hidden]) #dashboardRecent:empty:
   body.radar-hybrid.dimension .topbar-brand strong {display:none}
   body.radar-hybrid.dimension .topbar-caption {gap:4px}
   body.radar-hybrid.dimension .topbar-search {flex:1 1 100%;order:5;max-width:none}
-  body.radar-hybrid.dimension .topbar.search-open,.search-open body.radar-hybrid.dimension .topbar {flex-wrap:wrap}
+  body.radar-hybrid.dimension.search-open .topbar {flex-wrap:wrap}
   body.radar-hybrid.dimension #topbarTools {gap:4px}
   body.radar-hybrid.dimension .main {padding-top:11px}
   body.radar-hybrid.dimension #dashboardFeature>.article-card {
@@ -385,8 +387,11 @@ body.radar-hybrid.dimension #dashboardView:not([hidden]) #dashboardRecent:empty:
   body.radar-hybrid.dimension .action-toast {right:12px;bottom:12px}
 }
 @media(max-width:440px) {
-  body.radar-hybrid.dimension .topbar {flex-wrap:wrap;gap:4px}
-  body.radar-hybrid.dimension .topbar-actions {width:100%;justify-content:flex-end;margin:0}
+  body.radar-hybrid.dimension .topbar {flex-wrap:nowrap;gap:3px}
+  body.radar-hybrid.dimension.search-open .topbar {flex-wrap:wrap}
+  body.radar-hybrid.dimension .topbar-actions {width:auto;justify-content:flex-end;margin-left:auto;gap:3px}
+  body.radar-hybrid.dimension .topbar-brand {min-width:28px;gap:0;padding:0}
+  body.radar-hybrid.dimension .topbar-caption {flex-shrink:1}
   body.radar-hybrid.dimension .topbar-search {order:5;margin:3px 0 1px}
   body.radar-hybrid.dimension :is(.menu-toggle,.search-toggle,.settings-trigger,#themeToggle) {
     width:40px;min-width:40px;flex-basis:40px;min-height:40px;height:40px;
