@@ -215,7 +215,7 @@ El tema sigue la configuración del sistema por defecto; una selección manual p
 
 La portada muestra un destacado y un carrusel de titulares distintos. La agenda tiene su propia vista en el lateral (`#agenda`). Sus filtros permiten consultar hoy o los próximos 7, 30 y 90 días. Una actividad permanece visible hasta el final de su último día en la zona horaria del lugar; sin fecha de término explícita se conserva sólo el día de inicio. La fecha del anuncio se muestra por separado.
 
-La recopilación revisa hasta 50 entradas por cada una de las diez fuentes RSS locales configuradas en [sources/events.json](sources/events.json), en Concepción/Biobío y Monagas, con hasta 12 consultas adicionales a páginas de los mismos medios por ejecución. Sigue la actualización de noticias cada tres horas. El horizonte de 90 días limita lo que se muestra, no la antigüedad del anuncio ni la conservación de futuras actividades ya detectadas. No es una búsqueda exhaustiva de todos los eventos de esas regiones.
+La recopilación revisa hasta 50 entradas por cada una de las diez fuentes RSS locales configuradas en [sources/events.json](sources/events.json), en Concepción/Biobío y Monagas, con hasta 12 consultas adicionales a páginas de los mismos medios por ejecución. Sigue la recopilación programada de noticias aproximadamente cada hora (GitHub Actions puede retrasar ejecuciones). El horizonte de 90 días limita lo que se muestra, no la antigüedad del anuncio ni la conservación de futuras actividades ya detectadas. No es una búsqueda exhaustiva de todos los eventos de esas regiones.
 
 La agenda ofrece lista y calendario mensual, filtros por ciudad, carpeta, tipo y precio cuando la fuente los informa, actividades guardadas en este navegador, compartir y exportación `.ics` de las confirmadas visibles. Los eventos sin precio explícito muestran «Por confirmar»; los pendientes y cancelados no se exportan al calendario. El respaldo JSON incluye los IDs de actividades guardadas y la vista elegida; restablecer preferencias conserva los guardados y existe una acción separada para vaciarlos.
 
@@ -229,7 +229,7 @@ Los contadores completan el historial en segundo plano y muestran las cifras rea
 
 ### Continuidad de lectura
 
-Los filtros activos se muestran como chips removibles; en móvil, «Filtros» reúne fuente y acciones sin duplicar selectores. El lector permite anterior/siguiente, marcar sin leer y volver al artículo o posición cercanos. Las marcas masivas ofrecen «Deshacer» y conservan modificaciones posteriores. Las nuevas publicaciones se anuncian sin reemplazar el listado ni moverlo: «Actualizar» aplica la generación completa cuando el lector lo decide. No cambia la recopilación cada tres horas ni los límites de noticias de 45 días/5000 entradas.
+Los filtros activos se muestran como chips removibles; en móvil, «Filtros» reúne fuente y acciones sin duplicar selectores. El lector permite anterior/siguiente, marcar sin leer y volver al artículo o posición cercanos. Las marcas masivas ofrecen «Deshacer» y conservan modificaciones posteriores. Las nuevas publicaciones se anuncian sin reemplazar el listado ni moverlo: «Actualizar» aplica la generación completa cuando el lector lo decide. No inicia una recopilación RSS adicional: comprueba lo que GitHub Pages ya publicó. El colector se programa aproximadamente cada hora, y se mantienen los límites de 45 días/5000 entradas.
 
 ### Interfaz Dimension y organización
 
