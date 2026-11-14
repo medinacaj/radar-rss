@@ -68,6 +68,13 @@ class V13Contracts(unittest.TestCase):
         self.assertIn("const restoreFocus=document.activeElement",self.lib)
         self.assertIn("button.focus({preventScroll:true})",self.lib)
 
+    def test_design_options_are_always_visible(self):
+        self.assertIn('<section class="settings-design-advanced" id="settingsDesignAdvanced"',self.html)
+        self.assertIn('<h4 id="settingsDesignHeading">Opciones de diseño</h4>',self.html)
+        self.assertNotIn('<summary>Más opciones de diseño</summary>',self.html)
+        for field in ('settingLayout','settingColumns','settingDensity','settingSidebarWidth'):
+            self.assertIn(f'id="{field}"',self.html)
+
     def test_card_height_fix_only_targets_grid_not_editorial_or_list(self):
         css=(ROOT/'web/v13.css').read_text(encoding='utf8')
         self.assertIn('#articleGrid.article-grid:not(.list-view)',css)
@@ -79,7 +86,7 @@ class V13Contracts(unittest.TestCase):
         self.assertIn('height:76px;max-height:76px',css)
         self.assertIn('body.radar-hybrid.compact #articleGrid',css)
         self.assertNotIn('.dashboard-feature .article-card{grid-auto-rows',css)
-        self.assertIn('v13.css?v=7.1.1',self.html)
+        self.assertIn('v13.css?v=7.1.2',self.html)
         self.assertIn('Portada editorial V5.3',css)
         self.assertIn('grid-template-columns:repeat(3,minmax(0,1fr))',css)
 

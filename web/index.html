@@ -36,7 +36,7 @@
   <link rel="stylesheet" href="./ux.css?v=1.0.2">
   <link rel="stylesheet" href="./features.css?v=1.2.3">
   <link rel="stylesheet" href="./v12.css?v=1.2.3">
-  <link rel="stylesheet" href="./v13.css?v=7.1.1">
+  <link rel="stylesheet" href="./v13.css?v=7.1.2">
   <link rel="stylesheet" href="./usability.css?v=1.0.1">
   <link rel="stylesheet" href="./homepage.css?v=1.0.2">
   <link rel="stylesheet" href="./agenda.css?v=1.1.0">
@@ -44,7 +44,7 @@
   <link rel="stylesheet" href="./reading-ux.css?v=1.1.0">
   <link rel="stylesheet" href="./dimension.css?v=4.0.7">
   <link rel="stylesheet" href="./experience.css?v=1.1.0">
-  <link rel="stylesheet" href="./editorial-ux.css?v=1.2.2">
+  <link rel="stylesheet" href="./editorial-ux.css?v=1.2.3">
   <title>Radar-RSS — Noticias con perspectiva</title>
 </head>
 <body class="radar-hybrid dimension" data-columns="auto">
@@ -332,8 +332,8 @@
           <label class="setting-toggle"><span><b>Modo ligero</b><small>Evita descargar fotografías y reduce los efectos. Puedes activarlo a mano; en la primera visita también puede activarse por ahorro de datos o una conexión muy lenta. Tiene prioridad sobre Mostrar imágenes.</small></span><input id="settingLite" type="checkbox"></label>
           <label class="setting-toggle"><span><b>Mostrar imágenes</b><small>Ocultar fotografías para una lectura más limpia y rápida.</small></span><input id="settingImages" type="checkbox"></label>
           <label class="setting-toggle"><span><b>Mostrar resúmenes</b><small>Ver u ocultar los extractos de cada artículo.</small></span><input id="settingSummaries" type="checkbox"></label>
-          <details class="settings-design-advanced" id="settingsDesignAdvanced">
-            <summary>Más opciones de diseño</summary>
+          <section class="settings-design-advanced" id="settingsDesignAdvanced" aria-labelledby="settingsDesignHeading">
+            <h4 id="settingsDesignHeading">Opciones de diseño</h4>
             <div class="settings-design-advanced-content">
               <div class="setting-grid">
             <label class="setting-field" for="settingLayout"><span>Formato</span><select id="settingLayout"><option value="cards">Tarjetas</option><option value="list">Lista</option></select></label>
@@ -352,7 +352,7 @@
             </div>
           </div>
             </div>
-          </details>
+          </section>
         </section>
         <section class="settings-pane" data-settings-pane="reading" aria-label="Lectura y filtros" hidden>
           <h3>Lectura y filtros</h3><p class="setting-hint">Controla qué noticias aparecen primero y cuáles prefieres evitar.</p>
