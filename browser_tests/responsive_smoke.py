@@ -135,7 +135,7 @@ def check_visible_boxes(page, selectors, label):
 
 def check_header_overlap(page, label):
     overlaps = page.evaluate("""() => {
-      const selectors = ['#menuToggle', '.topbar-caption', '#searchToggle',
+      const selectors = ['#menuToggle', '.topbar-caption', '.topbar-brand .brand-mark', '#searchToggle',
         '.topbar-actions', '.topbar-search'];
       const rects = selectors.map(s => document.querySelector(s)).filter(Boolean)
         .filter(el => getComputedStyle(el).display !== 'none')
