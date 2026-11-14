@@ -1,0 +1,9 @@
+# Actualización y retrasos de publicación
+
+El botón comprueba la generación publicada en GitHub Pages con petición de red sin caché. No ejecuta la recopilación RSS desde el navegador. El 13 de noviembre se verificó una última generación de las 17:11:50 UTC mientras el usuario seguía recibiendo las mismas noticias seis horas después. El mensaje «No hay novedades» no explicaba que el servidor llevaba horas sin publicar; una generación más nueva pero todavía antigua también se anunciaba como actualizada.
+
+La interfaz conserva la fecha real y avisa «Recopilación pendiente» cuando el servidor supera cuatro horas sin publicar. El resultado manual indica la antigüedad de la recopilación y la publicación reciente pendiente. Si recibe una generación posterior pero todavía retrasada, la carga sin presentarla como noticia recién recopilada. Una generación reciente recupera el mensaje normal. No modifica filtros, guardados, leídos ni la apertura directa del titular.
+
+Tres regresiones Node reproducidas antes de corregir el comportamiento: publicación idéntica de seis horas, publicación posterior aún antigua y aceptación de una publicación pendiente antigua. Se fija el reloj del entorno de pruebas. La regresión de navegador pulsa el botón real con servidor retrasado y luego con una generación reciente. La versión de app.js y la caché del lector se actualizan para distribuir la corrección.
+
+La programación y el descubrimiento automático de fuentes se atienden en un cambio separado. Un reintento operativo de build generó datos nuevos, pero su publicación falló por dos artefactos llamados github-pages en la misma ejecución; se requiere distinguir artefactos por intento. No se exponen tokens ni se añade un servicio de actualización público desde el cliente. No cambian proveedores, datos personales, licencias de fuentes ni límites de noticias.

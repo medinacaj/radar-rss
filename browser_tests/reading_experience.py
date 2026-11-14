@@ -55,7 +55,6 @@ def exercise(browser, base, width):
     try:
         page.goto(base + '#noticias', wait_until='networkidle')
         expect(page.locator('#articleGrid .article-card')).to_have_count(18)
-        if width <= 950:page.locator('#menuToggle').click()
         if width <= 640:
             expect(page.locator('#sourceSelect')).not_to_be_visible()
             page.locator('#feedFiltersToggle').click()
@@ -64,7 +63,6 @@ def exercise(browser, base, width):
         expect(page.locator('#sourceSelect')).to_be_visible()
         page.select_option('#sourceSelect', 'medio-0')
         if width<=640:page.locator('#feedFiltersDone').click()
-        if width<=950:page.locator('#menuClose').click()
         page.locator('#settingsButton').click()
         page.locator('[data-settings-tab="reading"]').click()
         page.select_option('#v12Date', '7')
@@ -79,8 +77,9 @@ def exercise(browser, base, width):
         page.screenshot(path=str(OUTPUT / f'filters-{width}.png'))
 
         def open_filter_menu():
-            if width<=950 and page.locator('#appSidebar').evaluate('n=>n.inert'):
-                page.locator('#menuToggle').click()
+            # Filtros lives in the topbar: an open mobile sidebar makes it inert.
+            if width<=950 and not page.locator('#appSidebar').evaluate('n=>n.inert'):
+                page.locator('#menuClose').click()
             if width<=640:
                 if not page.locator('#feedFilterPanel').is_visible():
                     page.locator('#feedFiltersToggle').click()
@@ -90,8 +89,6 @@ def exercise(browser, base, width):
         def close_filter_menu():
             if width<=640 and page.locator('#feedFilterPanel').is_visible():
                 page.locator('#feedFiltersDone').click()
-            if width<=950 and not page.locator('#appSidebar').evaluate('n=>n.inert'):
-                page.locator('#menuClose').click()
 
         open_filter_menu()
         expect(page.locator('#feedClearFilters')).to_be_visible()

@@ -36,15 +36,17 @@
   <link rel="stylesheet" href="./ux.css?v=1.0.2">
   <link rel="stylesheet" href="./features.css?v=1.2.3">
   <link rel="stylesheet" href="./v12.css?v=1.2.3">
-  <link rel="stylesheet" href="./v13.css?v=7.1.1">
+  <link rel="stylesheet" href="./v13.css?v=7.1.2">
   <link rel="stylesheet" href="./usability.css?v=1.0.1">
   <link rel="stylesheet" href="./homepage.css?v=1.0.2">
   <link rel="stylesheet" href="./agenda.css?v=1.1.0">
   <link rel="stylesheet" href="./reader-layout.css?v=1.0.0">
   <link rel="stylesheet" href="./reading-ux.css?v=1.1.0">
-  <link rel="stylesheet" href="./dimension.css?v=4.0.6">
+  <link rel="stylesheet" href="./dimension.css?v=4.0.7">
   <link rel="stylesheet" href="./experience.css?v=1.1.0">
-  <link rel="stylesheet" href="./editorial-ux.css?v=1.2.2">
+  <link rel="stylesheet" href="./editorial-ux.css?v=1.2.3">
+  <link rel="stylesheet" href="./topbar-tools.css?v=1.0.0">
+  <link rel="stylesheet" href="./visual-refresh.css?v=1.0.0">
   <title>Radar-RSS — Noticias con perspectiva</title>
 </head>
 <body class="radar-hybrid dimension" data-columns="auto">
@@ -68,9 +70,9 @@
       </div>
       <div class="sidebar-bottom">
           <h3 class="sidebar-tools-heading">ACTUALIZACIÓN Y ESTADO</h3>
-          <div class="topbar-refresh" id="refreshCycle" role="group" aria-label="Actualización de noticias" title="Radar-RSS busca noticias nuevas cada 15 minutos. Los medios se recopilan aproximadamente cada 3 horas.">
+          <div class="topbar-refresh" id="refreshCycle" role="group" aria-label="Actualización de noticias" title="Radar-RSS comprueba nuevas publicaciones cada 15 minutos. Los medios se recopilan aproximadamente cada hora.">
             <span class="update-label" id="lastUpdate">Sin sincronizar</span>
-            <button id="refreshNow" class="refresh-now" type="button" title="Buscar y cargar las novedades ya publicadas" aria-label="Comprobar novedades ahora" aria-describedby="refreshStatus"><span data-icon="refresh" class="ui-icon-slot" aria-hidden="true"></span><span id="refreshNowLabel">Actualizar</span></button>
+            <button id="refreshNow" class="refresh-now" type="button" title="Consultar las últimas noticias publicadas; no inicia una nueva recopilación RSS" aria-label="Comprobar novedades ahora" aria-describedby="refreshStatus"><span data-icon="refresh" class="ui-icon-slot" aria-hidden="true"></span><span id="refreshNowLabel">Actualizar</span></button>
             <span id="refreshStatus" class="refresh-status" role="status" aria-live="polite" aria-atomic="true"></span>
           </div>
         <section class="sidebar-feed-status" id="sidebarFeedHealth" aria-label="Estado de las fuentes RSS" hidden>
@@ -97,7 +99,7 @@
           <label class="search-wrap"><span class="sr-only">Buscar en todas las noticias</span><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg><input id="searchInput" type="search" placeholder="Buscar noticias…" autocomplete="off" enterkeyhint="search" aria-keyshortcuts="/"><kbd class="search-shortcut" aria-hidden="true">/</kbd></label>
         </div>
         <div class="topbar-actions">
-
+          <div class="topbar-tools" id="topbarTools" role="group" aria-label="Filtros y opciones de vista"></div>
           <button id="settingsButton" class="settings-trigger" type="button" title="Configuración" aria-label="Abrir configuración" aria-haspopup="dialog"><span data-icon="settings" class="ui-icon-slot" aria-hidden="true"></span><span class="settings-text">Configuración</span></button>
           <button id="themeToggle" class="icon-button" type="button" aria-label="Cambiar tema" title="Cambiar modo claro u oscuro"><span id="themeGlyph"></span></button>
         </div>
@@ -332,8 +334,8 @@
           <label class="setting-toggle"><span><b>Modo ligero</b><small>Evita descargar fotografías y reduce los efectos. Puedes activarlo a mano; en la primera visita también puede activarse por ahorro de datos o una conexión muy lenta. Tiene prioridad sobre Mostrar imágenes.</small></span><input id="settingLite" type="checkbox"></label>
           <label class="setting-toggle"><span><b>Mostrar imágenes</b><small>Ocultar fotografías para una lectura más limpia y rápida.</small></span><input id="settingImages" type="checkbox"></label>
           <label class="setting-toggle"><span><b>Mostrar resúmenes</b><small>Ver u ocultar los extractos de cada artículo.</small></span><input id="settingSummaries" type="checkbox"></label>
-          <details class="settings-design-advanced" id="settingsDesignAdvanced">
-            <summary>Más opciones de diseño</summary>
+          <section class="settings-design-advanced" id="settingsDesignAdvanced" aria-labelledby="settingsDesignHeading">
+            <h4 id="settingsDesignHeading">Opciones de diseño</h4>
             <div class="settings-design-advanced-content">
               <div class="setting-grid">
             <label class="setting-field" for="settingLayout"><span>Formato</span><select id="settingLayout"><option value="cards">Tarjetas</option><option value="list">Lista</option></select></label>
@@ -352,7 +354,7 @@
             </div>
           </div>
             </div>
-          </details>
+          </section>
         </section>
         <section class="settings-pane" data-settings-pane="reading" aria-label="Lectura y filtros" hidden>
           <h3>Lectura y filtros</h3><p class="setting-hint">Controla qué noticias aparecen primero y cuáles prefieres evitar.</p>
@@ -421,8 +423,8 @@
   <div id="actionToast" class="action-toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
   <script src="./source-tools.js?v=1.0.2" defer></script>
   <script src="./editorial-model.js?v=1.0.0" defer></script>
-  <script src="./app.js?v=9.12.0" defer></script>
-  <script src="./library.js?v=2.1.1" defer></script>
+  <script src="./app.js?v=9.12.5" defer></script>
+  <script src="./library.js?v=2.1.3" defer></script>
   <script src="./sidebar-layout.js?v=1.2.3" defer></script>
   <script src="./news-effects.js?v=1.0.0" defer></script>
   <script src="./features.js?v=1.4.0" defer></script>
@@ -431,7 +433,7 @@
   <script src="./usability.js?v=1.1.1" defer></script>
   <script src="./homepage.js?v=1.3.0" defer></script>
   <script src="./agenda.js?v=1.1.3" defer></script>
-  <script src="./feed-ux.js?v=1.2.5" defer></script>
+  <script src="./feed-ux.js?v=1.3.1" defer></script>
   <script src="./reader-ux.js?v=1.1.0" defer></script>
   <script src="./experience.js?v=1.1.1" defer></script>
   <script src="./editorial-ux.js?v=1.1.2" defer></script>

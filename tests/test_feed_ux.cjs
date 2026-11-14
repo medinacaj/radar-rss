@@ -25,7 +25,7 @@ class Element {
   scrollIntoView(){}
   showModal(){this.open=true;}
   close(){this.open=false;this.dispatch("close");}
-  matches(selector){if(selector==='[data-settings-pane="reading"]')return this.dataset.settingsPane==='reading';if(selector.startsWith('#'))return this.id===selector.slice(1);if(selector.startsWith('.'))return this.classList.contains(selector.slice(1));return this.tagName.toLowerCase()===selector;}
+  matches(selector){if(selector==='[data-settings-pane="reading"]')return this.dataset.settingsPane==='reading';const attr=selector.match(/^\[data-(mode|destination)="([^"]+)"\]$/);if(attr)return this.dataset[attr[1]]===attr[2];if(selector.startsWith('#'))return this.id===selector.slice(1);if(selector.startsWith('.'))return this.classList.contains(selector.slice(1));return this.tagName.toLowerCase()===selector;}
   closest(selector){return this.matches(selector)?this:this.parentNode?.closest(selector);}
   querySelectorAll(selector){const selectors=selector.split(',').map(x=>x.trim());return this.children.flatMap(node=>[...(selectors.some(s=>node.matches(s))?[node]:[]),...node.querySelectorAll(selector)]);}
   querySelector(selector){return this.querySelectorAll(selector)[0]||null;}
@@ -34,12 +34,21 @@ class Element {
 const body=new Element('body');
 const document={body,activeElement:null,createElement:tag=>new Element(tag),getElementById:id=>body.querySelector('#'+id),querySelector:selector=>body.querySelector(selector),addEventListener(){}};
 const node=(tag,id,cls,text='')=>{const el=new Element(tag);el.id=id;el.className=cls||'';el.textContent=text;return el;};
-const header=node('header',null,'topbar'),actions=node('div',null,'topbar-actions');header.append(node('div',null,'topbar-caption'),actions);body.append(header);
+const header=node('header',null,'topbar'),actions=node('div',null,'topbar-actions');
+const tools=node('div','topbarTools','topbar-tools');actions.append(tools);
+header.append(node('div',null,'topbar-caption'),actions);body.append(header);
 const navigation=node('div','sidebarNavigation'),coreSection=node('section','sidebarCoreSection'),sidebar=node('div','sidebarCoreContent');
-coreSection.append(sidebar);navigation.append(coreSection);body.append(navigation);
+const primaryNav=node('nav','categoryNav');
+for(const destination of ['home','all','agenda']){const button=node('button',null,'nav-link',destination);button.dataset.destination=destination;primaryNav.append(button);}
+sidebar.append(primaryNav);coreSection.append(sidebar);navigation.append(coreSection);body.append(navigation);
 const feed=node('section','feedView');body.append(feed);
 const sectionHeading=node('div',null,'section-heading sr-only'),heading=node('h1','feedHeading',null,'Todas las noticias');sectionHeading.append(heading);feed.append(sectionHeading);
-const modes=node('div',null,'mode-tabs');modes.append(node('button',null,'mode-tab','Todas'));
+const modes=node('div',null,'mode-tabs');
+const modeButtons={};
+for(const [mode,label] of [['all','Todas'],['unread','Sin leer'],['saved','Guardadas']]){
+  const button=node('button',null,'mode-tab',label),count=node('span',mode+'Count','mode-tab-count','0');
+  button.dataset.mode=mode;button.append(count);modes.append(button);modeButtons[mode]=button;
+}
 const bar=node('div',null,'filter-bar'),controls=node('div',null,'filter-controls');bar.append(modes,controls);feed.append(bar);
 const source=node('label',null,'source-filter'),sourceSelect=node('select','sourceSelect');source.append(sourceSelect);
 const tag=node('label',null,'library-tag-filter-wrap'),tagSelect=node('select','libraryTagFilter');tag.append(tagSelect);
@@ -62,7 +71,7 @@ window.RadarLibrary={getFeedFilters:()=>({folder:privateFolder,tag:privateTag}),
 window.RadarV12={getFeedGeo:()=>({id:geo,label:'Latinoamérica'})};
 const location={hash:'#noticias'};
 const context={window,document,state,location,console,mk:(tag,cls,text)=>node(tag,null,cls,text),sourceLabel:x=>x,categoryLabel:x=>x,
-  storeGet:()=>null,
+  storeGet:()=>null,svgIcon:name=>node('svg',null,'ui-icon',name),
   savePref:(k,v)=>prefWrites.push([k,v]),selectedTab:name=>{settingsTab=name;},
   syncSettings(){},applyDisplaySettings(){displayChanges++;},goTo(){privateFolder=null;geo='all';state.category='all';state.feed='';location.hash='#noticias';context.render();window.emit('hashchange');},
   fillSelect(){sourceSelect.value=state.feed;},hasHistory:()=>false,newsCountsUnavailable:()=>false,
@@ -74,34 +83,39 @@ const get=id=>document.getElementById(id);
 const chip=name=>get('feedFilterChips')?.querySelectorAll('button').find(el=>el.dataset.filter===name);
 const refresh=()=>context.render();
 assert.equal(heading.parentNode,sectionHeading);assert.equal(sectionHeading.classList.contains('sr-only'),true);
-assert.ok(navigation.contains(modes),'reading modes are in the sidebar navigation');
-assert.ok(!sidebar.contains(modes),'reading is not nested inside Principal');
-assert.ok(navigation.contains(get('feedHeaderControls')),'source and type filters remain in navigation');
-assert.ok(navigation.contains(get('presentationControl')),'presentation is a sibling disclosure');
+assert.ok(sidebar.contains(modes),'reading modes are moved inside Principal');
+assert.equal(modes.parentNode,primaryNav,'reading shortcuts share the one main navigation');
+assert.equal(modes.id,'sidebarReadingModes');
+assert.deepEqual(primaryNav.children.map(el=>el.dataset.destination||el.id),['home','all','sidebarReadingModes','agenda']);
+assert.equal(modeButtons.all.hidden,true,'Noticias replaces duplicate Todas');
+assert.equal(modeButtons.all.getAttribute('aria-hidden'),'true');
+assert.equal(modeButtons.unread.classList.contains('nav-link'),true);
+assert.equal(modeButtons.saved.classList.contains('nav-link'),true);
+assert.equal(modeButtons.unread.querySelector('.mode-tab-count').id,'unreadCount','preserves article counter');
+assert.ok(tools.contains(get('feedHeaderControls')),'the only source controls live in the topbar popup');
+assert.ok(tools.contains(get('presentationControl')),'the single presentation control lives in the topbar');
+assert.ok(!navigation.contains(get('feedHeaderControls')),'sidebar has no duplicated filters');
+assert.ok(!navigation.contains(get('presentationControl')),'sidebar has no duplicated view controls');
 assert.ok(!bar.contains(get('feedHeaderControls')),'no duplicated toolbar above the news');
-assert.ok(!header.contains(get('feedHeaderControls')),'the topbar stays free of feed controls');
-assert.equal(get('sidebarFeedOptions').open,false,'sidebar options do not take extra vertical space by default');
-assert.ok(navigation.contains(get('feedFiltersToggle')),'mobile filtering is accessed from the menu');
-assert.ok(navigation.contains(get('feedDensityToggle')),'density control lives in the side menu');
-assert.equal(get('sidebarFeedOptions').querySelector('summary').textContent,'Filtrar noticias');
-assert.equal(get('presentationSummary').textContent,'Vista y columnas');
+assert.equal(get('sidebarFeedOptions').open,false,'filter popup starts closed');
+assert.ok(tools.contains(get('feedFiltersToggle')),'mobile filter button lives in topbar');
+assert.ok(tools.contains(get('feedViewToggle')),'mobile view button lives in topbar');
+assert.ok(tools.contains(get('feedDensityToggle')),'view controls reuse original node');
+assert.match(get('sidebarFeedOptions').querySelector('summary').textContent,/Filtros/);
+assert.equal(get('topbarFilterCount').hidden,true,'no misleading filter count on a fresh page');
+assert.match(get('presentationSummary').textContent,/Vista/);
+assert.equal(navigation.querySelector('.sidebar-reading'),null,'redundant Herramientas sidebar group is removed');
 assert.ok(get('feedActiveFilters'),'filter state remains available internally');
 assert.equal(get('feedActiveFilters').hidden,true,'no active-filter band is rendered above news');
 assert.equal(get('feedActiveFilters').getAttribute('aria-hidden'),'true');
-const readingToggle=get('sidebarReadingToggle'),readingContent=get('sidebarReadingContent');
-assert.ok(readingToggle,'Mi lectura has a disclosure toggle');
-assert.equal(readingToggle.getAttribute('aria-controls'),'sidebarReadingContent');
-assert.equal(readingToggle.getAttribute('aria-expanded'),'true');
-assert.ok(readingContent.contains(modes),'reading content owns the three modes');
-readingToggle.click();
-assert.equal(readingToggle.getAttribute('aria-expanded'),'false');
-assert.equal(readingContent.hidden,true);
-assert.ok(prefWrites.some(([k,v])=>k==='reading-open'&&v===false),'collapsed state is saved');
-readingToggle.click();
-assert.equal(readingToggle.getAttribute('aria-expanded'),'true');
-assert.equal(readingContent.hidden,false);
-assert.ok(prefWrites.some(([k,v])=>k==='reading-open'&&v===true),'expanded state is saved');
+assert.equal(get('sidebarReadingToggle'),null,'no old accordion toolbar remains');
+assert.equal(get('sidebarReadingContent'),null,'no empty side panel remains');
+assert.equal(get('sidebarFeedOptions').parentNode,tools);
+assert.equal(get('presentationControl').parentNode,tools);
 assert.equal(get('feedClearFilters').parentNode.className,'sidebar-feed-options-body');
+get('sidebarFeedOptions').open=true;
+get('sidebarFeedOptions').querySelector('.sidebar-feed-options-body').dispatch('change',{target:sourceSelect});
+assert.equal(get('sidebarFeedOptions').open,false,'choosing a source closes its topbar popup');
 assert.equal(get('feedDensityToggle').getAttribute('aria-pressed'),'false');
 get('feedDensityToggle').click();
 assert.equal(state.density,'compact');assert.equal(get('feedDensityToggle').getAttribute('aria-pressed'),'true');
@@ -114,7 +128,9 @@ state.search='energía';state.feed='s1';state.maxAge=7;state.mode='unread';state
 state.hiddenSources.add('s2');state.mutedKeywords='política';privateFolder={id:'Lectura',label:'Lectura',kind:'manual'};privateTag='Informe';
 refresh();
 assert.equal(get('feedActiveFilters').hidden,true,'active filters do not occupy a content row');
-assert.equal(get('feedClearFilters').hidden,false,'clear filters remains in the sidebar');
+assert.equal(get('topbarFilterCount').hidden,false,'toolbar indicates active filters');
+assert.match(get('sidebarFeedOptions').querySelector('summary').getAttribute('aria-label'),/filtros activos/);
+assert.equal(get('feedClearFilters').hidden,false,'clear filters remains in the topbar popup');
 for(const key of ['search','source','age','mode','folder','tag','hide-read','hidden-sources','keywords'])assert.ok(chip(key),'chip for '+key);
 assert.match(chip('source').textContent,/Medio Uno/);
 chip('source').click();assert.equal(state.feed,'');assert.equal(state.search,'energía');
@@ -139,23 +155,45 @@ assert.equal(privateFolder,null);assert.equal(state.search,'sin coincidencia');a
 // Existing listeners and node identities survive mobile placement and desktop restoration.
 let sourceChanges=0;sourceSelect.addEventListener('change',()=>sourceChanges++);
 window.innerWidth=390;window.emit('resize');
+assert.equal(get('feedViewToggle').hidden,false,'mobile View button is visible');
 assert.equal(get('feedFiltersToggle').hidden,false);assert.equal(get('sidebarFeedOptions').hidden,true);assert.equal(source.parentNode,get('feedFilterFields'));assert.equal(tag.parentNode,get('feedFilterFields'));assert.equal(display.closest('#presentationControl').parentNode,get('feedFilterFields'));assert.equal(advanced.parentNode,null);
 assert.equal(get('feedFilterPanel').hidden,true);get('feedFiltersToggle').click();
 assert.equal(get('feedFilterPanel').hidden,false);assert.equal(get('feedFiltersToggle').getAttribute('aria-expanded'),'true');assert.equal(get('feedDensityToggle').parentNode,get('feedFilterFields'));assert.equal(get('feedClearFilters').parentNode,get('feedFilterFields'));assert.equal(get('v12Date').closest('.settings-feed-actions').parentNode,reading);
 sourceSelect.dispatch('change');assert.equal(sourceChanges,1);
 get('feedFilterPanel').dispatch('keydown',{key:'Escape'});assert.equal(get('feedFilterPanel').hidden,true);assert.equal(document.activeElement,get('feedFiltersToggle'));
 window.innerWidth=1440;window.emit('resize');
+assert.equal(get('feedViewToggle').hidden,true,'desktop uses Vista disclosure rather than mobile button');
 assert.equal(source.parentNode,get('feedHeaderControls'));
-assert.equal(display.closest('#presentationControl').parentNode,get('sidebarReadingContent'));
+assert.equal(display.closest('#presentationControl').parentNode,tools);
 assert.equal(tag.parentNode.className,'sidebar-feed-options-body');
 assert.equal(get('feedDensityToggle').parentNode.className,'presentation-controls-body');
 assert.equal(get('feedClearFilters').parentNode.className,'sidebar-feed-options-body');
 assert.equal(get('sidebarFeedOptions').hidden,false);
 assert.equal(get('presentationControl').hidden,false);
 assert.equal(advanced.parentNode,null);
-state.pageView='dashboard';refresh();assert.equal(get('feedHeaderControls').hidden,true);
-assert.equal(navigation.querySelector('.sidebar-reading').hidden,false,'reading remains a direct navigation group');
-assert.equal(get('presentationControl').hidden,true,'feed-only view controls remain hidden outside news');
+for(const pageView of ['dashboard','briefing','agenda']){
+  state.pageView=pageView;refresh();
+  assert.equal(get('sidebarFeedOptions').parentNode,tools,`filters are in topbar on ${pageView}`);
+  assert.equal(get('feedHeaderControls').hidden,false,`filters remain available on ${pageView}`);
+  assert.equal(get('sidebarFeedOptions').hidden,false,`filter disclosure remains available on ${pageView}`);
+  assert.equal(get('presentationControl').hidden,false,`presentation disclosure remains available on ${pageView}`);
+  assert.equal(get('feedFiltersToggle').hidden,true,'desktop mobile-only filter button stays hidden');
+}
+assert.equal(navigation.querySelector('.sidebar-reading'),null,'Tools does not occupy sidebar navigation');
+window.innerWidth=390;window.emit('resize');
+assert.equal(get('feedFiltersToggle').hidden,false,'mobile filters remain available on Inicio and other pages');
+state.pageView='dashboard';refresh();
+get('feedFiltersToggle').click();
+assert.equal(get('feedFilterPanel').hidden,false,'mobile filter sheet opens from Inicio');
+get('feedFiltersDone').click();
+assert.equal(get('feedFilterPanel').hidden,true);
+get('feedViewToggle').click();
+assert.equal(get('feedFilterPanel').hidden,false,'mobile view sheet opens from Inicio');
+assert.equal(get('feedViewToggle').getAttribute('aria-expanded'),'true');
+assert.equal(document.activeElement,get('presentationSummary'),'view button focuses view controls');
+get('feedFiltersDone').click();
+assert.equal(get('feedFilterPanel').hidden,true);
+window.innerWidth=1440;window.emit('resize');
 state.pageView='feed';refresh();assert.equal(get('feedHeaderControls').hidden,false);
 assert.equal(get('feedFiltersToggle').hidden,true);sourceSelect.dispatch('change');assert.equal(sourceChanges,2);
 assert.ok(renderCount>0);

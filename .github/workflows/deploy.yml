@@ -17,7 +17,7 @@ on:
         required: false
         type: string
   schedule:
-    # Aproximadamente cada hora (UTC); GitHub puede retrasar las ejecuciones.
+    # Cada hora (UTC); GitHub puede retrasar ejecuciones programadas.
     - cron: "17 * * * *"
 
 permissions:
