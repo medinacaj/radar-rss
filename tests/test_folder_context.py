@@ -41,7 +41,7 @@ class FolderContextTests(unittest.TestCase):
         self.assertIn("forAll?!['read','unread','view','sources'].includes(command)",self.library)
         self.assertNotIn("add.title='Crear carpeta de fuentes'",self.library)
         self.assertNotIn("mk('button','settings-secondary','Crear carpeta')",self.library)
-        self.assertIn('clic derecho sobre una carpeta o categoría',self.library)
+        self.assertIn('clic derecho sobre «Carpetas y categorías» o sobre una carpeta',self.library)
 
     def test_updated_assets(self):
         self.assertRegex(self.html,r'<script src="\./library\.js\?v=[^"]+" defer></script>')
