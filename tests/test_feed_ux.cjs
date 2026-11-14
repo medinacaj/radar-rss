@@ -102,6 +102,7 @@ assert.ok(tools.contains(get('feedFiltersToggle')),'mobile filter button lives i
 assert.ok(tools.contains(get('feedViewToggle')),'mobile view button lives in topbar');
 assert.ok(tools.contains(get('feedDensityToggle')),'view controls reuse original node');
 assert.match(get('sidebarFeedOptions').querySelector('summary').textContent,/Filtros/);
+assert.equal(get('topbarFilterCount').hidden,true,'no misleading filter count on a fresh page');
 assert.match(get('presentationSummary').textContent,/Vista/);
 assert.equal(navigation.querySelector('.sidebar-reading'),null,'redundant Herramientas sidebar group is removed');
 assert.ok(get('feedActiveFilters'),'filter state remains available internally');
@@ -127,6 +128,8 @@ state.search='energía';state.feed='s1';state.maxAge=7;state.mode='unread';state
 state.hiddenSources.add('s2');state.mutedKeywords='política';privateFolder={id:'Lectura',label:'Lectura',kind:'manual'};privateTag='Informe';
 refresh();
 assert.equal(get('feedActiveFilters').hidden,true,'active filters do not occupy a content row');
+assert.equal(get('topbarFilterCount').hidden,false,'toolbar indicates active filters');
+assert.match(get('sidebarFeedOptions').querySelector('summary').getAttribute('aria-label'),/filtros activos/);
 assert.equal(get('feedClearFilters').hidden,false,'clear filters remains in the topbar popup');
 for(const key of ['search','source','age','mode','folder','tag','hide-read','hidden-sources','keywords'])assert.ok(chip(key),'chip for '+key);
 assert.match(chip('source').textContent,/Medio Uno/);
