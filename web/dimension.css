@@ -1434,6 +1434,29 @@ body.radar-hybrid.dimension .sidebar-reading .mode-tab{min-height:44px;padding:6
 body.radar-hybrid.dimension .sidebar-reading{margin-top:8px;padding-top:8px}
 body.radar-hybrid.dimension .sidebar .folder-group-head{margin-top:12px;padding-block:8px}
 
+/* Reader destinations belong to Principal; avoid a second Todas/Noticias link. */
+body.radar-hybrid.dimension #categoryNav #sidebarReadingModes{
+ display:flex;flex-direction:column;gap:0;width:100%;padding:0;margin:0;
+ background:transparent;border:0;border-radius:0;box-shadow:none;
+}
+body.radar-hybrid.dimension #categoryNav #sidebarReadingModes .mode-tab[hidden]{display:none!important}
+body.radar-hybrid.dimension #categoryNav #sidebarReadingModes .mode-tab.reader-mode-link{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;
+ min-height:44px;width:100%;padding:6px 11px;margin:0;text-align:left;
+ font:inherit;font-size:13px;font-weight:600;color:var(--text);
+ border:1px solid transparent;border-radius:9px;background:transparent;box-shadow:none;
+}
+body.radar-hybrid.dimension #categoryNav #sidebarReadingModes .mode-tab.reader-mode-link:hover{background:var(--hover)}
+body.radar-hybrid.dimension #categoryNav #sidebarReadingModes .mode-tab.reader-mode-link.active{
+ background:var(--hover);border-color:var(--line);color:var(--text);
+}
+body.radar-hybrid.dimension #categoryNav #sidebarReadingModes .mode-tab.reader-mode-link .mode-tab-count{
+ margin-left:auto;color:var(--muted);font-size:11px;
+}
+body.radar-hybrid.dimension .sidebar-tools{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+body.radar-hybrid.dimension .sidebar-tools .sidebar-reading-title{margin:0}
+body.radar-hybrid.dimension .sidebar-tools .sidebar-reading-content[hidden]{display:none!important}
+
 @container news-card (min-width:0px){
  body.radar-hybrid.dimension.compact #articleGrid.article-grid:not(.list-view)>.article-card>:is(.cover,.article-cover-placeholder){
   min-height:0;height:auto;max-height:96px;flex-basis:auto;aspect-ratio:2;
