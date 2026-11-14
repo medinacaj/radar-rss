@@ -646,7 +646,11 @@ function initMobileNav(){
   $('sidebarBackdrop').addEventListener('click',()=>setNavOpen(false));
   document.addEventListener('keydown',event=>{
     if(!MOBILE_NAV.matches||!document.body.classList.contains('nav-open')||document.querySelector('dialog[open]'))return;
-    if(event.key==='Escape'){event.preventDefault();setNavOpen(false);return;}
+    // A visible folder context menu handles Escape itself; keep the mobile drawer open.
+    if(event.key==='Escape'){
+      if(document.querySelector('#folderMenu:not([hidden])'))return;
+      event.preventDefault();setNavOpen(false);return;
+    }
     if(event.key==='Tab'){
       const sidebar=$('appSidebar');
       const focusable=[...sidebar.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),[tabindex="0"]')]
