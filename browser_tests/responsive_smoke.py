@@ -386,8 +386,20 @@ def main():
                         ensure_navigation(page)
                         folder = page.locator("#libraryFolderNav .system-folder-link").nth(6)
                         expect(folder).to_be_visible()
+                        assert page.locator('[title="Crear carpeta de fuentes"]').count() == 0
                         folder.focus()
                         folder.press("Shift+F10")
+                        expect(page.locator("#folderMenu")).to_be_visible()
+                        expect(page.locator('#folderMenu [data-folder-action="create"]')).to_have_text("Crear carpeta")
+                        page.locator('#folderMenu [data-folder-action="create"]').click()
+                        expect(page.locator("#folderDialog[open]")).to_be_visible()
+                        expect(page.locator('#folderDialogTitle')).to_have_text('Nueva carpeta de fuentes')
+                        page.locator('#folderNameInput').fill('Mis fuentes')
+                        page.locator('#folderDialog button[data-folder-save]').count() # no special button required
+                        page.locator('#folderNameInput').press('Enter')
+                        expect(page.locator('#libraryFolderNav .library-folder-row .nav-label',has_text='Mis fuentes')).to_have_count(1)
+                        folder=page.locator("#libraryFolderNav .system-folder-link").nth(6)
+                        folder.click(button='right')
                         expect(page.locator("#folderMenu")).to_be_visible()
                         page.locator('#folderMenu [role="menuitem"]', has_text="Administrar fuentes").click()
                         expect(page.locator("#folderDialog[open]")).to_be_visible()
@@ -401,6 +413,7 @@ def main():
                         all_link.press("Shift+F10")
                         expect(page.locator("#folderMenu")).to_be_visible()
                         expect(page.locator('#folderMenu [data-folder-action="read"]')).to_have_text("Marcar todas como leídas")
+                        assert page.locator('#folderMenu [data-folder-action="create"]:visible').count() == 0
                         assert page.locator('#folderMenu [data-folder-action="rename"]:visible').count() == 0
                         assert page.locator('#folderMenu [data-folder-action="delete"]:visible').count() == 0
                         assert page.locator('#folderMenu [data-folder-action="sources"]:visible').count() == 1
