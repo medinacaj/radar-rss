@@ -80,14 +80,18 @@ class DimensionRegressions(unittest.TestCase):
           const nav=document.getElementById('sidebarNavigation');
           return [...nav.children].map(el=>el.id||el.className);
         }""")
-        self.assertEqual(structure[:3],[
-            'sidebarCoreSection','sidebar-reading','source-folders-section'
-        ],structure)
+        self.assertEqual(structure[:2],['sidebarCoreSection','source-folders-section'],structure)
+        self.assertTrue(any('sidebar-reading' in section for section in structure[2:]),structure)
+        expect(self.page.locator('#categoryNav .reader-mode-link')).to_have_count(2)
+        expect(self.page.locator('#categoryNav [data-mode="saved"]')).to_be_visible()
+        expect(self.page.locator('#categoryNav [data-mode="unread"]')).to_be_visible()
+        expect(self.page.locator('.sidebar-reading [data-mode]')).to_have_count(0)
         expect(self.page.locator('#sidebarCoreHeading')).to_have_text('PRINCIPAL')
         expect(self.page.locator('#sourceFoldersHeading')).to_have_text('CARPETAS Y CATEGORÍAS')
         self.assertFalse(self.page.locator('#sidebarCoreContent').evaluate(
             'n=>n.contains(document.querySelector(".sidebar-reading"))'))
         expect(self.page.locator('.sidebar-reading')).to_be_visible()
+        expect(self.page.locator('#sidebarReadingToggle')).to_contain_text('HERRAMIENTAS')
         reading_toggle=self.page.locator('#sidebarReadingToggle')
         expect(reading_toggle).to_have_attribute('aria-controls','sidebarReadingContent')
         expect(reading_toggle).to_have_attribute('aria-expanded','true')
@@ -99,7 +103,7 @@ class DimensionRegressions(unittest.TestCase):
         expect(reading_toggle).to_have_attribute('aria-expanded','true')
         expect(self.page.locator('#sidebarReadingContent')).to_be_visible()
         # Reading destinations work even when the current route is Home.
-        self.page.locator('.sidebar-reading [data-mode="saved"]').click()
+        self.page.locator('#categoryNav [data-mode="saved"]').click()
         expect(self.page).to_have_url(self.base+'#noticias')
         self.assertEqual(self.page.evaluate('state.mode'),'saved')
         expect(self.page.locator('#feedActiveFilters')).to_be_hidden()
@@ -131,12 +135,12 @@ class DimensionRegressions(unittest.TestCase):
         expect(toggle).to_have_attribute('aria-expanded','true')
         toggle.click()
         expect(panel).to_be_hidden()
-        self.assertEqual(self.page.evaluate("localStorage.getItem('radar-reading-open')"),'false')
+        self.assertEqual(self.page.evaluate("localStorage.getItem('radar-tools-open')"),'false')
         self.page.reload();self.page.wait_for_function('()=>state.ready')
         expect(toggle).to_have_attribute('aria-expanded','false')
         expect(panel).to_be_hidden()
         toggle.click()
-        self.assertEqual(self.page.evaluate("localStorage.getItem('radar-reading-open')"),'true')
+        self.assertEqual(self.page.evaluate("localStorage.getItem('radar-tools-open')"),'true')
         self.page.reload();self.page.wait_for_function('()=>state.ready')
         expect(toggle).to_have_attribute('aria-expanded','true')
         expect(panel).to_be_visible()
@@ -151,7 +155,7 @@ class DimensionRegressions(unittest.TestCase):
         expect(toggle).to_have_attribute('aria-expanded','false')
         toggle.click()
         expect(self.page.locator('#sidebarReadingContent')).to_be_visible()
-        self.page.locator('#sidebarReadingContent [data-mode="unread"]').click()
+        self.page.locator('#categoryNav [data-mode="unread"]').click()
         expect(self.page).to_have_url(self.base+'#noticias')
         expect(self.page.locator('#feedActiveFilters')).to_be_hidden()
         self.page.locator('#menuToggle').click()
@@ -291,7 +295,7 @@ class DimensionRegressions(unittest.TestCase):
         for width in (375,1440):
             self.page.set_viewport_size({'width':width,'height':900})
             if width==375:self.page.locator('#menuToggle').click()
-            for selector in ('#libraryFolderNav .nav-link','.sidebar-reading .mode-tab'):
+            for selector in ('#libraryFolderNav .nav-link','#categoryNav .reader-mode-link'):
                 rows=self.page.locator(selector).evaluate_all('nodes=>nodes.map(n=>({y:n.getBoundingClientRect().y,h:n.getBoundingClientRect().height}))')
                 self.assertGreater(len(rows),1)
                 for a,b in zip(rows,rows[1:]):
@@ -915,7 +919,8 @@ class DimensionRegressions(unittest.TestCase):
     def test_manual_refresh_reports_unchanged_news_then_applies_a_new_publication(self):
         self.page.evaluate("goTo('all')")
         self.page.locator('#refreshNow').click()
-        expect(self.page.locator('#refreshStatus')).to_have_text('No hay novedades publicadas.')
+        expect(self.page.locator('#refreshStatus')).to_contain_text('No hay novedades publicadas.')
+        expect(self.page.locator('#refreshStatus')).to_contain_text('Última recopilación:')
         expect(self.page.locator('#refreshNow')).to_be_enabled()
         stamp=(datetime.fromisoformat(fixtures.STAMP.replace('Z','+00:00'))+timedelta(minutes=1)).isoformat()
         docs=deepcopy(fixtures.RESPONSES)
@@ -931,7 +936,7 @@ class DimensionRegressions(unittest.TestCase):
         self.page.route('**/data/**',publication)
         self.page.evaluate("()=>{state.saved.add('noticia-1');state.read.add('noticia-2');}")
         self.page.locator('#refreshNow').click()
-        expect(self.page.locator('#refreshStatus')).to_have_text('Noticias actualizadas.')
+        expect(self.page.locator('#refreshStatus')).to_contain_text('Noticias actualizadas')
         expect(self.page.locator('#articleGrid > [data-article-id="manual-new"]')).to_be_visible()
         expect(self.page.locator('#publicationNotice')).to_be_hidden()
         self.assertEqual(self.page.evaluate('state.generated'),stamp)
@@ -948,7 +953,7 @@ class DimensionRegressions(unittest.TestCase):
         self.assertEqual(self.page.evaluate('state.items.map(x=>x.id)'),before)
         self.page.unroute('**/data/meta.json*',offline)
         self.page.locator('#refreshNow').click()
-        expect(self.page.locator('#refreshStatus')).to_have_text('No hay novedades publicadas.')
+        expect(self.page.locator('#refreshStatus')).to_contain_text('No hay novedades publicadas.')
         expect(self.page.locator('#refreshStatus')).to_have_attribute('role','status')
 
     def test_manual_refresh_recovers_after_the_initial_news_download_fails(self):
@@ -959,7 +964,7 @@ class DimensionRegressions(unittest.TestCase):
         expect(self.page.locator('#refreshNow')).to_be_enabled()
         self.page.unroute('**/data/latest.json*',offline)
         self.page.locator('#refreshNow').click()
-        expect(self.page.locator('#refreshStatus')).to_have_text('Noticias actualizadas.')
+        expect(self.page.locator('#refreshStatus')).to_contain_text('Noticias actualizadas')
         self.assertTrue(self.page.evaluate('state.ready'))
         self.assertEqual(self.page.evaluate('state.items.length'),len(fixtures.ITEMS))
         expect(self.page.locator('#dashboardFeature > .article-card')).to_have_count(1)
