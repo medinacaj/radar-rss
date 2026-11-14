@@ -103,7 +103,7 @@
   const options=mk('details','sidebar-feed-options');options.id='sidebarFeedOptions';
   const optionsSummary=mk('summary','','Filtros');
   optionsSummary.setAttribute('aria-label','Filtrar noticias');
-  optionsSummary.title='Filtrar noticias';optionsSummary.prepend(svgIcon('settings'));
+  optionsSummary.title='Filtrar noticias';optionsSummary.prepend(svgIcon('filter'));
   const topbarFilterCount=mk('span','feed-filters-count topbar-filter-badge');
   topbarFilterCount.id='topbarFilterCount';topbarFilterCount.hidden=true;
   topbarFilterCount.setAttribute('aria-hidden','true');optionsSummary.append(topbarFilterCount);
@@ -149,7 +149,7 @@
   }
 
   const toggle=mk('button','feed-filters-toggle');toggle.id='feedFiltersToggle';toggle.type='button';
-  toggle.title='Filtrar noticias';toggle.prepend(svgIcon('settings'));
+  toggle.title='Filtrar noticias';toggle.prepend(svgIcon('filter'));
   toggle.setAttribute('aria-controls','feedFilterPanel');toggle.setAttribute('aria-expanded','false');
   const toggleLabel=mk('span','','Filtros');
   const count=mk('span','feed-filters-count');count.id='feedFiltersCount';toggle.append(toggleLabel,count);
