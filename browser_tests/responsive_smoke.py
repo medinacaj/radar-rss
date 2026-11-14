@@ -353,10 +353,12 @@ def main():
                         if page.locator('#appSidebar').evaluate('(node) => node.inert'):
                             page.locator('#menuToggle').click()
                         expect(page.locator('#appSidebar')).to_be_visible()
-                        # Tools cannot be empty on Inicio: controls are available on every route.
-                        expect(page.locator('#sidebarReadingContent')).to_be_visible()
+                        # Filtros y Vista están en la barra superior; sin duplicados en lateral.
+                        expect(page.locator('#topbarTools')).to_be_visible()
+                        assert page.locator('#sidebarReadingContent').count()==0
                         if width<=640:
                             expect(page.locator('#feedFiltersToggle')).to_be_visible()
+                            expect(page.locator('#feedViewToggle')).to_be_visible()
                         else:
                             expect(page.locator('#sidebarFeedOptions > summary')).to_be_visible()
                             expect(page.locator('#presentationSummary')).to_be_visible()
@@ -735,11 +737,9 @@ def main():
                         page.locator("#v12Date").select_option("7")
                         page.locator('#closeSettings').click()
                         if not page.locator('#sourceSelect').is_visible():
-                            if width<=950 and page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuToggle').click()
+                            if width<=950 and not page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuClose').click()
                             if width<=640:page.locator('#feedFiltersToggle').click()
-                            else:
-                                if not page.locator('#sidebarReadingContent').is_visible():page.locator('#sidebarReadingToggle').click()
-                                if not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'):page.locator('#sidebarFeedOptions > summary').click()
+                            elif not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'):page.locator('#sidebarFeedOptions > summary').click()
                         page.locator("#sourceSelect").select_option("medio-3")
                         if page.locator("#feedFilterPanel").is_visible():page.locator("#feedFiltersDone").click()
                         if width<=950 and not page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuClose').click()
@@ -749,11 +749,9 @@ def main():
                         page.locator('#closeSettings').click()
                         assert page.locator(".v12-saved-open").count() == 1
                         if not page.locator("#sourceSelect").is_visible():
-                            if width<=950 and page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuToggle').click()
+                            if width<=950 and not page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuClose').click()
                             if width<=640:page.locator('#feedFiltersToggle').click()
-                            else:
-                                if not page.locator('#sidebarReadingContent').is_visible():page.locator('#sidebarReadingToggle').click()
-                                if not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'):page.locator('#sidebarFeedOptions > summary').click()
+                            elif not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'):page.locator('#sidebarFeedOptions > summary').click()
                         page.locator("#sourceSelect").select_option("")
                         if page.locator("#feedFilterPanel").is_visible():page.locator("#feedFiltersDone").click()
                         if width<=950 and not page.locator('#appSidebar').evaluate('n=>n.inert'):page.locator('#menuClose').click()
