@@ -402,6 +402,7 @@ def main():
                         expect(page.locator('#folderMenu [data-folder-action="create"]')).to_be_visible()
                         page.keyboard.press('Escape')
                         expect(page.locator('#folderMenu')).to_be_hidden()
+                        if width<=950:assert page.locator('#appSidebar').evaluate('n=>!n.inert'), 'Escape must not close the mobile drawer when dismissing a folder menu'
                         folder.focus()
                         folder.press("Shift+F10")
                         expect(page.locator("#folderMenu")).to_be_visible()
