@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "categories": {
+    "01 - Inteligencia Artificial": {"query": "inteligencia artificial modelos agentes", "terms": ["inteligencia artificial", "ia", "chatgpt", "claude", "modelos", "aprendizaje automatico"]},
+    "02 - Tecnología": {"query": "tecnología software dispositivos", "terms": ["tecnologia", "software", "digital", "internet", "computacion", "dispositivos", "ciberseguridad"]},
+    "03 - Internacionales": {"query": "noticias internacionales mundo", "terms": ["internacional", "mundo", "onu", "guerra", "conflicto", "diplomacia", "elecciones", "presidente"]},
+    "04 - Chile": {"query": "Chile noticias actualidad", "terms": ["chile", "chileno", "chilena", "santiago", "valparaiso", "concepcion"], "geographic": true},
+    "05 - Venezuela": {"query": "Venezuela noticias actualidad", "terms": ["venezuela", "venezolano", "venezolana", "caracas", "maturin", "monagas"], "geographic": true},
+    "06 - Latinoamérica": {"query": "Latinoamérica noticias región", "terms": ["latinoamerica", "america latina", "latinoamericano", "chile", "venezuela", "argentina", "brasil", "colombia", "mexico", "peru", "ecuador", "bolivia", "uruguay", "paraguay", "costa rica", "panama", "guatemala", "honduras", "el salvador", "nicaragua", "cuba", "republica dominicana"]},
+    "07 - Concepción": {"query": "Concepción Biobío noticias", "terms": ["concepcion", "biobio", "bio bio", "talcahuano", "san pedro de la paz", "chiguayante", "hualpen", "penco", "coronel", "lota"], "geographic": true},
+    "08 - Maturín / Monagas": {"query": "Maturín Monagas noticias", "terms": ["maturin", "monagas", "punta de mata", "temblador", "caripito"], "geographic": true},
+    "09 - Startups y Capital": {"query": "startups inversión capital emprendedores", "terms": ["startup", "startups", "emprendimiento", "emprendedores", "capital de riesgo", "venture capital", "ronda de inversion", "financiacion"]},
+    "10 - Empresas y Economía": {"query": "empresas economía negocios", "terms": ["empresa", "empresas", "economia", "economico", "economica", "negocios", "mercado", "inflacion", "inversion", "finanzas"]},
+    "11 - Investigación y Gestión": {"query": "investigación gestión revista científica", "terms": ["investigacion", "gestion", "cientifico", "cientifica", "organizacional", "administracion", "gerencia"], "days": 730}
+  }
+}
