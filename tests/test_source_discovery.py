@@ -116,6 +116,11 @@ class FeedValidationTests(unittest.TestCase):
                   'El transporte de Maturín mejora para los vecinos']
         self.assertEqual(discovery.validate_feed(rss(titles), rule, 'nuevo.example', NOW)['usable_headlines'], 3)
 
+    def test_utf16_cannot_hide_a_doctype_from_the_xml_security_boundary(self):
+        raw = '<!DOCTYPE rss [<!ENTITY x "value">]><rss><channel/></rss>'.encode('utf-16')
+        with self.assertRaises(discovery.RejectedFeed):
+            discovery.xml_root(raw)
+
     def test_repeated_headline_or_link_cannot_satisfy_minimum(self):
         with self.assertRaises(discovery.RejectedFeed):
             discovery.validate_feed(rss(['La inteligencia artificial mejora la vida']*3), RULE, 'nuevo.example', NOW)

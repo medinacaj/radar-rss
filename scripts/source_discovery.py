@@ -259,7 +259,8 @@ class SafeFetcher:
 
 
 def xml_root(raw: bytes):
-    if len(raw) > MAX_BYTES or b'<!DOCTYPE' in raw.upper() or b'<!ENTITY' in raw.upper():
+    if (len(raw) > MAX_BYTES or b'\x00' in raw
+            or b'<!DOCTYPE' in raw.upper() or b'<!ENTITY' in raw.upper()):
         raise RejectedFeed('XML excesivo o con entidades')
     try:
         root = ET.fromstring(raw)
