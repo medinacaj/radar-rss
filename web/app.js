@@ -1341,7 +1341,7 @@ function markRead(id,value,memberIds=[id],options={}){
   if(returnFocus){
     const target=[...document.querySelectorAll('#articleGrid .article-card, #dashboardFeature .article-card')]
       .find(el=>el.dataset.articleId===id)?.querySelector('.article-read-toggle');
-    (target||$('articleGrid').querySelector('.article-read-toggle')||document.querySelector('.mode-tab.active'))?.focus({preventScroll:true});
+    (target||$('articleGrid').querySelector('.article-read-toggle')||document.querySelector('#categoryNav .nav-link.active, .mode-tab.active:not([hidden])'))?.focus({preventScroll:true});
   }
 }
 function markArticlesRead(items){
