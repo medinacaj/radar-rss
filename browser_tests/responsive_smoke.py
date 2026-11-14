@@ -387,6 +387,21 @@ def main():
                         folder = page.locator("#libraryFolderNav .system-folder-link").nth(6)
                         expect(folder).to_be_visible()
                         assert page.locator('[title="Crear carpeta de fuentes"]').count() == 0
+                        # Regression: right-clicking the heading must not show the browser menu.
+                        section_toggle=page.locator('#sourceFoldersToggle')
+                        section_toggle.click(button='right')
+                        expect(page.locator('#folderMenu')).to_be_visible()
+                        expect(page.locator('#folderMenu [data-folder-action="create"]')).to_be_visible()
+                        assert page.locator('#folderMenu [role="menuitem"]:visible').count() == 1
+                        page.locator('#folderMenu [data-folder-action="create"]').click()
+                        expect(page.locator('#folderDialog[open]')).to_be_visible()
+                        expect(page.locator('#folderDialogTitle')).to_have_text('Nueva carpeta de fuentes')
+                        page.locator('#folderDialog .folder-dialog-close').click()
+                        section_toggle.focus()
+                        section_toggle.press('Shift+F10')
+                        expect(page.locator('#folderMenu [data-folder-action="create"]')).to_be_visible()
+                        page.keyboard.press('Escape')
+                        expect(page.locator('#folderMenu')).to_be_hidden()
                         folder.focus()
                         folder.press("Shift+F10")
                         expect(page.locator("#folderMenu")).to_be_visible()
