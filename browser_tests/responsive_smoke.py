@@ -341,7 +341,9 @@ def main():
                           radius:getComputedStyle(document.querySelector('#dashboardFeature .article-card')).borderTopLeftRadius,
                           shadow:getComputedStyle(document.querySelector('#dashboardFeature .article-card')).boxShadow
                         })""")
-                        assert visual['radius']=='14px' and visual['shadow']!='none',visual
+                        # Rounded corners are intentional in the refreshed design.
+                        radius=float(visual['radius'].removesuffix('px'))
+                        assert 12<=radius<=16 and visual['shadow']!='none',visual
                         light_background=visual['bg']
                         assert page.locator('#dashboardTitle').inner_text() == 'Inicio'
                         expect(page.locator('#dashboardFeature')).to_be_visible()

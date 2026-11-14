@@ -48,7 +48,6 @@ def exercise(browser, base, width):
         page.goto(base + '#noticias', wait_until='networkidle')
         expect(page.locator('#articleGrid>.article-card')).to_have_count(18)
         assert page.evaluate('window.RadarExperience.getPinnedDestinations()') == []
-        if width <= 950:page.locator('#menuToggle').click()
         if width <= 640:
             page.locator('#feedFiltersToggle').click()
         else:
@@ -68,18 +67,24 @@ def exercise(browser, base, width):
             expect(page.locator('#effectiveColumns')).to_contain_text('de 6 solicitadas')
         assert page.locator('#articleGrid .article-title').first.evaluate('n=>parseFloat(getComputedStyle(n).fontSize)') >= 22
         assert page.locator('#articleGrid .no-cover .article-cover-placeholder').first.evaluate('n=>n.getBoundingClientRect().height') <= 60
+        # Compact icon actions retain accessible names even with visually hidden labels.
         for selector in ('.article-save','.article-more','.article-read-toggle'):
-            expect(page.locator('#articleGrid '+selector).first.locator('.experience-action-label')).to_be_visible()
+            control=page.locator('#articleGrid '+selector).first
+            assert control.get_attribute('aria-label'),selector
+            assert control.bounding_box()['width']>=44
 
         # Labels must fit their buttons, and header selectors remain readable.
         for button in page.locator('#articleGrid>.article-card').first.locator('.article-actions button').all():
             assert button.evaluate('n=>n.scrollWidth<=n.clientWidth+1'), button.inner_text()
-            assert button.locator('.experience-action-label').evaluate('n=>{const r=n.getBoundingClientRect(),b=n.closest("button").getBoundingClientRect();return r.left>=b.left&&r.right<=b.right+1}')
+            assert button.get_attribute('aria-label')
+        if width>640:
+            page.locator('#presentationSummary').click()
+            page.locator('#sidebarFeedOptions > summary').click()
         assert page.locator('#sourceSelect').bounding_box()['width'] >= 120
         assert page.locator('#editorialType').bounding_box()['width'] >= 120
 
         if width<=640:page.locator('#feedFiltersDone').click()
-        else:page.locator('#presentationSummary').click()
+        else:page.locator('#sidebarFeedOptions > summary').click()
 
         # Search operates on existing folder rows; source selection uses the existing feed filter.
         if width <= 950 and page.locator('#appSidebar').evaluate('n=>n.inert'):
@@ -109,9 +114,9 @@ def exercise(browser, base, width):
         expect(page.locator('#sourceSelect')).to_have_value('medio-0')
         expect(page.locator('#feedActiveFilters')).to_be_hidden()
         assert page.locator('#feedActiveFilters').evaluate('n=>getComputedStyle(n).display') == 'none'
-        # The actual source control remains in the side menu, not a chip over the feed.
-        if width<=950 and page.locator('#appSidebar').evaluate('n=>n.inert'):
-            page.locator('#menuToggle').click()
+        # Source selection uses the topbar, so dismiss the mobile drawer first.
+        if width<=950 and not page.locator('#appSidebar').evaluate('n=>n.inert'):
+            page.locator('#menuClose').click()
         if width<=640:
             page.locator('#feedFiltersToggle').click()
         elif not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'):
@@ -119,7 +124,6 @@ def exercise(browser, base, width):
         page.locator('#sourceSelect').select_option('')
         expect(page.locator('#sourceSelect')).to_have_value('')
         if width<=640:page.locator('#feedFiltersDone').click()
-        if width<=950:page.locator('#menuClose').click()
 
         # Reader closing restores the same article and viewport, including after a profile render.
         card = page.locator('#articleGrid>.article-card').nth(4)
