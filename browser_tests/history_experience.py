@@ -4,6 +4,23 @@ from playwright.sync_api import expect
 from count_regressions import CountRegressions
 
 class HistoryExperience(CountRegressions):
+    def test_refresh_explains_server_delay_then_loads_a_recent_publication(self):
+        self.payloads=self.dataset(300,generation=-6*3600)
+        old=self.payloads['meta.json']['generated_at']
+        self.open()
+        self.page.locator('#refreshNow').click()
+        expect(self.page.locator('#refreshStatus')).to_have_attribute('data-state','warning')
+        expect(self.page.locator('#refreshStatus')).to_contain_text('pendiente una publicación reciente')
+        expect(self.page.locator('#lastUpdate')).to_contain_text('Recopilación pendiente')
+        self.assertEqual(self.page.evaluate('state.generated'),old)
+        self.payloads=self.dataset(300,offset=6000)
+        recent=self.payloads['meta.json']['generated_at']
+        self.page.locator('#refreshNow').click()
+        expect(self.page.locator('#refreshStatus')).to_contain_text('Noticias actualizadas')
+        expect(self.page.locator('#lastUpdate')).not_to_contain_text('Recopilación pendiente')
+        self.assertEqual(self.page.evaluate('state.generated'),recent)
+        self.assertFalse(self.errors)
+
     def test_latest_can_be_read_before_archive_completes(self):
         self.hold=True;self.open()
         self.page.wait_for_function('()=>state.historyLoading')
@@ -33,5 +50,5 @@ class HistoryExperience(CountRegressions):
         self.assertFalse(self.errors)
 
 if __name__=='__main__':
-    suite=unittest.TestSuite(HistoryExperience(name) for name in ('test_latest_can_be_read_before_archive_completes','test_abort_keeps_latest_and_retry_recovers_the_complete_archive'))
+    suite=unittest.TestSuite(HistoryExperience(name) for name in ('test_refresh_explains_server_delay_then_loads_a_recent_publication','test_latest_can_be_read_before_archive_completes','test_abort_keeps_latest_and_retry_recovers_the_complete_archive'))
     raise SystemExit(not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful())

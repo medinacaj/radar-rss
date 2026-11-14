@@ -10,7 +10,7 @@ const app=fs.readFileSync(path.join(__dirname,'../web/app.js'),'utf8');
 const source=app.slice(0,app.indexOf('hydrateIcons(); initHandlers(); updateScheduleProgress(); boot();'));
 const OLD='2026-10-20T10:00:00Z',NEXT='2026-10-21T10:00:00Z',NEWEST='2026-10-21T16:00:00Z';
 
-function harness(){
+function harness({now=Date.parse(OLD)+30*60*1000}={}){
   const elements=new Map(),storage=new Map(),timers=new Map(),calls=[],effects=[],warnings=[];
   let timerId=0,fetcher;
   function node(tag='div'){
@@ -43,7 +43,8 @@ function harness(){
     setTimeout(fn,ms){const id=++timerId;timers.set(id,{fn,ms});return id;},
     clearTimeout:id=>timers.delete(id),
     requestAnimationFrame:fn=>fn(),dispatchEvent:event=>effects.push(event)};
-  const context=vm.createContext({document,window,location:{search:''},URL,URLSearchParams,Intl,Date,Set,Map,AbortController,
+  const Clock=class extends Date{static now(){return now;}};
+  const context=vm.createContext({document,window,location:{search:''},URL,URLSearchParams,Intl,Date:Clock,Set,Map,AbortController,
     localStorage:{getItem:key=>storage.get(key)??null,setItem:(key,value)=>storage.set(key,String(value))},
     console:{warn:(...args)=>warnings.push(args),error:(...args)=>warnings.push(args)},
     CustomEvent:class{constructor(type,init){this.type=type;this.detail=init.detail;}},
@@ -121,6 +122,39 @@ test('manual refresh with no new publication confirms the check instead of remai
   assert.match(h.el('refreshStatus').textContent,/Última recopilación:/);
   assert.equal(h.state.generated,OLD);
   assert.equal(h.el('refreshNow').disabled,false);
+});
+
+test('manual check of six-hour-old server data warns instead of claiming fresh news',async()=>{
+  const h=harness({now:Date.parse(OLD)+6*60*60*1000});
+  h.state.feedMeta={generated_at:OLD,archive_files:[],total_articles:h.state.items.length,latest_count:h.state.items.length};
+  const before=stableState(h.state);
+  h.setFetch(()=>h.state.feedMeta);
+  await h.run('refreshPublishedData({manual:true})');
+  assert.equal(h.el('refreshStatus').dataset.state,'warning');
+  assert.match(h.el('refreshStatus').textContent,/servidor.*hace 6 h/);
+  assert.match(h.el('refreshStatus').textContent,/pendiente.*publicación reciente/);
+  assert.equal(stableState(h.state),before);
+  assert.match(h.el('lastUpdate').textContent,/Recopilación pendiente/);
+  assert.equal(h.el('refreshNow').disabled,false);
+});
+
+test('a newer but still delayed publication is loaded with an honest warning',async()=>{
+  const h=harness({now:Date.parse(NEXT)+6*60*60*1000}),docs=publication();
+  h.setFetch(name=>docs[name]);
+  await h.run('refreshPublishedData({manual:true})');
+  assert.equal(h.state.generated,NEXT);
+  assert.equal(h.el('refreshStatus').dataset.state,'warning');
+  assert.match(h.el('refreshStatus').textContent,/última publicación disponible/);
+  assert.doesNotMatch(h.el('refreshStatus').textContent,/Noticias actualizadas/);
+});
+
+test('a delayed pending generation also gets a warning when accepted manually',async()=>{
+  const h=harness({now:Date.parse(NEXT)+6*60*60*1000}),docs=publication();
+  h.setFetch(name=>docs[name]);
+  await h.run('refreshPublishedData()');
+  await h.run('refreshPublishedData({manual:true})');
+  assert.equal(h.state.generated,NEXT);
+  assert.equal(h.el('refreshStatus').dataset.state,'warning');
 });
 
 test('a later automatic check clears an obsolete manual result when new news becomes available',async()=>{

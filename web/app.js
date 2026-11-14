@@ -1553,6 +1553,7 @@ function publishNewRSSNews(previousIds=null){
 // Comprobación LOCAL de publicaciones nuevas: cada 15 min.
 // La recopilación de RSS de origen sigue aproximadamente cada hora por GitHub Actions.
 const CHECK_INTERVAL_MS=15*60*1000;
+const PUBLICATION_STALE_MS=4*60*60*1000;
 let nextCheckAt=Date.now()+CHECK_INTERVAL_MS;
 let checkStartedAt=Date.now();
 let checkTimer=null;
@@ -1564,8 +1565,13 @@ function freshnessLabel(){
   const age=ageDate(state.generated);
   return age==='Ahora'?'Actualizado ahora':'Actualizado '+age.charAt(0).toLowerCase()+age.slice(1);
 }
+function publicationIsDelayed(){
+  const generated=Date.parse(state.generated);
+  return Number.isFinite(generated)&&Date.now()-generated>PUBLICATION_STALE_MS;
+}
 function updateScheduleProgress(){
-  $('lastUpdate').textContent=feedRefreshBusy?'Buscando novedades…':freshnessLabel();
+  $('lastUpdate').textContent=feedRefreshBusy?'Buscando novedades…':
+    (publicationIsDelayed()?'Recopilación pendiente · ':'')+freshnessLabel();
   const exact=state.generated?' Última recopilación: '+shortDate(state.generated)+'.':'';
   const description='Radar-RSS comprueba si hay nuevas publicaciones cada 15 minutos; los medios se recopilan aproximadamente cada hora.'+exact;
   $('refreshCycle').title=description;
@@ -1577,6 +1583,15 @@ function updateScheduleProgress(){
 function refreshFeedback(message,status='success'){
   $('refreshStatus').textContent=message;
   $('refreshStatus').dataset.state=status;
+}
+function reportPublicationCheck(message,updated=false){
+  if(publicationIsDelayed()){
+    const prefix=updated?'Se cargó la última publicación disponible. ':'';
+    refreshFeedback(prefix+'La última recopilación del servidor fue '+ageDate(state.generated).toLowerCase()+
+      '. Sigue pendiente una publicación reciente.','warning');
+    return;
+  }
+  refreshFeedback(message);
 }
 function scheduleNextCheck(){
   window.clearTimeout(checkTimer);
@@ -1600,18 +1615,18 @@ async function refreshPublishedData({manual=false}={}){
     const generatedTime=typeof meta?.generated_at==='string'?Date.parse(meta.generated_at):NaN;
     if(!Number.isFinite(generatedTime))throw Error('Fecha de publicación RSS incompatible');
     if(pendingPublication&&generatedTime<=Date.parse(pendingPublication.meta.generated_at)){
-      if(manual){applyPendingPublication();refreshFeedback('Noticias actualizadas. Última recopilación: '+shortDate(state.generated)+'.');}
+      if(manual){applyPendingPublication();reportPublicationCheck('Noticias actualizadas. Última recopilación: '+shortDate(state.generated)+'.',true);}
       return;
     }
     if(meta.generated_at===state.generated){
       if(!newsCountsComplete()&&!state.historyLoading){
         state.feedMeta=meta;state.historyLoaded=false;state.historyFailed=false;render();
       }
-      if(manual)refreshFeedback('No hay novedades publicadas. Última recopilación: '+shortDate(state.generated)+'.');
+      if(manual)reportPublicationCheck('No hay novedades publicadas. Última recopilación: '+shortDate(state.generated)+'.');
       return;
     }
     if(generatedTime<=Date.parse(state.generated)){
-      if(manual)refreshFeedback('No hay una publicación más reciente disponible. Última recopilación: '+shortDate(state.generated)+'.');
+      if(manual)reportPublicationCheck('No hay una publicación más reciente disponible. Última recopilación: '+shortDate(state.generated)+'.');
       return;
     }
     const [sources,latest,status]=await Promise.all([
@@ -1637,7 +1652,7 @@ async function refreshPublishedData({manual=false}={}){
       const added=latest.items.filter(item=>!previousIds.has(item.id)).length;
       applyPendingPublication();
       const exact=' Última recopilación: '+shortDate(state.generated)+'.';
-      refreshFeedback(added?'Noticias actualizadas: '+format.format(added)+(added===1?' nueva.':' nuevas.')+exact:'Noticias actualizadas. Sin titulares adicionales en la última carga.'+exact);
+      reportPublicationCheck(added?'Noticias actualizadas: '+format.format(added)+(added===1?' nueva.':' nuevas.')+exact:'Noticias actualizadas. Sin titulares adicionales en la última carga.'+exact,true);
       return;
     }
     const previousIds=new Set(state.items.map(item=>item.id));
