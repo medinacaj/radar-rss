@@ -209,7 +209,13 @@ body.radar-hybrid.dimension #articleGrid.article-grid:not(.list-view)>.article-c
 }
 body.radar-hybrid.dimension :is(#articleGrid.article-grid,#dashboardFeature)>.article-card .article-footer :is(.article-read-toggle,.article-save,.article-more) {
   display:inline-grid;place-items:center;min-width:40px;min-height:40px;
-  width:40px;height:40px;padding:8px;border:1px solid transparent;border-radius:9px;
+  width:44px;height:44px;padding:8px;border:1px solid transparent;border-radius:9px;
+}
+/* Labels remain available through aria-label while crowded icon rows stay legible. */
+body.radar-hybrid.dimension :is(#articleGrid.article-grid,#dashboardFeature)>.article-card .article-footer .experience-action-label {
+  position:absolute!important;width:1px!important;height:1px!important;min-width:0!important;
+  padding:0!important;margin:-1px!important;overflow:hidden!important;
+  clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important;
 }
 body.radar-hybrid.dimension :is(#articleGrid.article-grid,#dashboardFeature)>.article-card .article-footer .article-save.saved {
   border-color:color-mix(in srgb,var(--accent) 35%,var(--line));
@@ -282,6 +288,11 @@ body.radar-hybrid.dimension .refresh-now[aria-busy='true'] {
   opacity:.82;cursor:progress;
 }
 @keyframes radar-polish-toast {from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* Route transitions should never make the article text temporarily unreadable. */
+@keyframes radar-polish-enter {from{transform:translateY(4px)}to{transform:translateY(0)}}
+body.radar-hybrid.dimension .dashboard-view:not([hidden]) :is(.home-heading,.dashboard-feature-panel,.homepage-latest) {
+  animation:radar-polish-enter .22s ease-out both;animation-delay:0s;
+}
 
 /* 8. Skeletons only for still-empty containers, never fake stories. */
 body.radar-hybrid.dimension #dashboardView:not([hidden]) #dashboardFeature:empty::before,
