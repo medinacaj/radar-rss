@@ -91,7 +91,7 @@ body.radar-hybrid.dimension #categoryNav .nav-link.active,
 body.radar-hybrid.dimension #libraryFolderNav .nav-link.active {
   color:var(--text)!important;
   border-color:color-mix(in srgb,var(--accent) 30%,var(--line));
-  background:color-mix(in srgb,var(--accent) 10%,var(--surface));
+  background:var(--surface);
   box-shadow:inset 3px 0 var(--accent);
 }
 body.radar-hybrid.dimension #categoryNav .nav-link.active .nav-glyph,
@@ -326,6 +326,19 @@ body.radar-hybrid.dimension #dashboardView:not([hidden]) #dashboardRecent:empty:
 }
 @keyframes radar-polish-skeleton {from{background-position:18px 20px,18px 54px,18px 89px,18px 139px,200% 0}to{background-position:18px 20px,18px 54px,18px 89px,18px 139px,-200% 0}}
 
+/* Preserve a usable toolbar when the reader has a very wide sidebar.
+   Wrapping is opportunistic: full-width desktops keep one row. */
+@media(min-width:711px) {
+  body.radar-hybrid.dimension .topbar {
+    flex-wrap:wrap;row-gap:7px;
+  }
+  body.radar-hybrid.dimension .topbar-search {
+    flex:1 1 180px;min-width:0;
+  }
+  body.radar-hybrid.dimension .topbar-actions {
+    min-width:0;
+  }
+}
 /* Tablet: preserve two glance tiles and a readable, compact lead story. */
 @media(max-width:1200px) {
   body.radar-hybrid.dimension #dashboardFeature>.article-card {
