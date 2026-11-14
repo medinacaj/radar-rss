@@ -104,6 +104,9 @@
   const optionsSummary=mk('summary','','Filtros');
   optionsSummary.setAttribute('aria-label','Filtrar noticias');
   optionsSummary.title='Filtrar noticias';optionsSummary.prepend(svgIcon('settings'));
+  const topbarFilterCount=mk('span','feed-filters-count topbar-filter-badge');
+  topbarFilterCount.id='topbarFilterCount';topbarFilterCount.hidden=true;
+  topbarFilterCount.setAttribute('aria-hidden','true');optionsSummary.append(topbarFilterCount);
   const optionsBody=mk('div','sidebar-feed-options-body');
   options.append(optionsSummary,optionsBody);
   optionsBody.append(headerControls);
@@ -281,6 +284,10 @@
     presentation.hidden=false;
     toggle.hidden=!mobile;viewToggle.hidden=!mobile;
     const active=filters();chips.replaceChildren();
+    const activeCount=active.filter(item=>!item.preference).length;
+    topbarFilterCount.textContent=String(activeCount);
+    topbarFilterCount.hidden=activeCount===0;
+    optionsSummary.setAttribute('aria-label',activeCount?`Filtrar noticias, ${activeCount} filtros activos`:'Filtrar noticias');
     for(const item of active){
       const button=mk('button','feed-filter-chip'+(item.preference?' is-preference':''),item.label+(item.preference?' · Ajustar':' ×'));
       button.type='button';button.dataset.filter=item.id;
