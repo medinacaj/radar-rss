@@ -73,6 +73,7 @@ class AuditRegressions(unittest.TestCase):
         self.page.locator('#libraryTagInput').fill('Research')
         self.page.locator('.reader-tag-create button').click()
         self.page.locator('#readerClose').click()
+        if self.page.locator('#sidebarReadingContent').is_hidden(): self.page.locator('#sidebarReadingToggle').click()
         self.page.locator('#sidebarFeedOptions > summary').click()
         self.assertTrue(self.page.locator('#libraryTagFilter').is_visible())
         self.page.locator('#articleGrid .article-also').first.click()
