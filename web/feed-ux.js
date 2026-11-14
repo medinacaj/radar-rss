@@ -68,11 +68,10 @@
     return active;
   }
 
-  // One set of controls: compact sidebar disclosure on desktop, existing sheet on mobile.
+  // One set of controls: topbar popovers on desktop, shared modal sheet on mobile.
   const headerControls=mk('div','feed-header-controls');headerControls.id='feedHeaderControls';
   headerControls.setAttribute('role','group');headerControls.setAttribute('aria-label','Fuentes y presentación de noticias');
-  const sidebar=get('sidebarCoreContent');
-  const coreSection=get('sidebarCoreSection');
+  const topbarTools=get('topbarTools');
   const primaryNav=get('categoryNav');
   const modes=feed.querySelector('.mode-tabs');
   // One navigation: Noticias already opens "Todas"; only unread/saved need links.
@@ -93,44 +92,6 @@
     }
     primaryNav.insertBefore(modes,primaryNav.querySelector('[data-destination="agenda"]'));
   }
-  const readingNav=mk('section','sidebar-reading sidebar-tools');
-  readingNav.setAttribute('aria-labelledby','sidebarReadingHeading');
-  const readingHead=mk('h3','sidebar-reading-title');readingHead.id='sidebarReadingHeading';
-  const readingToggle=mk('button','sidebar-section-toggle sidebar-reading-toggle');
-  readingToggle.type='button';readingToggle.id='sidebarReadingToggle';
-  readingToggle.setAttribute('aria-controls','sidebarReadingContent');
-  const readingTitle=mk('span','','HERRAMIENTAS');
-  const readingChevron=mk('span','sidebar-section-chevron');
-  readingChevron.setAttribute('aria-hidden','true');
-  readingToggle.append(readingTitle,readingChevron);
-  readingHead.append(readingToggle);
-  const readingContent=mk('div','sidebar-reading-content');readingContent.id='sidebarReadingContent';
-  const setReadingExpanded=value=>{
-    readingContent.hidden=!value;
-    readingToggle.setAttribute('aria-expanded',String(value));
-    readingToggle.setAttribute('aria-label',value?'Contraer herramientas':'Expandir herramientas');
-  };
-  // Tools must remain discoverable even on Inicio, Resumen and Agenda.
-  // Respect an explicit collapse; otherwise show the available actions by default.
-  const savedReadingOpen=typeof storeGet==='function'?storeGet('radar-tools-open'):null;
-  let narrowTools=window.innerWidth<=640;
-  setReadingExpanded(narrowTools||savedReadingOpen!=='false');
-  window.addEventListener('resize',()=>{
-    const narrow=window.innerWidth<=640;
-    if(narrow===narrowTools)return;
-    narrowTools=narrow;
-    setReadingExpanded(narrow||storeGet('radar-tools-open')!=='false');
-  });
-  readingToggle.addEventListener('click',()=>{
-    const expanded=readingContent.hidden;
-    setReadingExpanded(expanded);
-    savePref('tools-open',expanded);
-  });
-  readingNav.append(readingHead,readingContent);
-  if(sidebar){
-    // Folders stay immediately after Principal; tools follow, with no repeated reading links.
-    get('sidebarNavigation')?.append(readingNav);
-  }
   if(modes){
     modes.addEventListener('click',event=>{
       const button=event.target.closest('.mode-tab');
@@ -140,27 +101,39 @@
     });
   }
   const options=mk('details','sidebar-feed-options');options.id='sidebarFeedOptions';
-  const optionsSummary=mk('summary','','Filtrar noticias');
-  optionsSummary.setAttribute('aria-label','Mostrar filtros de noticias');
+  const optionsSummary=mk('summary','','Filtros');
+  optionsSummary.setAttribute('aria-label','Filtrar noticias');
+  optionsSummary.title='Filtrar noticias';optionsSummary.prepend(svgIcon('settings'));
   const optionsBody=mk('div','sidebar-feed-options-body');
   options.append(optionsSummary,optionsBody);
   optionsBody.append(headerControls);
-  readingContent.append(options);
+  topbarTools?.append(options);
   const source=get('sourceSelect')?.closest('label');
   const display=controls.querySelector('.display-controls');
   const presentation=mk('details','presentation-control');presentation.id='presentationControl';
-  const presentationSummary=mk('summary','','Vista y columnas');presentationSummary.id='presentationSummary';
+  const presentationSummary=mk('summary','','Vista');presentationSummary.id='presentationSummary';
+  presentationSummary.setAttribute('aria-label','Vista y columnas');
+  presentationSummary.title='Vista y columnas';presentationSummary.prepend(svgIcon('grid'));
   const presentationBody=mk('div','presentation-controls-body');
   presentation.append(presentationSummary,presentationBody);
   if(source)headerControls.append(source);
-  if(display){presentationBody.append(display);readingContent.append(presentation);}
+  if(display)presentationBody.append(display);
+  topbarTools?.append(presentation);
   presentation.addEventListener('keydown',event=>{
     if(window.innerWidth>640&&event.key==='Escape'&&presentation.open){event.preventDefault();event.stopPropagation();closeColumnsMenu(false);presentation.open=false;presentationSummary.focus();}
   });
-  // Close after the target's click; pointerdown would collapse this inline menu
-  // before pointerup and make buttons further down the sidebar miss activation.
+  // Only one popover at a time. Click outside or press Escape to dismiss.
+  options.addEventListener('toggle',()=>{if(options.open)presentation.open=false;});
+  presentation.addEventListener('toggle',()=>{if(presentation.open&&window.innerWidth>640)options.open=false;});
+  options.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&options.open){event.preventDefault();event.stopPropagation();options.open=false;optionsSummary.focus();}
+  });
   document.addEventListener('click',event=>{
-    if(presentation.open&&!presentation.contains(event.target)&&window.innerWidth>640)presentation.open=false;
+    if(window.innerWidth<=640)return;
+    if(options.open&&!options.contains(event.target))options.open=false;
+    if(presentation.open&&!presentation.contains(event.target)){
+      closeColumnsMenu(false);presentation.open=false;
+    }
   });
   const advanced=get('feedAdvanced');
   const reading=document.querySelector('[data-settings-pane="reading"]');
@@ -173,18 +146,23 @@
   }
 
   const toggle=mk('button','feed-filters-toggle');toggle.id='feedFiltersToggle';toggle.type='button';
+  toggle.title='Filtrar noticias';toggle.prepend(svgIcon('settings'));
   toggle.setAttribute('aria-controls','feedFilterPanel');toggle.setAttribute('aria-expanded','false');
   const toggleLabel=mk('span','','Filtros');
   const count=mk('span','feed-filters-count');count.id='feedFiltersCount';toggle.append(toggleLabel,count);
+  const viewToggle=mk('button','topbar-mobile-view','Vista');viewToggle.id='feedViewToggle';viewToggle.type='button';
+  viewToggle.title='Vista y columnas';viewToggle.setAttribute('aria-label','Vista y columnas');
+  viewToggle.setAttribute('aria-controls','feedFilterPanel');viewToggle.setAttribute('aria-haspopup','dialog');
+  viewToggle.prepend(svgIcon('grid'));
   const panel=mk('dialog','feed-filter-panel');panel.id='feedFilterPanel';panel.hidden=true;
   panel.setAttribute('aria-labelledby','feedFiltersTitle');
-  const panelHead=mk('div','feed-sheet-head'),panelTitle=mk('h2','','Filtros de noticias');panelTitle.id='feedFiltersTitle';
+  const panelHead=mk('div','feed-sheet-head'),panelTitle=mk('h2','','Filtros y vista');panelTitle.id='feedFiltersTitle';
   const panelClose=mk('button','feed-sheet-close','Cerrar');panelClose.id='feedFiltersClose';panelClose.type='button';
   panelClose.setAttribute('aria-label','Cerrar filtros');panelHead.append(panelTitle,panelClose);
   const fields=mk('div','feed-sheet-fields');fields.id='feedFilterFields';
   const done=mk('button','feed-sheet-done','Ver noticias');done.id='feedFiltersDone';done.type='button';
   panel.append(panelHead,fields,done);
-  readingContent.append(toggle);document.body.append(panel);
+  topbarTools?.append(toggle,viewToggle);document.body.append(panel);
   const densityToggle=mk('button','feed-density-toggle','Compacto');
   densityToggle.id='feedDensityToggle';densityToggle.type='button';
   densityToggle.title='Alternar entre espaciado cómodo y compacto';
@@ -211,7 +189,7 @@
   let mobile=false,expanded=false,desktopAdvancedOpen=Boolean(advanced?.open);
   function setExpanded(value){
     expanded=Boolean(mobile&&value);
-    toggle.setAttribute('aria-expanded',String(expanded));
+    toggle.setAttribute('aria-expanded',String(expanded));viewToggle.setAttribute('aria-expanded',String(expanded));
     if(expanded){panel.hidden=false;if(!panel.open){presentation.open=true;panel.showModal();panelClose.focus();}}
     else{if(panel.open)panel.close();panel.hidden=true;}
   }
@@ -219,7 +197,7 @@
   done.addEventListener('click',()=>setExpanded(false));
   panel.addEventListener('close',()=>{
     if(panel.open)return;
-    expanded=false;panel.hidden=true;toggle.setAttribute('aria-expanded','false');
+    expanded=false;panel.hidden=true;toggle.setAttribute('aria-expanded','false');viewToggle.setAttribute('aria-expanded','false');
     if(mobile)toggle.focus({preventScroll:true});
   });
   function placeControls(){
@@ -238,15 +216,20 @@
         expanded=false;
       }
     }
-    // The sidebar is shared by all routes, so never show an empty Tools section.
+    // Desktop popovers stay in the topbar; mobile uses the existing modal sheet.
     options.hidden=mobile;
     presentation.hidden=false;
-    toggle.hidden=!mobile;setExpanded(expanded);
+    toggle.hidden=!mobile;viewToggle.hidden=!mobile;setExpanded(expanded);
   }
   // Keep an empty mobile search field from collapsing between pointerdown
   // and click and moving this control away from the pointer.
   toggle.addEventListener('pointerdown',event=>{if(event.button===0)event.preventDefault();});
   toggle.addEventListener('click',()=>{setExpanded(!expanded);if(!expanded)toggle.focus({preventScroll:true});});
+  viewToggle.addEventListener('click',()=>{
+    setExpanded(true);presentation.open=true;
+    presentationSummary.scrollIntoView({block:'nearest'});
+    presentationSummary.focus({preventScroll:true});
+  });
   panel.addEventListener('keydown',event=>{
     if(event.key==='Escape'&&expanded){setExpanded(false);toggle.focus({preventScroll:true});event.stopPropagation();}
   });
@@ -288,10 +271,9 @@
   function update(){
     headerControls.hidden=false;
     syncDensity();
-    readingNav.hidden=false;
     options.hidden=mobile;
     presentation.hidden=false;
-    toggle.hidden=!mobile;
+    toggle.hidden=!mobile;viewToggle.hidden=!mobile;
     const active=filters();chips.replaceChildren();
     for(const item of active){
       const button=mk('button','feed-filter-chip'+(item.preference?' is-preference':''),item.label+(item.preference?' · Ajustar':' ×'));

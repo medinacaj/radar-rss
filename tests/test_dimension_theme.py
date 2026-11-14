@@ -24,7 +24,7 @@ class DimensionThemeTests(unittest.TestCase):
    self.assertIn(token,self.css)
   self.assertNotIn('@import',self.css);self.assertNotIn('url(https:',self.css)
   styles=re.findall(r'href="\./([^"?]+\.css)\?',self.html)
-  self.assertEqual(styles[-3:],['dimension.css','experience.css','editorial-ux.css'])
+  self.assertEqual(styles[-4:],['dimension.css','experience.css','editorial-ux.css','topbar-tools.css'])
  def test_accessibility_and_reader_components_survive_theme_replacement(self):
   for component in ('articleGrid','dashboardFeature','dashboardRecent','categoryNav','agendaView','settingsDialog','cardMenu','sidebarResizeHandle'):
    self.assertIn('id="'+component+'"',self.html)
