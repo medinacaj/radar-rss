@@ -73,14 +73,33 @@
   headerControls.setAttribute('role','group');headerControls.setAttribute('aria-label','Fuentes y presentación de noticias');
   const sidebar=get('sidebarCoreContent');
   const coreSection=get('sidebarCoreSection');
+  const primaryNav=get('categoryNav');
   const modes=feed.querySelector('.mode-tabs');
-  const readingNav=mk('section','sidebar-reading');
+  // One navigation: Noticias already opens "Todas"; only unread/saved need links.
+  if(primaryNav&&modes){
+    modes.id='sidebarReadingModes';
+    const allMode=modes.querySelector('[data-mode="all"]');
+    if(allMode){allMode.hidden=true;allMode.setAttribute('aria-hidden','true');allMode.tabIndex=-1;}
+    for(const mode of ['unread','saved']){
+      const button=modes.querySelector('[data-mode="'+mode+'"]');
+      if(!button)continue;
+      const count=button.querySelector('.mode-tab-count');
+      const label=mode==='unread'?'Sin leer':'Guardadas';
+      const glyph=mk('span','nav-glyph');glyph.append(svgIcon(mode==='unread'?'mail':'bookmark'));
+      const left=mk('span','nav-left');left.append(glyph,mk('span','nav-label',label));
+      button.classList.add('nav-link','reader-mode-link');
+      if(count){count.classList.add('nav-count');button.replaceChildren(left,count);}
+      else button.replaceChildren(left);
+    }
+    primaryNav.insertBefore(modes,primaryNav.querySelector('[data-destination="agenda"]'));
+  }
+  const readingNav=mk('section','sidebar-reading sidebar-tools');
   readingNav.setAttribute('aria-labelledby','sidebarReadingHeading');
   const readingHead=mk('h3','sidebar-reading-title');readingHead.id='sidebarReadingHeading';
   const readingToggle=mk('button','sidebar-section-toggle sidebar-reading-toggle');
   readingToggle.type='button';readingToggle.id='sidebarReadingToggle';
   readingToggle.setAttribute('aria-controls','sidebarReadingContent');
-  const readingTitle=mk('span','','MI LECTURA');
+  const readingTitle=mk('span','','HERRAMIENTAS');
   const readingChevron=mk('span','sidebar-section-chevron');
   readingChevron.setAttribute('aria-hidden','true');
   readingToggle.append(readingTitle,readingChevron);
@@ -89,26 +108,26 @@
   const setReadingExpanded=value=>{
     readingContent.hidden=!value;
     readingToggle.setAttribute('aria-expanded',String(value));
-    readingToggle.setAttribute('aria-label',value?'Contraer Mi lectura':'Expandir Mi lectura');
+    readingToggle.setAttribute('aria-label',value?'Contraer herramientas':'Expandir herramientas');
   };
-  // Save the reader's choice locally; a blocked/private storage still defaults open.
-  const savedReadingOpen=typeof storeGet==='function'?storeGet('radar-reading-open'):null;
-  setReadingExpanded(savedReadingOpen!=='false');
+  // Keep non-navigation controls collapsed to avoid a crowded sidebar.
+  const savedReadingOpen=typeof storeGet==='function'?storeGet('radar-tools-open'):null;
+  setReadingExpanded(savedReadingOpen==='true');
   readingToggle.addEventListener('click',()=>{
     const expanded=readingContent.hidden;
     setReadingExpanded(expanded);
-    savePref('reading-open',expanded);
+    savePref('tools-open',expanded);
   });
   readingNav.append(readingHead,readingContent);
-  if(sidebar&&modes){
-    readingContent.append(modes);
-    // This is a sibling navigation group, not a sub-menu of Principal.
-    if(coreSection)coreSection.after(readingNav);
-    else sidebar.append(readingNav);
+  if(sidebar){
+    // Folders stay immediately after Principal; tools follow, with no repeated reading links.
+    get('sidebarNavigation')?.append(readingNav);
+  }
+  if(modes){
     modes.addEventListener('click',event=>{
       const button=event.target.closest('.mode-tab');
       if(!button)return;
-      if(state.pageView!=='feed')goTo('all');
+      if(window.location.hash!=='#noticias')goTo('all');
       if(window.innerWidth<=950)setNavOpen(false);
     });
   }
