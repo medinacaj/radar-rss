@@ -32,6 +32,10 @@ class FolderContextTests(unittest.TestCase):
 
     def test_create_folder_only_from_context_menu(self):
         self.assertIn("['create','Crear carpeta']",self.library)
+        self.assertIn("equipFolder(header,toggle,'section',null)",self.library)
+        self.assertIn("if(kind==='section')",self.library)
+        self.assertIn("forSection?command!=='create'",self.library)
+        self.assertIn("if(kind!=='all'&&kind!=='section')",self.library)
         self.assertIn("if(command==='create')createFolder()",self.library)
         self.assertIn("function createFolder(){openFolderEditor('manual',null,true);}",self.library)
         self.assertIn("forAll?!['read','unread','view','sources'].includes(command)",self.library)
