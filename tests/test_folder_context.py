@@ -20,6 +20,7 @@ class FolderContextTests(unittest.TestCase):
 
     def test_accessible_context_menu_on_every_folder(self):
         self.assertIn("row.addEventListener('contextmenu'",self.library)
+        self.assertIn('event.stopImmediatePropagation();hideFolderMenu(true)',self.library)
         self.assertIn("e.shiftKey&&e.key==='F10'",self.library)
         self.assertIn("e.key==='ContextMenu'",self.library)
         self.assertIn("button.setAttribute('aria-keyshortcuts','Shift+F10')",self.library)
@@ -32,12 +33,16 @@ class FolderContextTests(unittest.TestCase):
 
     def test_create_folder_only_from_context_menu(self):
         self.assertIn("['create','Crear carpeta']",self.library)
+        self.assertIn("equipFolder(header,toggle,'section',null)",self.library)
+        self.assertIn("if(kind==='section')",self.library)
+        self.assertIn("forSection?command!=='create'",self.library)
+        self.assertIn("if(kind!=='all'&&kind!=='section')",self.library)
         self.assertIn("if(command==='create')createFolder()",self.library)
         self.assertIn("function createFolder(){openFolderEditor('manual',null,true);}",self.library)
         self.assertIn("forAll?!['read','unread','view','sources'].includes(command)",self.library)
         self.assertNotIn("add.title='Crear carpeta de fuentes'",self.library)
         self.assertNotIn("mk('button','settings-secondary','Crear carpeta')",self.library)
-        self.assertIn('clic derecho sobre una carpeta o categoría',self.library)
+        self.assertIn('clic derecho sobre «Carpetas y categorías» o sobre una carpeta',self.library)
 
     def test_updated_assets(self):
         self.assertRegex(self.html,r'<script src="\./library\.js\?v=[^"]+" defer></script>')
