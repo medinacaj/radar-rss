@@ -60,6 +60,7 @@ def exercise(browser, base, width):
             expect(page.locator('#sourceSelect')).not_to_be_visible()
             page.locator('#feedFiltersToggle').click()
         else:
+            if page.locator('#sidebarReadingContent').is_hidden(): page.locator('#sidebarReadingToggle').click()
             page.locator('#sidebarFeedOptions > summary').click()
         expect(page.locator('#sourceSelect')).to_be_visible()
         page.select_option('#sourceSelect', 'medio-0')
@@ -84,8 +85,9 @@ def exercise(browser, base, width):
             if width<=640:
                 if not page.locator('#feedFilterPanel').is_visible():
                     page.locator('#feedFiltersToggle').click()
-            elif not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'):
-                page.locator('#sidebarFeedOptions > summary').click()
+            else:
+                if page.locator('#sidebarReadingContent').is_hidden(): page.locator('#sidebarReadingToggle').click()
+                if not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'): page.locator('#sidebarFeedOptions > summary').click()
 
         def close_filter_menu():
             if width<=640 and page.locator('#feedFilterPanel').is_visible():

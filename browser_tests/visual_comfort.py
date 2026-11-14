@@ -47,6 +47,7 @@ def main():
                     page.locator('#feedFiltersToggle').click()
                 else:
                     if width<=950:page.locator('#menuToggle').click()
+                    if page.locator('#sidebarReadingContent').is_hidden(): page.locator('#sidebarReadingToggle').click()
                     page.locator('#sidebarFeedOptions > summary').click()
                     expect(page.locator('#readingProfile')).to_be_hidden()
                     page.locator('#presentationSummary').click()
@@ -120,6 +121,7 @@ def main():
                 assert page.locator('#sourceSelect').count()==1
                 assert page.locator('#presentationControl').count()==1
                 if not page.locator('#sidebarFeedOptions').evaluate('n=>n.open'):
+                    if page.locator('#sidebarReadingContent').is_hidden(): page.locator('#sidebarReadingToggle').click()
                     page.locator('#sidebarFeedOptions > summary').click()
                 page.locator('#presentationSummary').click();expect(page.locator('#readingProfile')).to_be_visible()
                 page.keyboard.press('Escape')

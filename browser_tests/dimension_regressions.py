@@ -81,7 +81,7 @@ class DimensionRegressions(unittest.TestCase):
           return [...nav.children].map(el=>el.id||el.className);
         }""")
         self.assertEqual(structure[:3],[
-            'sidebarCoreSection','sidebar-reading','source-folders-section'
+            'sidebarCoreSection','source-folders-section','sidebar-reading sidebar-tools'
         ],structure)
         expect(self.page.locator('#sidebarCoreHeading')).to_have_text('PRINCIPAL')
         expect(self.page.locator('#sourceFoldersHeading')).to_have_text('CARPETAS Y CATEGORÍAS')
@@ -90,20 +90,23 @@ class DimensionRegressions(unittest.TestCase):
         expect(self.page.locator('.sidebar-reading')).to_be_visible()
         reading_toggle=self.page.locator('#sidebarReadingToggle')
         expect(reading_toggle).to_have_attribute('aria-controls','sidebarReadingContent')
+        expect(reading_toggle).to_have_attribute('aria-expanded','false')
+        reading_toggle.click()
         expect(reading_toggle).to_have_attribute('aria-expanded','true')
+        expect(self.page.locator('#sidebarReadingContent')).to_be_visible()
+        expect(self.page.locator('#categoryNav')).to_be_visible()
         reading_toggle.click()
         expect(reading_toggle).to_have_attribute('aria-expanded','false')
-        expect(self.page.locator('#sidebarReadingContent')).to_be_hidden()
-        expect(self.page.locator('#categoryNav')).to_be_visible()
         reading_toggle.click()
         expect(reading_toggle).to_have_attribute('aria-expanded','true')
         expect(self.page.locator('#sidebarReadingContent')).to_be_visible()
         # Reading destinations work even when the current route is Home.
-        self.page.locator('.sidebar-reading [data-mode="saved"]').click()
+        self.page.locator('#sidebarReadingModes [data-mode="saved"]').click()
         expect(self.page).to_have_url(self.base+'#noticias')
         self.assertEqual(self.page.evaluate('state.mode'),'saved')
         expect(self.page.locator('#feedActiveFilters')).to_be_hidden()
         self.assertEqual(self.page.locator('#feedActiveFilters').evaluate('n=>getComputedStyle(n).display'),'none')
+        if self.page.locator('#sidebarReadingContent').is_hidden(): self.page.locator('#sidebarReadingToggle').click()
         self.page.locator('#sidebarFeedOptions > summary').click()
         expect(self.page.locator('#sourceSelect')).to_be_visible()
         expect(self.page.locator('#presentationSummary')).to_be_visible()
@@ -128,18 +131,18 @@ class DimensionRegressions(unittest.TestCase):
     def test_reading_section_expansion_survives_reload(self):
         toggle=self.page.locator('#sidebarReadingToggle')
         panel=self.page.locator('#sidebarReadingContent')
-        expect(toggle).to_have_attribute('aria-expanded','true')
-        toggle.click()
-        expect(panel).to_be_hidden()
-        self.assertEqual(self.page.evaluate("localStorage.getItem('radar-reading-open')"),'false')
-        self.page.reload();self.page.wait_for_function('()=>state.ready')
         expect(toggle).to_have_attribute('aria-expanded','false')
-        expect(panel).to_be_hidden()
         toggle.click()
-        self.assertEqual(self.page.evaluate("localStorage.getItem('radar-reading-open')"),'true')
+        expect(panel).to_be_visible()
+        self.assertEqual(self.page.evaluate("localStorage.getItem('radar-tools-open')"),'true')
         self.page.reload();self.page.wait_for_function('()=>state.ready')
         expect(toggle).to_have_attribute('aria-expanded','true')
         expect(panel).to_be_visible()
+        toggle.click()
+        self.assertEqual(self.page.evaluate("localStorage.getItem('radar-tools-open')"),'false')
+        self.page.reload();self.page.wait_for_function('()=>state.ready')
+        expect(toggle).to_have_attribute('aria-expanded','false')
+        expect(panel).to_be_hidden()
 
     def test_reading_toggle_and_filter_reset_on_mobile_sidebar(self):
         self.page.set_viewport_size({'width':390,'height':850})
@@ -151,7 +154,7 @@ class DimensionRegressions(unittest.TestCase):
         expect(toggle).to_have_attribute('aria-expanded','false')
         toggle.click()
         expect(self.page.locator('#sidebarReadingContent')).to_be_visible()
-        self.page.locator('#sidebarReadingContent [data-mode="unread"]').click()
+        self.page.locator('#sidebarReadingModes [data-mode="unread"]').click()
         expect(self.page).to_have_url(self.base+'#noticias')
         expect(self.page.locator('#feedActiveFilters')).to_be_hidden()
         self.page.locator('#menuToggle').click()
@@ -291,7 +294,7 @@ class DimensionRegressions(unittest.TestCase):
         for width in (375,1440):
             self.page.set_viewport_size({'width':width,'height':900})
             if width==375:self.page.locator('#menuToggle').click()
-            for selector in ('#libraryFolderNav .nav-link','.sidebar-reading .mode-tab'):
+            for selector in ('#libraryFolderNav .nav-link','#sidebarReadingModes .reader-mode-link'):
                 rows=self.page.locator(selector).evaluate_all('nodes=>nodes.map(n=>({y:n.getBoundingClientRect().y,h:n.getBoundingClientRect().height}))')
                 self.assertGreater(len(rows),1)
                 for a,b in zip(rows,rows[1:]):
@@ -391,6 +394,7 @@ class DimensionRegressions(unittest.TestCase):
         self.page.evaluate("goTo('all')")
         expect(self.page.locator('#columnsCurrent')).to_have_text('Auto')
         self.assertGreaterEqual(self.page.locator('#articleGrid > .article-card').first.bounding_box()['width'],280)
+        if self.page.locator('#sidebarReadingContent').is_hidden(): self.page.locator('#sidebarReadingToggle').click()
         self.page.locator('#sidebarFeedOptions > summary').click()
         self.page.locator('#presentationSummary').click()
         self.page.locator('#columnsToggle').click()
