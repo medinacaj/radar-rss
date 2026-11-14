@@ -20,6 +20,7 @@ class FolderContextTests(unittest.TestCase):
 
     def test_accessible_context_menu_on_every_folder(self):
         self.assertIn("row.addEventListener('contextmenu'",self.library)
+        self.assertIn('event.stopImmediatePropagation();hideFolderMenu(true)',self.library)
         self.assertIn("e.shiftKey&&e.key==='F10'",self.library)
         self.assertIn("e.key==='ContextMenu'",self.library)
         self.assertIn("button.setAttribute('aria-keyshortcuts','Shift+F10')",self.library)
