@@ -155,12 +155,15 @@ assert.equal(privateFolder,null);assert.equal(state.search,'sin coincidencia');a
 // Existing listeners and node identities survive mobile placement and desktop restoration.
 let sourceChanges=0;sourceSelect.addEventListener('change',()=>sourceChanges++);
 window.innerWidth=390;window.emit('resize');
+assert.equal(readingContent.hidden,false,'small-screen filters are accessible without an extra hidden menu');
+assert.equal(readingToggle.getAttribute('aria-expanded'),'true');
 assert.equal(get('feedFiltersToggle').hidden,false);assert.equal(get('sidebarFeedOptions').hidden,true);assert.equal(source.parentNode,get('feedFilterFields'));assert.equal(tag.parentNode,get('feedFilterFields'));assert.equal(display.closest('#presentationControl').parentNode,get('feedFilterFields'));assert.equal(advanced.parentNode,null);
 assert.equal(get('feedFilterPanel').hidden,true);get('feedFiltersToggle').click();
 assert.equal(get('feedFilterPanel').hidden,false);assert.equal(get('feedFiltersToggle').getAttribute('aria-expanded'),'true');assert.equal(get('feedDensityToggle').parentNode,get('feedFilterFields'));assert.equal(get('feedClearFilters').parentNode,get('feedFilterFields'));assert.equal(get('v12Date').closest('.settings-feed-actions').parentNode,reading);
 sourceSelect.dispatch('change');assert.equal(sourceChanges,1);
 get('feedFilterPanel').dispatch('keydown',{key:'Escape'});assert.equal(get('feedFilterPanel').hidden,true);assert.equal(document.activeElement,get('feedFiltersToggle'));
 window.innerWidth=1440;window.emit('resize');
+assert.equal(readingContent.hidden,true,'desktop restores collapsed tool preference');
 assert.equal(source.parentNode,get('feedHeaderControls'));
 assert.equal(display.closest('#presentationControl').parentNode,get('sidebarReadingContent'));
 assert.equal(tag.parentNode.className,'sidebar-feed-options-body');
