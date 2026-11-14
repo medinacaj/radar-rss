@@ -10,7 +10,7 @@ body.radar-hybrid.dimension {
 /* 1. Header: a predictable one-row working area with coherent control sizes. */
 body.radar-hybrid.dimension .topbar {
   display:flex;flex-wrap:nowrap;align-items:center;gap:10px;
-  min-height:56px;max-width:none;padding:6px 12px;
+  min-height:56px;padding:6px 12px;
   border-color:var(--polish-line);box-shadow:var(--polish-shadow);
 }
 body.radar-hybrid.dimension .topbar-caption {gap:8px;min-width:0;flex-shrink:0}
@@ -69,13 +69,16 @@ body.radar-hybrid.dimension .sidebar :is(.sidebar-section-toggle,.folder-group-h
   font-size:11px;letter-spacing:.065em;font-weight:700;
 }
 body.radar-hybrid.dimension :is(#categoryNav,#libraryFolderNav) .nav-link {
-  min-height:42px;padding:7px 10px;gap:9px;border-radius:9px;
+  min-height:44px;padding:7px 10px;gap:9px;border-radius:9px;
   transition:background-color .16s ease,color .16s ease,border-color .16s ease;
 }
 body.radar-hybrid.dimension :is(#categoryNav,#libraryFolderNav) .nav-glyph {
   width:28px;height:28px;flex:0 0 28px;border-radius:8px;
 }
 body.radar-hybrid.dimension :is(#categoryNav,#libraryFolderNav) .nav-glyph .ui-icon {width:17px;height:17px}
+body.radar-hybrid.dimension #categoryNav #sidebarReadingModes .mode-tab.reader-mode-link {
+  min-height:44px;
+}
 body.radar-hybrid.dimension :is(#categoryNav,#libraryFolderNav) .nav-label {
   min-width:0;flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;
 }
@@ -86,9 +89,16 @@ body.radar-hybrid.dimension #sidebarReadingModes .mode-tab-count {
 }
 body.radar-hybrid.dimension #categoryNav .nav-link.active,
 body.radar-hybrid.dimension #libraryFolderNav .nav-link.active {
+  color:var(--text)!important;
   border-color:color-mix(in srgb,var(--accent) 30%,var(--line));
   background:color-mix(in srgb,var(--accent) 10%,var(--surface));
   box-shadow:inset 3px 0 var(--accent);
+}
+body.radar-hybrid.dimension #categoryNav .nav-link.active .nav-glyph,
+body.radar-hybrid.dimension #libraryFolderNav .nav-link.active .nav-glyph,
+body.radar-hybrid.dimension #categoryNav .nav-link.active .nav-count,
+body.radar-hybrid.dimension #libraryFolderNav .nav-link.active .nav-count {
+  color:var(--text)!important;background:transparent!important;
 }
 body.radar-hybrid.dimension .sidebar-bottom {
   border-top:1px solid var(--polish-line);padding-top:16px;
