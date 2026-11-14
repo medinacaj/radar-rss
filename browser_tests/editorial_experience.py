@@ -116,6 +116,7 @@ def main():
                     page.locator('#menuToggle').click()
                     page.locator('#feedFiltersToggle').click()
                 else:
+                    if page.locator('#sidebarReadingContent').is_hidden(): page.locator('#sidebarReadingToggle').click()
                     page.locator('#sidebarFeedOptions > summary').click()
                 expect(page.locator('#editorialType')).to_be_visible()
                 page.locator('#editorialType').select_option('opinion')
