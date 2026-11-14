@@ -411,7 +411,8 @@ function runFolderAction(command){
   }
   return;
  }
- if(command==='rename')openFolderEditor(kind,id);
+ if(command==='create')createFolder();
+ else if(command==='rename')openFolderEditor(kind,id);
  else if(command==='sources')openFolderEditor(kind,id,false,true);
  else if(command==='delete')deleteFolder(kind,id);
  else if(command==='read')void markFolderRead(kind,id);
@@ -420,7 +421,7 @@ function installFolderUI(){
  VECTOR_PATHS['rotate-ccw']='<path d="M3 11a9 9 0 1 1 3 7M3 4v7h7"/>';
  const menu=mk('div','folder-popup-menu');menu.id='folderMenu';menu.hidden=true;
  menu.setAttribute('role','menu');menu.setAttribute('aria-label','Acciones de carpeta');
- for(const [action,label] of [['rename','Renombrar'],['sources','Administrar fuentes'],['read','Marcar como leída'],['delete','Eliminar carpeta'],['view','Ver todas las noticias'],['unread','Mostrar solo las no leídas']]){
+ for(const [action,label] of [['create','Crear carpeta'],['rename','Renombrar'],['sources','Administrar fuentes'],['read','Marcar como leída'],['delete','Eliminar carpeta'],['view','Ver todas las noticias'],['unread','Mostrar solo las no leídas']]){
   const b=mk('button','folder-popup-option',label);b.type='button';b.setAttribute('role','menuitem');b.dataset.folderAction=action;
   b.addEventListener('click',()=>runFolderAction(action));menu.append(b);
  }
@@ -911,12 +912,10 @@ function mount(){
   const arrow=mk('span','sidebar-section-chevron');
   arrow.setAttribute('aria-hidden','true');
   toggle.append(heading,arrow);titleWrap.append(toggle);header.append(titleWrap);
-  const add=mk('button');add.type='button';add.title='Crear carpeta de fuentes';add.setAttribute('aria-label','Crear carpeta de fuentes');
-  add.append(svgIcon('folder-plus'));header.append(add);
   const restore=mk('button','folder-restore');restore.id='folderRestore';
   restore.type='button';restore.hidden=true;restore.title='Restaurar carpetas ocultas';
   restore.setAttribute('aria-label','Restaurar carpetas ocultas');
-  restore.append(svgIcon('rotate-ccw'));header.insertBefore(restore,add);
+  restore.append(svgIcon('rotate-ccw'));header.append(restore);
   restore.addEventListener('click',()=>{
     for(const id of state.categories)if(defaults[id]?.hidden)defaults[id].hidden=false;
     if(!saveDefaults())return actionToast('No se pudieron restaurar.');
@@ -934,7 +933,6 @@ function mount(){
     toggle.setAttribute('aria-label',expanded?'Contraer carpetas de fuentes':'Expandir carpetas de fuentes');
   };
   toggle.addEventListener('click',()=>setExpanded(nav.hidden));
-  add.addEventListener('click',()=>{setExpanded(true);createFolder();});
   const wrapper=mk('label','library-tag-filter-wrap'),filter=mk('select','library-tag-filter');
   filter.id='libraryTagFilter';filter.setAttribute('aria-label','Filtrar por etiqueta');wrapper.append(filter);
   $('sourceSelect').closest('label').after(wrapper);
@@ -950,9 +948,8 @@ function mount(){
   input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addTag();}});
   const sourcePane=document.querySelector('[data-settings-pane="sources"]');
   const group=mk('div','folder-settings');
-  group.append(mk('span','','Organiza tus fuentes en carpetas personales.'));
-  const folderButton=mk('button','settings-secondary','Crear carpeta');folderButton.type='button';group.append(folderButton);
-  sourcePane.querySelector('.setting-hint').after(group);folderButton.addEventListener('click',createFolder);
+  group.append(mk('span','','Para crear una carpeta, haz clic derecho sobre una carpeta o categoría en el menú lateral. En móvil, mantenla pulsada; con teclado, usa Shift+F10.'));
+  sourcePane.querySelector('.setting-hint').after(group);
   mountSourceImport();
   $('readerSave').addEventListener('click',e=>{
     if(!activeReaderItem)return;
