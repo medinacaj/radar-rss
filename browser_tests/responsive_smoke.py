@@ -353,6 +353,13 @@ def main():
                         if page.locator('#appSidebar').evaluate('(node) => node.inert'):
                             page.locator('#menuToggle').click()
                         expect(page.locator('#appSidebar')).to_be_visible()
+                        # Tools cannot be empty on Inicio: controls are available on every route.
+                        expect(page.locator('#sidebarReadingContent')).to_be_visible()
+                        if width<=640:
+                            expect(page.locator('#feedFiltersToggle')).to_be_visible()
+                        else:
+                            expect(page.locator('#sidebarFeedOptions > summary')).to_be_visible()
+                            expect(page.locator('#presentationSummary')).to_be_visible()
                         # Ambas listas son visibles al iniciar, se cierran por separado
                         # y vuelven a abrirse para continuar las pruebas de navegación.
                         for control_id, content_id in (('sidebarNavigationToggle','sidebarCoreContent'),

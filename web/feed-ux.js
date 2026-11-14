@@ -110,15 +110,16 @@
     readingToggle.setAttribute('aria-expanded',String(value));
     readingToggle.setAttribute('aria-label',value?'Contraer herramientas':'Expandir herramientas');
   };
-  // Keep non-navigation controls collapsed to avoid a crowded sidebar.
+  // Tools must remain discoverable even on Inicio, Resumen and Agenda.
+  // Respect an explicit collapse; otherwise show the available actions by default.
   const savedReadingOpen=typeof storeGet==='function'?storeGet('radar-tools-open'):null;
   let narrowTools=window.innerWidth<=640;
-  setReadingExpanded(narrowTools||savedReadingOpen==='true');
+  setReadingExpanded(narrowTools||savedReadingOpen!=='false');
   window.addEventListener('resize',()=>{
     const narrow=window.innerWidth<=640;
     if(narrow===narrowTools)return;
     narrowTools=narrow;
-    setReadingExpanded(narrow||storeGet('radar-tools-open')==='true');
+    setReadingExpanded(narrow||storeGet('radar-tools-open')!=='false');
   });
   readingToggle.addEventListener('click',()=>{
     const expanded=readingContent.hidden;
@@ -209,7 +210,7 @@
   });
   let mobile=false,expanded=false,desktopAdvancedOpen=Boolean(advanced?.open);
   function setExpanded(value){
-    expanded=Boolean(mobile&&value&&state.pageView==='feed');
+    expanded=Boolean(mobile&&value);
     toggle.setAttribute('aria-expanded',String(expanded));
     if(expanded){panel.hidden=false;if(!panel.open){presentation.open=true;panel.showModal();panelClose.focus();}}
     else{if(panel.open)panel.close();panel.hidden=true;}
@@ -219,7 +220,7 @@
   panel.addEventListener('close',()=>{
     if(panel.open)return;
     expanded=false;panel.hidden=true;toggle.setAttribute('aria-expanded','false');
-    if(mobile&&state.pageView==='feed')toggle.focus({preventScroll:true});
+    if(mobile)toggle.focus({preventScroll:true});
   });
   function placeControls(){
     const next=window.innerWidth<=640;
@@ -237,9 +238,10 @@
         expanded=false;
       }
     }
-    options.hidden=mobile||state.pageView!=='feed';
-    presentation.hidden=!mobile&&state.pageView!=='feed';
-    toggle.hidden=!mobile||state.pageView!=='feed';setExpanded(expanded);
+    // The sidebar is shared by all routes, so never show an empty Tools section.
+    options.hidden=mobile;
+    presentation.hidden=false;
+    toggle.hidden=!mobile;setExpanded(expanded);
   }
   // Keep an empty mobile search field from collapsing between pointerdown
   // and click and moving this control away from the pointer.
@@ -284,13 +286,12 @@
     el.append(heading,hint,actions);return el;
   };
   function update(){
-    if(state.pageView!=='feed'){setExpanded(false);presentation.open=false;}
-    headerControls.hidden=state.pageView!=='feed';
+    headerControls.hidden=false;
     syncDensity();
     readingNav.hidden=false;
-    options.hidden=mobile||state.pageView!=='feed';
-    presentation.hidden=!mobile&&state.pageView!=='feed';
-    toggle.hidden=!mobile||state.pageView!=='feed';
+    options.hidden=mobile;
+    presentation.hidden=false;
+    toggle.hidden=!mobile;
     const active=filters();chips.replaceChildren();
     for(const item of active){
       const button=mk('button','feed-filter-chip'+(item.preference?' is-preference':''),item.label+(item.preference?' · Ajustar':' ×'));
@@ -299,7 +300,7 @@
       button.addEventListener('click',item.remove);chips.append(button);
     }
     region.hidden=true;
-    clear.hidden=state.pageView!=='feed'||!active.some(item=>!item.preference);
+    clear.hidden=!active.some(item=>!item.preference);
     scope.hidden=!active.some(item=>item.preference);
     count.textContent=String(active.length);count.hidden=!active.length;
     toggle.setAttribute('aria-label','Filtros'+(active.length?' · '+active.length+' activos':''));
