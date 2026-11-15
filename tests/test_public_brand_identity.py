@@ -21,6 +21,18 @@ class PublicBrandIdentityTests(unittest.TestCase):
                     (WEB / canonical).read_bytes(),
                 )
 
+    def test_old_public_png_urls_show_current_radar_brand(self):
+        aliases = {
+            "radar-logo.png": "radar-rss-mark.png",
+            "icon-192.png": "radar-rss-icon-192.png",
+            "icon-512.png": "radar-rss-icon-512.png",
+            "icon-maskable-512.png": "radar-rss-maskable-512.png",
+            "social-card.png": "radar-rss-social-card.png",
+        }
+        for alias, canonical in aliases.items():
+            with self.subTest(alias=alias):
+                self.assertEqual((WEB / alias).read_bytes(), (WEB / canonical).read_bytes())
+
     def test_public_assets_do_not_display_previous_name(self):
         # Historical Markdown and cache migration are intentionally retained.
         extensions = {".css", ".js", ".svg", ".html", ".json", ".webmanifest", ".txt"}
