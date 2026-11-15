@@ -107,7 +107,7 @@ def safe_web_url(url: str) -> str | None:
     if not isinstance(url, str):
         return None
     value = url.strip()
-    if (not value or any(c.isspace() or ord(c) < 32 or ord(c) == 127 or c == '\\\\'
+    if (not value or any(c.isspace() or ord(c) < 32 or ord(c) == 127 or c == '\\'
                          for c in value)):
         return None
     try:
