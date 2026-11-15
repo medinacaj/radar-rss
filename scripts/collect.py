@@ -80,7 +80,7 @@ def parse_opml(path: str | Path) -> list[dict]:
             url = (node.get('xmlUrl') or '').strip()
             if not url:
                 continue
-            if not urlsplit(url).scheme in ('http', 'https'):
+            if not safe_web_url(url):
                 continue
             if url in urls:
                 continue
@@ -99,11 +99,31 @@ def parse_opml(path: str | Path) -> list[dict]:
 
 
 def safe_web_url(url: str) -> str | None:
+    """Only allow navigable public HTTP(S) destinations from external feeds/OPML.
+
+    Does not resolve DNS: network access still requires the collector's
+    existing is_public_host guard for each request and redirect.
+    """
+    if not isinstance(url, str):
+        return None
+    value = url.strip()
+    if (not value or any(c.isspace() or ord(c) < 32 or ord(c) == 127 or c == '\\\\'
+                         for c in value)):
+        return None
     try:
-        p = urlsplit((url or '').strip())
+        p = urlsplit(value)
         if p.scheme.lower() not in ('http', 'https') or not p.hostname or p.username or p.password:
             return None
-        return url
+        _ = p.port  # reject syntactically invalid ports
+        host = p.hostname.lower().rstrip('.')
+        if host in ('localhost', 'localhost.localdomain') or host.endswith(('.local', '.internal', '.localhost')):
+            return None
+        try:
+            if not ipaddress.ip_address(host).is_global:
+                return None
+        except ValueError:
+            pass  # Domain names remain subject to is_public_host before fetch.
+        return value
     except ValueError:
         return None
 
