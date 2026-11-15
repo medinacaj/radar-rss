@@ -558,7 +558,7 @@
 
   /* ---------- Sin conexión ---------- */
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
-    window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(error => console.warn('Radar RSS sin conexión no disponible:', error)); });
+    window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js?v=82', { updateViaCache: 'none' }).catch(error => console.warn('Radar RSS sin conexión no disponible:', error)); });
   }
   window.addEventListener('offline', () => actionToast('Sin conexión: puedes seguir leyendo lo ya cargado y tus guardadas.'));
   window.addEventListener('online', () => actionToast('Conexión recuperada.'));
