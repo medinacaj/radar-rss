@@ -71,6 +71,32 @@ class ReaderTests(unittest.TestCase):
         self.assertIsNone(collect.safe_web_url('file:///etc/passwd'))
         self.assertIsNone(collect.safe_web_url('https://user:pass@website.com/'))
 
+    def test_opml_excludes_private_or_executable_feed_destinations(self):
+        import tempfile
+        invalid = [
+            'javascript:alert(1)', 'https://admin:pass@example.com/rss',
+            'https://127.0.0.1/rss', 'http://localhost:8080/rss',
+            'https://[::1]/rss', 'https://internal.local/rss',
+            'https:///missing-host', 'https://example.org:bad/rss',
+            'https://example.org/\\\\secret',
+        ]
+        for url in invalid:
+            with self.subTest(url=url):
+                self.assertIsNone(collect.safe_web_url(url))
+        self.assertEqual(collect.safe_web_url(' https://example.com/rss?a=1 '), 'https://example.com/rss?a=1')
+        xml = ("<opml><body><outline text='Seguridad'>"
+               "<outline xmlUrl='https://example.org/rss' title='Buena'/>"
+               "<outline xmlUrl='http://localhost/private' title='Local'/>"
+               "<outline xmlUrl='https://admin:secret@example.org/rss' title='Credenciales'/>"
+               "<outline xmlUrl='javascript:alert(1)' title='Script'/>"
+               "</outline></body></opml>")
+        with tempfile.TemporaryDirectory() as td:
+            file = Path(td) / 'feeds.opml'
+            file.write_text(xml, encoding='utf-8')
+            entries = collect.parse_opml(file)
+        self.assertEqual([entry['name'] for entry in entries], ['Buena'])
+        self.assertEqual(entries[0]['url'], 'https://example.org/rss')
+
     def test_preview_sanitizes_markup_and_script(self):
         text, image = collect.extract_html('<script>bad()</script><p>Hola <b>mundo</b></p><img src="https://example.com/a.jpg">')
         self.assertEqual(text, 'Hola mundo')
