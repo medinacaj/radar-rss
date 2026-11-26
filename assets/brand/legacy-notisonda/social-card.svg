@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="#30265b"/><stop offset="1" stop-color="#131a38"/></linearGradient></defs>
+<rect width="1200" height="630" fill="url(#g)"/>
+<circle cx="985" cy="170" r="290" fill="#7464d5" opacity=".12"/>
+<circle cx="1000" cy="480" r="190" fill="none" stroke="#a9a1ff" stroke-width="2" opacity=".3"/>
+<rect x="92" y="128" width="108" height="108" rx="26" fill="#5949a8"/>
+<path d="M119 200v-41l54 42v-40" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="173" cy="150" r="8" fill="#ffbf69"/>
+<text x="92" y="340" fill="#fff" font-size="88" font-weight="750" font-family="Arial,Helvetica,sans-serif">Notisonda</text>
+<text x="96" y="414" fill="#d8d5f2" font-size="36" font-family="Arial,Helvetica,sans-serif">Explora la actualidad.</text>
+<text x="96" y="462" fill="#d8d5f2" font-size="36" font-family="Arial,Helvetica,sans-serif">Descubre lo importante.</text>
+<path d="M96 520h190" stroke="#ffbf69" stroke-width="8" stroke-linecap="round"/>
+</svg>
