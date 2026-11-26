@@ -7,6 +7,7 @@ AUTO denotes technical/heuristic validation, not editorial or fact verification.
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
@@ -33,6 +34,8 @@ MAX_SECONDS = 180
 MAX_BYTES = 1_000_000
 MAX_STATE_BYTES = 250_000
 REVALIDATE = 5
+ROBOTS_POLICY = 'rfc9309-v1'
+ROBOTS_REASONS = ('robots_http', 'robots_rule', 'robots_delay')
 METHOD = 'publisher-homepage-rss-autodiscovery'
 PUBLIC_STATE_URL = DATA_URL+'discovered-sources.json'
 
@@ -113,9 +116,12 @@ def sanitize_state(state: dict, policy: dict, now: datetime | None = None) -> di
     if isinstance(scan, dict):
         result['last_scan'] = {key: min(1000, max(0, scan[key])) for key in
                                ('added', 'seed_folders', 'candidate_publishers', 'errors', 'seed_successes',
-                                'seed_errors', 'publisher_errors', 'robots_denials', 'rejected_feeds')
+                                'seed_errors', 'publisher_errors', 'robots_denials', 'rejected_feeds',
+                                *ROBOTS_REASONS)
                                if isinstance(scan.get(key), int)}
         result['last_scan']['method'] = METHOD
+        if scan.get('robots_policy') == ROBOTS_POLICY:
+            result['last_scan']['robots_policy'] = ROBOTS_POLICY
         result['last_scan']['network_unavailable'] = bool(scan.get('network_unavailable'))
         if scan.get('outcome') in ('unavailable', 'partial', 'added', 'no_eligible_sources'):
             result['last_scan']['outcome'] = scan['outcome']
@@ -176,9 +182,14 @@ def covered_publishers(sources: list[dict]) -> set[tuple[str, str]]:
 def discover(curated: list[dict], policy: dict, state: dict, fetcher, now: datetime) -> dict:
     result = deepcopy(state)
     result.update(version=1, sources=cleaned_sources(state, policy, now))
+    previous_scan = state.get('last_scan')
+    retry_legacy_unavailable = (
+        isinstance(previous_scan, dict) and previous_scan.get('outcome') == 'unavailable'
+        and not previous_scan.get('robots_policy')
+    )
     try:
         checked = datetime.fromisoformat(str(state.get('last_checked_at')).replace('Z', '+00:00'))
-        if now-INTERVAL < checked <= now:
+        if now-INTERVAL < checked <= now and not retry_legacy_unavailable:
             return result
     except (ValueError, TypeError):
         pass
@@ -191,7 +202,8 @@ def discover(curated: list[dict], policy: dict, state: dict, fetcher, now: datet
     categories = categories[offset:]+categories[:offset]
     result['next_category'] = (offset+1) % len(categories)
     candidates, errors = [], 0
-    seed_successes = seed_errors = publisher_errors = robots_denials = rejected_feeds = 0
+    seed_successes = seed_errors = publisher_errors = rejected_feeds = 0
+    failures_by_reason = Counter()
     existing_publishers = covered_publishers(curated+result['sources'])
     # Always investigate every folder before spending the admission quota.
     for category in categories:
@@ -217,7 +229,7 @@ def discover(curated: list[dict], policy: dict, state: dict, fetcher, now: datet
         except (FetchError, RejectedFeed) as exc:
             errors += 1
             seed_errors += 1
-            robots_denials += getattr(exc, 'reason', None) == 'robots'
+            failures_by_reason[getattr(exc, 'reason', None)] += 1
     # Revalidate a rotating bounded slice, preserving acceptance on network failures.
     prior = result['sources']
     cursor = state.get('next_revalidation')
@@ -236,7 +248,7 @@ def discover(curated: list[dict], policy: dict, state: dict, fetcher, now: datet
             rejected_feeds += 1
         except FetchError as exc:
             errors += 1
-            robots_denials += exc.reason == 'robots'
+            failures_by_reason[exc.reason] += 1
     all_sources = curated+result['sources']
     urls = {checked_url(s['url']) for s in all_sources if s.get('url', '').startswith('https://')}
     covered = covered_publishers(all_sources)
@@ -279,10 +291,13 @@ def discover(curated: list[dict], policy: dict, state: dict, fetcher, now: datet
         except (FetchError, ValueError) as exc:
             errors += 1
             publisher_errors += 1
-            robots_denials += getattr(exc, 'reason', None) == 'robots'
+            failures_by_reason[getattr(exc, 'reason', None)] += 1
     outcome = ('unavailable' if not seed_successes else 'partial' if seed_errors or publisher_errors
                else 'added' if added else 'no_eligible_sources')
-    result['last_scan'] = {'added': added, 'seed_folders': len(categories),
+    robots_denials = sum(failures_by_reason[reason] for reason in ('robots', *ROBOTS_REASONS))
+    result['last_scan'] = {'robots_policy': ROBOTS_POLICY,
+                           **{reason: failures_by_reason[reason] for reason in ROBOTS_REASONS},
+                           'added': added, 'seed_folders': len(categories),
                            'seed_successes': seed_successes, 'seed_errors': seed_errors,
                            'publisher_errors': publisher_errors, 'robots_denials': robots_denials,
                            'rejected_feeds': rejected_feeds, 'outcome': outcome,

@@ -177,9 +177,18 @@ class DiscoveryStateTests(unittest.TestCase):
         result, fetcher = self.run_scan(state=legacy)
         self.assertTrue(fetcher.calls)
         self.assertEqual(result['last_scan']['robots_policy'], 'rfc9309-v1')
-        again, fetcher = self.run_scan(state=result)
-        self.assertEqual(fetcher.calls, [])
-        self.assertEqual(again['last_checked_at'], result['last_checked_at'])
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'registry.json'
+            raw = json.dumps(result).encode()
+            recovered = discovery.recover_state(
+                path, {CATEGORY: RULE}, NOW, fetcher=FixtureFetcher({discovery.PUBLIC_STATE_URL: raw}))
+            path.write_bytes(raw)
+            cached = discovery.load_state(path, {CATEGORY: RULE}, now=NOW)
+        for state in (cached, recovered):
+            self.assertEqual(state['last_scan']['robots_policy'], 'rfc9309-v1')
+            again, fetcher = self.run_scan(state=state)
+            self.assertEqual(fetcher.calls, [])
+            self.assertEqual(again['last_checked_at'], result['last_checked_at'])
 
     def test_future_timestamp_cannot_disable_scans_indefinitely(self):
         _, fetcher = self.run_scan(state={'last_checked_at': '2099-01-01T00:00:00Z'})
@@ -542,6 +551,32 @@ class NetworkSafetyTests(unittest.TestCase):
         with patch.object(fetcher, '_request', side_effect=[
                 (200, {}, policy), (200, {}, b'ok')]):
             self.assertEqual(fetcher.get('https://example.com/feed'), b'ok')
+
+    def test_robots_does_not_grant_index_alias(self):
+        fetcher = self.fetcher()
+        with patch.object(fetcher, '_request', return_value=(
+                200, {}, b'User-agent: *\nDisallow: /\nAllow: /index.html\n')) as request:
+            with self.assertRaisesRegex(discovery.FetchError, 'no permite'):
+                fetcher.get('https://example.com/')
+            self.assertEqual(request.call_count, 1)
+
+    def test_robots_does_not_use_a_partial_product_token(self):
+        fetcher = self.fetcher()
+        with patch.object(fetcher, '_request', return_value=(
+                200, {}, b'User-agent: *\nDisallow: /\nUser-agent: RSS\nAllow: /\n')) as request:
+            with self.assertRaisesRegex(discovery.FetchError, 'no permite'):
+                fetcher.get('https://example.com/feed')
+            self.assertEqual(request.call_count, 1)
+
+    def test_robots_matches_reserved_characters_in_path_and_query(self):
+        for path in ('/a=b', '/rss?q=a%2Fb', '/a%3Db'):
+            with self.subTest(path=path):
+                fetcher = self.fetcher()
+                policy = f'User-agent: *\nDisallow: {path}\n'.encode()
+                with patch.object(fetcher, '_request', return_value=(200, {}, policy)) as request:
+                    with self.assertRaisesRegex(discovery.FetchError, 'no permite'):
+                        fetcher.get('https://example.com' + path)
+                    self.assertEqual(request.call_count, 1)
 
     def test_robots_http_failure_reports_status_without_requesting_the_feed(self):
         fetcher = self.fetcher()
