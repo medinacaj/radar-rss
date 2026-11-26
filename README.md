@@ -2,7 +2,7 @@
 
 **Versión pública operativa · octubre 2026:** recopilación y publicación automáticas, monitoreo, historial paginado, tendencias, lectura responsive y pruebas multiplataforma.
 
-Proyecto público sin backend ni cuentas. El catálogo contiene 311 suscripciones RSS y ocho carpetas OPML. La cantidad de carpetas se obtiene del catálogo, sin un máximo fijo. Las carpetas personales se configuran localmente sin modificar el catálogo público. El listado ofrece una vista conjunta de Latinoamérica sin ocultar ni modificar las carpetas de fuentes.
+Proyecto público sin backend ni cuentas. El catálogo curado contiene 443 suscripciones RSS en once carpetas OPML. Las fuentes adicionales marcadas AUTO se incorporan mediante descubrimiento y validación técnica cada 48 horas, con procedencia pública. La cantidad de carpetas se obtiene del catálogo, sin un máximo fijo. Las carpetas personales se configuran localmente sin modificar el catálogo público. El listado ofrece una vista conjunta de Latinoamérica sin ocultar ni modificar las carpetas de fuentes.
 
 **Gestor de fuentes:** Configuración muestra RSS/web, permite buscar por dominio o URL, filtrar visibilidad/estado/tipo, mover fuentes y exportar el catálogo completo como CSV. El OPML conserva carpetas personales y se puede importar con vista previa desde Feedly u otro lector: activa/reorganiza las fuentes reconocidas y detalla las que todavía no están en el catálogo. [Uso, correcciones y límites](docs/gestion-fuentes-2026-10-28.md).
 
@@ -10,7 +10,9 @@ Proyecto público sin backend ni cuentas. El catálogo contiene 311 suscripcione
 
 ```mermaid
 flowchart LR
-  A[OPML: 311 feeds] --> B[GitHub Actions: cada hora]
+  A[OPML: 443 fuentes curadas] --> B[GitHub Actions: cada hora]
+  H[Descubrimiento AUTO: cada 48 h] --> I[Validación y catálogo derivado]
+  I --> B
   B --> C[Python: RSS/Atom y deduplicación]
   C --> D[JSON estáticos]
   D --> E[GitHub Pages]
@@ -18,8 +20,8 @@ flowchart LR
   F --> G[LocalStorage: favoritos y leídos]
 ```
 
-- **Fuentes:** `sources/feeds.opml`. Suscripciones agrupadas en inteligencia artificial, tecnología, internacionales, Chile, Venezuela, Latinoamérica, Concepción/Biobío y Maturín/Monagas.
-- **Colector:** `scripts/collect.py`, Python + feedparser + requests. Obtiene los feeds con concurrencia limitada, normaliza titulares, extractos, imágenes y fechas, deduplica por URL y retiene artículos hasta 45 días (sujeto al límite de 5.000 artículos y a la disponibilidad del historial). Si un feed falla, mantiene datos antiguos dentro del período de retención gracias a la caché de GitHub Actions.
+- **Fuentes:** `sources/feeds.opml`. Suscripciones agrupadas en inteligencia artificial, tecnología, internacionales, Chile, Venezuela, Latinoamérica, Concepción/Biobío, Maturín/Monagas, Startups y Capital, Empresas y Economía e Investigación y Gestión.
+- **Colector:** `scripts/collect.py`, Python + feedparser + requests. Obtiene los feeds con concurrencia limitada, normaliza titulares, extractos, imágenes y fechas, deduplica por URL y retiene noticias hasta 45 días y publicaciones de Investigación y Gestión hasta 730 días (sujeto al límite de 5.000 artículos y a la disponibilidad del historial). Si un feed falla, mantiene datos antiguos dentro del período de retención gracias a la caché de GitHub Actions.
 
 - **Integridad de fuentes:** `scripts/audit_feeds.py` valida el OPML sin consultar internet y se ejecuta antes de recopilar noticias. Los errores temporales admiten un reintento con espera aleatoria; un feed permanentemente bloqueado no se reintenta.
 - **Contadores de medios:** el selector de fuentes puede mostrar noticias disponibles dentro de los filtros vigentes; no expresa la cantidad total histórica publicada por cada periódico.
@@ -31,7 +33,7 @@ flowchart LR
 
 **Concepción (Chile) y Gran Concepción** dispone de carpeta propia, con **33 suscripciones comprobadas el 24-10-2026: 21 RSS/Atom directos y 12 consultas de Google Noticias**. Incluye prensa, radio/TV, noticias universitarias, municipios, cultura y deporte local. Las consultas intermediadas se identifican como RADAR o indican «Google Noticias»; no equivalen a un RSS directo del editor. Las fuentes institucionales llevan el prefijo OFICIAL.
 
-La carpeta se incluye también en las vistas agregadas de Chile y Latinoamérica, conserva su selección individual en Mi Radar y en el resumen, y genera el feed de salida `feeds/concepcion.xml` durante la recopilación. Las 178 suscripciones anteriores conservan URL, identificador y carpeta. El número de carpetas es dinámico: ocho es el catálogo actual, no un límite.
+La carpeta se incluye también en las vistas agregadas de Chile y Latinoamérica, conserva su selección individual en Mi Radar y en el resumen, y genera el feed de salida `feeds/concepcion.xml` durante la recopilación. Las 178 suscripciones anteriores conservan URL, identificador y carpeta. El número de carpetas es dinámico: once es el catálogo curado actual, no un límite.
 
 El inventario y las fechas observadas están en [Fuentes de Concepción](docs/fuentes-concepcion.md) y [el registro de verificación](sources/concepcion-verification.json). Algunos RSS publican poco y pueden no aportar noticias dentro de los 45 días de retención. Una consulta vacía o un RSS inaccesible se registra como pendiente; no se presenta como medio inactivo. La investigación es amplia y ampliable, sin prometer que abarque todos los medios existentes.
 
@@ -141,6 +143,7 @@ Abrir `http://localhost:8000` (no abrir el archivo HTML haciendo doble clic: `fe
 ## Actualización y edición
 
 - **Automática:** aproximadamente cada hora mediante cron UTC `17 * * * *`. GitHub puede retrasar u omitir alguna ejecución; en repos públicos, la programación puede desactivarse por inactividad prolongada. El flujo también puede iniciarse manualmente.
+- **Descubrimiento AUTO:** cada 48 horas se investigan las once carpetas y se admiten hasta cinco fuentes técnicamente válidas por revisión (máximo cien AUTO). No equivale a verificación editorial. Se guarda procedencia y se revalidan las descargas. [Funcionamiento y límites](docs/automatic-source-discovery.md).
 - **Modificar fuentes:** editar `sources/feeds.opml`, confirmar y esperar el siguiente flujo. No existe límite fijo de fuentes en la aplicación, pero más fuentes incrementan consumo de Actions y tiempo de recopilación.
 - **Número de artículos:** 12 por feed por ciclo, hasta 5.000 noticias en caché y un máximo de 45 días por defecto. Ajustable en `deploy.yml` / `collect.py`.
 - **Sitio sin noticias después de publicar:** revisar los detalles de `Actions` y `data/status.json`. La aplicación no inventa noticias ni reemplaza automáticamente feeds problemáticos.
@@ -158,7 +161,7 @@ Abrir `http://localhost:8000` (no abrir el archivo HTML haciendo doble clic: `fe
 
 ## Seguridad y privacidad
 
-- No se aceptan nuevos RSS enviados por usuarios anónimos. Los feeds están controlados por el mantenedor en Git.
+- No se aceptan nuevos RSS enviados por usuarios anónimos. Las fuentes curadas están controladas por el mantenedor en Git; las AUTO proceden del proceso acotado de descubrimiento, con validación y registro público de procedencia.
 - Se descartan enlaces de artículos e imágenes que no sean HTTP/HTTPS; la UI representa texto RSS con `textContent`, sin insertar HTML no confiable.
 - El colector valida destinos públicos antes de consultar una fuente o seguir redirecciones. Esto es una precaución básica, no una garantía absoluta contra SSRF si se habilitara entrada de URLs no confiables.
 - No hay analíticas integradas, cuentas, cookies de la aplicación ni secretos expuestos. GitHub Pages y los medios externos pueden recibir datos normales de conexión del navegador.
