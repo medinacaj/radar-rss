@@ -171,6 +171,16 @@ class DiscoveryStateTests(unittest.TestCase):
         _, fetcher = self.run_scan(state=old)
         self.assertTrue(fetcher.calls)
 
+    def test_legacy_unavailable_scan_rechecks_once_after_robots_parser_upgrade(self):
+        legacy = {'version': 1, 'sources': [], 'last_checked_at': collect.iso(NOW),
+                  'last_scan': {'outcome': 'unavailable', 'seed_successes': 0}}
+        result, fetcher = self.run_scan(state=legacy)
+        self.assertTrue(fetcher.calls)
+        self.assertEqual(result['last_scan']['robots_policy'], 'rfc9309-v1')
+        again, fetcher = self.run_scan(state=result)
+        self.assertEqual(fetcher.calls, [])
+        self.assertEqual(again['last_checked_at'], result['last_checked_at'])
+
     def test_future_timestamp_cannot_disable_scans_indefinitely(self):
         _, fetcher = self.run_scan(state={'last_checked_at': '2099-01-01T00:00:00Z'})
         self.assertTrue(fetcher.calls)
@@ -485,6 +495,60 @@ class NetworkSafetyTests(unittest.TestCase):
                 clock.return_value = 120
                 self.assertEqual(fetcher.get('https://example.com/feed'), b'ok')
                 self.assertEqual(request.call_count, 3)
+
+    def test_robots_uses_longest_matching_rule_in_either_file_order(self):
+        for policy in (b'User-agent: *\nDisallow: /\nAllow: /rss/\n',
+                       b'User-agent: *\nAllow: /rss/\nDisallow: /\n'):
+            with self.subTest(policy=policy):
+                fetcher = self.fetcher()
+                with patch.object(fetcher, '_request', side_effect=[
+                        (200, {}, policy), (200, {}, b'ok')]) as request:
+                    self.assertEqual(fetcher.get('https://example.com/rss/search?q=ia'), b'ok')
+                    self.assertEqual(request.call_count, 2)
+
+    def test_robots_wildcard_denial_is_enforced(self):
+        fetcher = self.fetcher()
+        with patch.object(fetcher, '_request', return_value=(
+                200, {}, b'User-agent: *\nDisallow: /private/*/preview\n')) as request:
+            with self.assertRaises(discovery.FetchError):
+                fetcher.get('https://example.com/private/story/preview')
+            self.assertEqual(request.call_count, 1)
+
+    def test_robots_end_anchor_allows_only_exact_rss_path(self):
+        for path, allowed in (('/feed', True), ('/feed/archive', False)):
+            with self.subTest(path=path):
+                fetcher = self.fetcher()
+                with patch.object(fetcher, '_request', side_effect=[
+                        (200, {}, b'User-agent: *\nDisallow: /\nAllow: /feed$\n'),
+                        (200, {}, b'ok')]) as request:
+                    if allowed:
+                        self.assertEqual(fetcher.get('https://example.com'+path), b'ok')
+                        self.assertEqual(request.call_count, 2)
+                    else:
+                        with self.assertRaises(discovery.FetchError):
+                            fetcher.get('https://example.com'+path)
+                        self.assertEqual(request.call_count, 1)
+
+    def test_robots_allow_wins_an_equal_specificity_tie(self):
+        fetcher = self.fetcher()
+        with patch.object(fetcher, '_request', side_effect=[
+                (200, {}, b'User-agent: *\nDisallow: /feed\nAllow: /feed\n'),
+                (200, {}, b'ok')]):
+            self.assertEqual(fetcher.get('https://example.com/feed'), b'ok')
+
+    def test_robots_uses_the_application_product_token(self):
+        fetcher = self.fetcher()
+        policy = b'User-agent: *\nDisallow: /\n\nUser-agent: RadarRSS\nAllow: /feed\n'
+        with patch.object(fetcher, '_request', side_effect=[
+                (200, {}, policy), (200, {}, b'ok')]):
+            self.assertEqual(fetcher.get('https://example.com/feed'), b'ok')
+
+    def test_robots_http_failure_reports_status_without_requesting_the_feed(self):
+        fetcher = self.fetcher()
+        with patch.object(fetcher, '_request', return_value=(403, {}, b'')) as request:
+            with self.assertRaisesRegex(discovery.FetchError, 'robots.txt HTTP 403'):
+                fetcher.get('https://example.com/feed')
+            self.assertEqual(request.call_count, 1)
 
     def test_dns_timeout_is_bounded(self):
         from threading import Event
