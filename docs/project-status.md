@@ -1,6 +1,12 @@
-# Estado del proyecto — Notisonda
+# Estado del proyecto — Radar-RSS
 
-Actualizado el 28 de octubre de 2026. Este archivo distingue código implementado de verificaciones que necesitan evidencia externa. La versión publicada y los resultados más recientes se consultan en GitHub Actions.
+Actualizado el 26-11-2026. Estado vigente en [MEMORIA_OPERATIVA.md](MEMORIA_OPERATIVA.md), [DECISIONES.md](DECISIONES.md) y [CONTINUIDAD_NUEVA_SESION.md](CONTINUIDAD_NUEVA_SESION.md).
+
+Repositorio oficial: https://github.com/medinacaj/radar-rss; sitio canónico: https://medinacaj.github.io/radar-rss/. Catálogo actual 443/11. AUTO está integrado pero su primera revisión fue indisponible; #184 conserva regresiones RED.
+
+## Instantánea histórica del 28-10-2026, conservada para trazabilidad
+
+Los nombres Notisonda/radar-rss-publico, sus URL, 311/8 y cron de tres horas siguientes son históricos. No usarlos como configuración vigente ni reconstruir cambios posteriores desde esta instantánea.
 
 ## Estado del código
 
