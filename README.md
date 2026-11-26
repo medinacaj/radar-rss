@@ -242,3 +242,17 @@ Inicio ofrece una selección breve, con un destacado y un carrusel sin repetir a
 La ampliación de [IA en español y revisión de estructura](docs/fuentes-ia-espanol-2026-10-28.md) conserva las 27 altas anteriores y suma cinco canales temáticos observados, sin duplicar los RSS ya configurados. Ese registro dejó 276 suscripciones; los intermediarios y las comprobaciones pendientes están identificados.
 
 La [ampliación de cobertura mundial](docs/fuentes-cobertura-mundial-2026-10-28.md) añade 35 canales observados en español y conserva todos los anteriores: **311 suscripciones en ocho carpetas**. Refuerza diez ámbitos regionales y doce temáticos, incorpora medios/agencias y MIT en español nativo, revalida siete RSS y prioriza cobertura editorial reciente en portada. El conteo de medios normaliza secciones y variantes de una misma cabecera. No garantiza cobertura exhaustiva ni alertas en tiempo real.
+
+## Continuidad y estado verificable · 21/11/2026
+
+**Propósito:** Agregador y lector RSS estático con fuentes OPML y actualización por Actions.
+
+**Límite:** Los feeds externos pueden fallar o quedar desactualizados.
+
+- **Código:** revisar commits y PR recientes del propio repositorio, sin trasladar supuestos de otro producto.
+- **Pruebas/CI:** verificar los workflows y resultados asociados al SHA exacto. Esta actualización del README no constituye prueba funcional.
+- **Despliegue:** confirmar por separado la versión servida y el funcionamiento real del entorno; demo o CI verde no acreditan producción.
+- **Operación:** continuar el último bloqueo real, documentando rama, SHA, PR, evidencia de pruebas, entorno verificado y siguiente acción.
+- **Protección:** preservar fixtures sintéticos, separar entornos y no divulgar credenciales ni datos reales.
+
+**Fuente oficial:** documentación y decisiones de este producto.  
