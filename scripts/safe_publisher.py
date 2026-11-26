@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import http.client
 import ipaddress
+import math
 import os
 from queue import Empty, Queue
 import re
@@ -58,7 +59,10 @@ def parse_robots(rules: str) -> Protego:
                 continue
             if value:
                 value = robots_path(value, rule=True)
-        elif field not in ('crawl-delay', 'request-rate'):
+        elif field == 'crawl-delay':
+            if not re.fullmatch(r'[0-9]+(?:\.[0-9]+)?', value) or not math.isfinite(float(value)):
+                continue
+        elif field != 'request-rate':
             continue
         normalized.append(f'{field}: {value}')
     return Protego.parse('\n'.join(normalized))

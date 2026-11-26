@@ -505,6 +505,20 @@ class NetworkSafetyTests(unittest.TestCase):
                 self.assertEqual(fetcher.get('https://example.com/feed'), b'ok')
                 self.assertEqual(request.call_count, 3)
 
+    def test_invalid_crawl_delay_does_not_disable_request_rate(self):
+        with patch('safe_publisher.time.monotonic', return_value=0) as clock:
+            fetcher = self.fetcher()
+            with patch.object(fetcher, '_request', side_effect=[
+                    (200, {}, b'User-agent: *\nCrawl-delay: NaN\nRequest-rate: 1/60\n'),
+                    (200, {}, b'ok'), (200, {}, b'ok')]) as request:
+                self.assertEqual(fetcher.get('https://example.com/'), b'ok')
+                clock.return_value = 59
+                with self.assertRaisesRegex(discovery.FetchError, 'más tiempo'):
+                    fetcher.get('https://example.com/feed')
+                self.assertEqual(request.call_count, 2)
+                clock.return_value = 60
+                self.assertEqual(fetcher.get('https://example.com/feed'), b'ok')
+
     def test_robots_uses_longest_matching_rule_in_either_file_order(self):
         for policy in (b'User-agent: *\nDisallow: /\nAllow: /rss/\n',
                        b'User-agent: *\nAllow: /rss/\nDisallow: /\n'):
