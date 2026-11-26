@@ -1,4 +1,6 @@
-# Decisiones técnicas duraderas
+# Decisiones técnicas duraderas — registro histórico
+
+Consultar [DECISIONES.md](DECISIONES.md) para la consolidación vigente. Se conservan aquí los fundamentos y sustituciones.
 
 ## ADR-001 — GitHub como memoria compartida
 **Fecha:** 2026-10-18. **Estado:** adoptada.
@@ -13,7 +15,7 @@
 ## ADR-003 — Revisión cruzada controlada
 **Fecha:** 2026-10-18. **Estado:** adoptada.
 
-**Decisión:** ChatGPT propone/implementa con los permisos GitHub disponibles, Claude Chat revisa de forma independiente al aportarle el diff y contexto. CI confirma pruebas; la persona propietaria autoriza la integración. El intercambio entre los dos chats no es automático.
+**Decisión:** ChatGPT propone/implementa con los permisos GitHub disponibles, Claude Chat revisa de forma independiente al aportarle el diff y contexto. CI confirma pruebas. **Sustitución expresa del 03-11-2026:** el propietario autorizó a los agentes a revisar, fusionar y publicar PR validados sin repetir aprobación individual; siguen vigentes el alcance y los controles de AGENTS. Véase [la decisión actual](DECISIONES.md). El intercambio entre los dos chats no es automático.
 
 ## ADR-004 — Skills portables, sin instalaciones implícitas
 **Fecha:** 2026-10-18. **Estado:** adoptada.

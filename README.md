@@ -1,8 +1,10 @@
 # Radar-RSS · Plataforma de monitoreo informativo
 
-**Versión pública operativa · octubre 2026:** recopilación y publicación automáticas, monitoreo, historial paginado, tendencias, lectura responsive y pruebas multiplataforma.
+**Estado documentado · 26-11-2026:** interfaz `app.js?v=9.12.5`, caché `radar-rss-v82`; sin release global publicada en GitHub. Código base: `76c0d8a797cb0a51886a8e6646e717e8ddf9cff9`.
 
-Proyecto público sin backend ni cuentas. El catálogo curado contiene 443 suscripciones RSS en once carpetas OPML. Las fuentes adicionales marcadas AUTO se incorporan mediante descubrimiento y validación técnica cada 48 horas, con procedencia pública. La cantidad de carpetas se obtiene del catálogo, sin un máximo fijo. Las carpetas personales se configuran localmente sin modificar el catálogo público. El listado ofrece una vista conjunta de Latinoamérica sin ocultar ni modificar las carpetas de fuentes.
+Para retomar: [Memoria operativa](docs/MEMORIA_OPERATIVA.md), [Decisiones](docs/DECISIONES.md), [Continuidad de nueva sesión](docs/CONTINUIDAD_NUEVA_SESION.md) y [Changelog](CHANGELOG.md).
+
+Proyecto público sin backend ni cuentas. El catálogo curado contiene 443 suscripciones RSS en once carpetas OPML. El descubrimiento AUTO cada 48 horas está integrado, con procedencia pública, pero su primera revisión quedó indisponible al comprobar robots y no incorporó fuentes. [Estado y corrección pendiente](docs/automatic-source-discovery.md). La cantidad de carpetas se obtiene del catálogo, sin un máximo fijo. Las carpetas personales se configuran localmente sin modificar el catálogo público. El listado ofrece una vista conjunta de Latinoamérica sin ocultar ni modificar las carpetas de fuentes.
 
 **Gestor de fuentes:** Configuración muestra RSS/web, permite buscar por dominio o URL, filtrar visibilidad/estado/tipo, mover fuentes y exportar el catálogo completo como CSV. El OPML conserva carpetas personales y se puede importar con vista previa desde Feedly u otro lector: activa/reorganiza las fuentes reconocidas y detalla las que todavía no están en el catálogo. [Uso, correcciones y límites](docs/gestion-fuentes-2026-10-28.md).
 
@@ -63,7 +65,7 @@ El inventario y las fechas observadas están en [Fuentes de Concepción](docs/fu
 - **Sin fotografía:** cuando la fuente RSS no publica foto, la URL es inválida o la fotografía original no carga, la cuadrícula usa una cubierta **tipográfica identificada como «Sin fotografía disponible»**, sin imagen inventada ni copia de fotografías ajenas. El modo ligero, la opción «Ocultar imágenes» y la vista Lista omiten la cubierta adicional.
 - **Sin descripción:** el colector busca primero el resumen RSS y, si no contiene texto, intenta el campo `description`, el subtítulo y el cuerpo Atom ya entregado por el mismo feed. El texto se limpia y acorta; si la fuente no proporciona contenido útil, no se inventa una descripción. La tarjeta conserva el título, medio y acciones.
 - **Sombras por lectura:** las noticias sin leer tienen una elevación suave más visible; las leídas, una sombra más discreta. La distinción se complementa con el contraste del título y el estado del botón. Las transiciones respetan la preferencia de movimiento reducido.
-- **Diseño compacto:** las tarjetas mantienen igual altura **dentro de cada fila**, pero una noticia extensa ya no agranda todas las filas del listado. Las imágenes originales son más bajas, las cubiertas tipográficas ocupan menos espacio y los titulares/extractos tienen límites de líneas; el contenido completo sigue disponible en el lector. El modo Compacto, la vista Lista y la noticia principal de portada conservan sus estilos.
+- **Diseño compacto:** las tarjetas mantienen igual altura **dentro de cada fila**, pero una noticia extensa ya no agranda todas las filas del listado. Las imágenes originales son más bajas, las cubiertas tipográficas ocupan menos espacio y los titulares/extractos tienen límites de líneas; el enlace abre la publicación original del medio. El modo Compacto, la vista Lista y la noticia principal de portada conservan sus estilos.
 
 ## Imágenes originales en noticias
 
@@ -89,7 +91,7 @@ Las imágenes se **enlazan al editor original** (no se descargan, republican ni 
 3. En el mismo workflow, abrir **Run workflow**, indicar `restore_run_id` con ese número e iniciar la ejecución manual.
 4. El flujo descarga la copia usando `GITHUB_TOKEN`, comprueba la integridad de identificadores y del estado de feeds y utiliza el respaldo como punto de partida de la siguiente recopilación. Un respaldo corrupto provoca un fallo seguro, sin publicar datos inválidos.
 
-**Limitación:** la recopilación solo conserva un máximo de 45 días o 5.000 artículos, y los artefactos caducan. Para conservación permanente sigue siendo necesario un almacenamiento durable independiente.
+**Limitación:** noticias hasta 45 días, Investigación y Gestión hasta 730 días, máximo compartido de 5.000 artículos; los artefactos caducan. Para conservación permanente sigue siendo necesario un almacenamiento durable independiente.
 
 ## Cómo publicar un fork en GitHub (una sola vez)
 
@@ -246,7 +248,7 @@ La ampliación de [IA en español y revisión de estructura](docs/fuentes-ia-esp
 
 La [ampliación de cobertura mundial](docs/fuentes-cobertura-mundial-2026-10-28.md) añade 35 canales observados en español y conserva todos los anteriores: **311 suscripciones en ocho carpetas**. Refuerza diez ámbitos regionales y doce temáticos, incorpora medios/agencias y MIT en español nativo, revalida siete RSS y prioriza cobertura editorial reciente en portada. El conteo de medios normaliza secciones y variantes de una misma cabecera. No garantiza cobertura exhaustiva ni alertas en tiempo real.
 
-## Continuidad y estado verificable · 21/11/2026
+## Continuidad y estado verificable · 26/11/2026
 
 **Propósito:** Agregador y lector RSS estático con fuentes OPML y actualización por Actions.
 
@@ -258,4 +260,4 @@ La [ampliación de cobertura mundial](docs/fuentes-cobertura-mundial-2026-10-28.
 - **Operación:** continuar el último bloqueo real, documentando rama, SHA, PR, evidencia de pruebas, entorno verificado y siguiente acción.
 - **Protección:** preservar fixtures sintéticos, separar entornos y no divulgar credenciales ni datos reales.
 
-**Fuente oficial:** documentación y decisiones de este producto.  
+**Fuente oficial:** [memoria vigente](docs/MEMORIA_OPERATIVA.md), [decisiones](docs/DECISIONES.md), [instrucción de transferencia](docs/CONTINUIDAD_NUEVA_SESION.md) y evidencia de GitHub de este producto.  
