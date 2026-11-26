@@ -251,7 +251,8 @@ class SafeFetcher:
             rate = parser.request_rate(agent)
             if rate and rate.requests > 0:
                 delay = max(delay, rate.seconds / rate.requests)
-        if time.monotonic() < self.last_requested.get(origin, 0)+delay:
+        last_request = self.last_requested.get(origin)
+        if last_request is not None and time.monotonic() < last_request+delay:
             # Skip instead of waiting or defeating the publisher's crawl policy.
             raise FetchError('robots.txt exige más tiempo entre consultas', reason='robots')
 
