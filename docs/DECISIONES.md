@@ -16,7 +16,7 @@ Decisión expresa reafirmada el 10-11: titular/imagen abren directamente al medi
 
 ## D-04 — UX y preferencias [CONFIRMADO] [NO MODIFICAR]
 
-Priorizar experiencia de lectura: adaptar tarjetas/textos a todas las columnas y pantallas, compactar espacios, foco/accesibilidad. Conservar columnas guardadas y tamaño explícito 14–22px normal; no multiplicar silenciosamente su elección. Fuente grande/destacado tienen escala propia. Mantener tema, preferencias, lectura, Guardadas y backup; respetar movimiento reducido/contraste. Pulso no es un rediseño adoptado.
+Priorizar experiencia de lectura: adaptar tarjetas/textos a todas las columnas y pantallas, compactar espacios, foco/accesibilidad. Conservar columnas guardadas y la preferencia base de titulares de 14–22 px. La decisión posterior del propietario mantiene el escalado según ancho de tarjeta (container queries), con mínimo de 14 px: el control no fija el mismo tamaño renderizado en todas las columnas. Se eliminó el multiplicador oculto 1,15; no introducir nuevos multiplicadores fuera de las escalas aprobadas. Fuente grande/destacado tienen escala propia. [Resolución de #132](integracion-pendientes-2026-11-03.md). Mantener tema, preferencias, lectura, Guardadas y backup; respetar movimiento reducido/contraste. Pulso no es un rediseño adoptado.
 
 ## D-05 — Integridad editorial [CONFIRMADO] [NO MODIFICAR]
 

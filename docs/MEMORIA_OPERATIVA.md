@@ -37,7 +37,7 @@ La descripción de GitHub aún dice Notisonda; documentación antigua usa /notis
 
 ## Avances disponibles
 
-- **UX:** Visual/Compacto/Solo titulares, columnas ajustadas al contenedor sin sobrescribir preferencias, títulos configurables, tarjetas compactas, filtros móviles con Escape/foco, navegación original y comparación aparte. [Comodidad visual](visual-comfort-2026-11-10.md).
+- **UX:** Visual/Compacto/Solo titulares, columnas ajustadas al contenedor sin sobrescribir preferencias, títulos con preferencia base 14–22 px y escalado por ancho aprobado (resolución #132), tarjetas compactas, filtros móviles con Escape/foco, navegación original y comparación aparte. [Comodidad visual](visual-comfort-2026-11-10.md).
 - **Editorial:** hasta siete historias por resumen y misma selección al escuchar/copiar/compartir, atribución/diversidad, agrupación conservadora, tipo solo con metadata explícita, Guardadas/lectura/Deshacer preservados. [Experiencia](reading-experience-2026-11-10.md).
 - **Fuentes:** [catálogo](../sources/feeds.opml) 443/11, #148 añadió 34 conservando IDs. Investigación y Gestión retiene 730 días y protege hasta 200 entradas dentro de 5.000; noticias 45 días, agenda independiente de 90. [Retención](research-retention-2026-11-10.md).
 - **Actualizar:** comprueba y aplica lo publicado con generación coherente, recuento y preferencias. No inicia ingesta desde el navegador. Publicación mayor de cuatro horas informa recopilación pendiente. Cron previsto :17 cada hora UTC; comprobación del navegador cada quince minutos, con posibles retrasos de GitHub. [Diagnóstico](refresh-delay-2026-11-14.md).
