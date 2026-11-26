@@ -471,13 +471,20 @@ class NetworkSafetyTests(unittest.TestCase):
         with patch.object(fetcher, '_request', return_value=(200, {}, b'User-agent: RadarRSS\nDisallow: /feed\n')):
             with self.assertRaises(discovery.FetchError):
                 fetcher.get('https://example.com/feed', publisher='example.com')
-        fetcher = self.fetcher()
-        with patch.object(fetcher, '_request', side_effect=[
-                (200, {}, b'User-agent: *\nCrawl-delay: 120\n'), (200, {}, b'ok')]) as request:
-            self.assertEqual(fetcher.get('https://example.com/'), b'ok')
-            with self.assertRaises(discovery.FetchError):
-                fetcher.get('https://example.com/feed')
-            self.assertEqual(request.call_count, 2)
+        # A fresh runner may have less uptime than the required crawl delay.
+        with patch('safe_publisher.time.monotonic', return_value=0) as clock:
+            fetcher = self.fetcher()
+            with patch.object(fetcher, '_request', side_effect=[
+                    (200, {}, b'User-agent: *\nCrawl-delay: 120\n'),
+                    (200, {}, b'ok'), (200, {}, b'ok')]) as request:
+                self.assertEqual(fetcher.get('https://example.com/'), b'ok')
+                clock.return_value = 119
+                with self.assertRaises(discovery.FetchError):
+                    fetcher.get('https://example.com/feed')
+                self.assertEqual(request.call_count, 2)
+                clock.return_value = 120
+                self.assertEqual(fetcher.get('https://example.com/feed'), b'ok')
+                self.assertEqual(request.call_count, 3)
 
     def test_dns_timeout_is_bounded(self):
         from threading import Event
