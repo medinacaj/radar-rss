@@ -13,7 +13,7 @@ Los textos largos permanecen neutros. El color identifica secciones, selección,
 
 El símbolo RSS/radar y la tarjeta social se generaron para el proyecto mediante `image_gen`. Los maestros se conservan en `assets/brand/`. Los tamaños web y de instalación se exportan con `browser_tests/export_radar_brand.py`, usando el renderer del navegador sin modificar el dibujo. No se añaden dependencias a producción ni se afirma exclusividad jurídica de la marca.
 
-Los activos activos usan el prefijo `radar-rss-`: marca de 128 píxeles mostrada a 24, favicon de 64, iconos de 192 y 512, maskable de 512 con área segura, Apple de 180 y tarjeta social de 1200×630. Los originales anteriores de RSS y Notisonda se conservan como históricos. HTML, manifest, iconos, metadatos y caché apuntan a la nueva identidad; el manifest se referencia con versión para evitar una copia HTTP anterior.
+Los activos activos usan el prefijo `radar-rss-`: marca de 128 píxeles mostrada a 24, favicon de 64, iconos de 192 y 512, maskable de 512 con área segura, Apple de 180 y tarjeta social de 1200×630. Los originales anteriores se conservan en el historial de Git; los cinco PNG obsoletos de la marca anterior se excluyen del directorio web público. El service worker conserva únicamente la limpieza de cachés históricas para instalaciones existentes. HTML, manifest, iconos, metadatos y caché apuntan a la nueva identidad; el manifest se referencia con versión para evitar una copia HTTP anterior.
 
 ## Compatibilidad y publicación
 

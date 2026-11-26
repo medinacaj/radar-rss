@@ -9,6 +9,7 @@ from urllib.parse import parse_qs, urlsplit
 
 ROOT=Path(__file__).resolve().parents[1]
 WEB=ROOT/'web'
+LEGACY=ROOT/'assets'/'brand'/'legacy-notisonda'
 
 class HeadTags(HTMLParser):
     def __init__(self,text):
@@ -75,6 +76,6 @@ class NotisondaAssetsTests(unittest.TestCase):
                  'icon-maskable.svg':'5f4c3e159675b6297c0df9c0c51ff1864f3460ef432b09e4c9cb1f0aca3dc57e',
                  'social-card.svg':'40d6a8c4833028c83437c5926893ffa8621ca05b55148052f35f63774a45dbb1'}
         for filename,digest in historical.items():
-            self.assertEqual(hashlib.sha256((WEB/filename).read_bytes()).hexdigest(),digest)
+            self.assertEqual(hashlib.sha256((LEGACY/filename).read_bytes()).hexdigest(),digest)
         for filename,digest in vectors.items():
-            self.assertEqual(hashlib.sha256((WEB/filename).read_bytes().rstrip()).hexdigest(),digest)
+            self.assertEqual(hashlib.sha256((LEGACY/filename).read_bytes().rstrip()).hexdigest(),digest)

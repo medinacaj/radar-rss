@@ -5,9 +5,40 @@ from __future__ import annotations
 import argparse
 import collections
 import json
+import ipaddress
 from pathlib import Path
 from urllib.parse import urlsplit
 import xml.etree.ElementTree as ET
+
+
+def safe_public_url(url: str) -> bool:
+    """Reject clearly unsafe OPML URLs before they reach the public collector.
+
+    This is a static validation only. The collector separately validates DNS
+    addresses on every request and redirect; this code does not make DNS calls.
+    """
+    if not isinstance(url, str) or not url or any(
+        ch.isspace() or ord(ch) < 32 or ord(ch) == 127 or ch == '\\'
+        for ch in url
+    ):
+        return False
+    try:
+        parsed = urlsplit(url)
+        if (parsed.scheme not in ("http", "https") or not parsed.hostname
+                or parsed.username or parsed.password):
+            return False
+        _ = parsed.port
+        hostname = parsed.hostname.lower().rstrip(".")
+        if hostname in ("localhost", "localhost.localdomain") or hostname.endswith(
+            (".localhost", ".local", ".internal")
+        ):
+            return False
+        try:
+            return ipaddress.ip_address(hostname).is_global
+        except ValueError:
+            return True  # DNS is verified by the collector, not by this audit.
+    except ValueError:
+        return False
 
 
 def audit(path: Path) -> dict:
@@ -33,14 +64,14 @@ def audit(path: Path) -> dict:
             totals[category] += 1
             if not name:
                 problems.append({"category": category, "url": url, "issue": "missing-name"})
-            if parsed.scheme not in ("http", "https") or not parsed.hostname or parsed.username or parsed.password:
+            if not safe_public_url(url):
                 problems.append({"category": category, "url": url, "issue": "invalid-feed-url"})
             if url in seen:
                 problems.append({"category": category, "url": url, "issue": "duplicate-url", "first_category": seen[url]})
             else:
                 seen[url] = category
             website = node.get("htmlUrl", "").strip()
-            if website and (urlsplit(website).scheme not in ("http", "https") or not urlsplit(website).hostname):
+            if website and not safe_public_url(website):
                 problems.append({"category": category, "url": url, "issue": "invalid-website"})
     return {"feed_count": sum(totals.values()), "unique_feed_count": len(seen),
             "categories": dict(totals), "category_count": len(categories),

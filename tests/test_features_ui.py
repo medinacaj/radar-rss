@@ -46,7 +46,9 @@ class FeaturesUiTests(unittest.TestCase):
     def test_lite_mode_and_offline(self):
         self.assertIn('id="settingLite"', self.html)
         self.assertIn("&&!state.lite", self.app)
-        self.assertIn("navigator.serviceWorker.register('./sw.js')", self.js)
+        worker_version = re.search(r"const CACHE = 'radar-rss-v(\d+)'", self.sw)
+        self.assertIsNotNone(worker_version)
+        self.assertIn("navigator.serviceWorker.register('./sw.js?v=" + worker_version.group(1) + "'", self.js)
         self.assertIn('url.origin !== self.location.origin', self.sw)
         self.assertIn('url.origin + url.pathname', self.sw)  # sin parámetros: caché acotada
         for asset in re.findall(r"'\./([^']+)'", self.sw):
