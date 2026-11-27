@@ -411,7 +411,7 @@ function refreshFeedUI() {
   if (state.feed && state.hiddenSources.has(state.feed)) state.feed='';
   fillSelect(); buildNav(); render();
 }
-function syncSettings() {
+function syncSettings(tab='appearance') {
   $('settingTheme').value=state.theme;
   $('settingLayout').value=state.layout;
   $('settingColumns').value=state.columns;
@@ -428,9 +428,9 @@ function syncSettings() {
   $('settingHideRead').checked=state.hideRead;
   $('settingNewTab').checked=state.newTab;
   $('settingKeywords').value=state.mutedKeywords;
-  renderSettingsSources();
+  if(tab!=='sources')renderSettingsSources();
   updateDataCounts();
-  selectedTab('appearance');
+  selectedTab(tab);
 }
 function renderSettingsSources() {
   const focusRow=document.activeElement?.closest('#settingsSources [data-source-id]');
@@ -476,12 +476,15 @@ function updateSettingsSourceCount(visibleInSearch) {
   $('settingsSourceCount').textContent=`${visible} visibles de ${state.sources.length} en el catálogo · ${visibleInSearch} resultados`;
 
 }
+function openSettings(tab='appearance'){
+  syncSettings(tab);
+  $('settingsDialog').showModal();
+  $('settingsPages').scrollTop=0;
+  if(tab==='sources')$('settingsSourceSearch').focus({preventScroll:true});
+}
 function initSettingsHandlers(){
   const dialog=$('settingsDialog');
-  $('settingsButton').addEventListener('click',()=>{
-    syncSettings();dialog.showModal();
-    $('settingsPages').scrollTop=0;
-  });
+  $('settingsButton').addEventListener('click',()=>openSettings());
   $('closeSettings').addEventListener('click',()=>dialog.close());
   $('settingsDone').addEventListener('click',()=>dialog.close());
   dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close();});
@@ -734,7 +737,7 @@ function updateHeader() {
   const name = state.category === 'all' ? 'Todas las noticias' : categoryLabel(state.category);
   $('feedHeading').textContent = name;
   $('topbarSection').textContent = state.pageView === 'dashboard' ? 'Inicio' : state.pageView === 'agenda' ? 'Agenda' : state.pageView === 'briefing' ? 'Resumen del día' : name;
-  $('sectionEyebrow').textContent = state.category === 'all' ? 'SELECCIÓN EDITORIAL' : 'EXPLORAR CATEGORÍA';
+  $('sectionEyebrow').textContent = state.category === 'all' ? 'FUENTES RSS' : 'CARPETA DE FUENTES';
   $('feedDescription').textContent = state.category === 'all' ? 'Titulares y novedades de todas las fuentes.' : `Noticias recientes de ${name}.`;
 }
 // Mientras hay una búsqueda, la descripción muestra los resultados; al borrarla se

@@ -28,7 +28,7 @@
   <link rel="alternate" type="application/rss+xml" title="Radar-RSS · Lo más cubierto" href="./feeds/mas-cubierto.xml">
   <link rel="manifest" href="./manifest.webmanifest?v=4">
   <link rel="stylesheet" href="./styles.css?v=5.2.0">
-  <link rel="stylesheet" href="./library.css?v=1.8.0">
+  <link rel="stylesheet" href="./library.css?v=1.8.1">
   <link rel="stylesheet" href="./sidebar-layout.css?v=1.0.3">
   <link rel="stylesheet" href="./modal-layout.css?v=1.0.0">
   <link rel="stylesheet" href="./news-effects.css?v=1.0.0">
@@ -195,7 +195,7 @@
           <p class="briefing-note">Ordenado por cobertura (número de medios distintos), no por clics. Se actualiza con cada recopilación, aproximadamente cada 3 horas.</p>
         </section>
         <section class="feed-area" id="feedView" aria-labelledby="feedHeading">
-          <div class="section-heading sr-only"><div><span class="section-eyebrow" id="sectionEyebrow">SELECCIÓN EDITORIAL</span><h1 id="feedHeading">Todas las noticias</h1><p id="feedDescription">Titulares y novedades de tus medios favoritos.</p></div><span class="sr-only" id="visibleCount" role="status" aria-live="polite" aria-atomic="true">0 ARTÍCULOS</span></div>
+          <div class="section-heading feed-reading-heading"><div><span class="sr-only" id="sectionEyebrow">FUENTES RSS</span><h1 id="feedHeading">Todas las noticias</h1><p id="feedDescription">Titulares y novedades de tus medios favoritos.</p></div><span class="feed-reading-count" id="visibleCount" role="status" aria-live="polite" aria-atomic="true">0 ARTÍCULOS</span></div>
           <section id="historyProgress" class="history-progress" role="status" aria-live="polite" hidden>
             <div><p id="historyProgressText">Preparando noticias…</p><progress id="historyProgressBar" max="1" value="0" aria-label="Descarga del archivo de noticias"></progress></div>
             <button id="historyRetry" type="button" class="settings-secondary" hidden>Reintentar archivo</button>
@@ -367,34 +367,37 @@
           <p class="setting-hint">La antigüedad filtra el archivo disponible: hasta 45 días o 5000 noticias. Elegir 90 días o Sin límite no amplía ese archivo. Las copias guardadas se conservan en este navegador.</p>
           <div class="settings-divider"></div>
           <label class="setting-toggle"><span><b>Ocultar artículos leídos</b><small>Solo aparecen los que aún no has abierto (excepto en Guardadas).</small></span><input id="settingHideRead" type="checkbox"></label>
-          <label class="setting-toggle"><span><b>Abrir el artículo completo en pestaña nueva</b><small>La tarjeta abre primero una vista previa. Este ajuste se aplica al enlace del sitio original.</small></span><input id="settingNewTab" type="checkbox"></label>
+          <label class="setting-toggle"><span><b>Abrir el artículo completo en pestaña nueva</b><small>El titular y la imagen abren el medio original. Este ajuste permite abrirlo en otra pestaña.</small></span><input id="settingNewTab" type="checkbox"></label>
           <label class="setting-field wide" for="settingKeywords"><span>Silenciar palabras o temas</span><textarea id="settingKeywords" rows="3" maxlength="600" placeholder="Ej.: fútbol, horóscopo, celebridades"></textarea><small>Separa los términos por comas. Se filtran titulares y resúmenes en tu navegador.</small></label>
         </section>
         <section class="settings-pane" data-settings-pane="sources" aria-label="Fuentes visibles" hidden>
           <h3>Mis fuentes</h3><p class="setting-hint">Elige los medios que quieres visualizar sin modificar el catálogo público.</p>
           <div class="setting-source-head"><div id="settingsSourceCount" class="settings-count" aria-live="polite"></div><button type="button" id="showAllSources" class="settings-secondary">Activar todas</button></div>
           <label for="settingsSourceSearch" class="sr-only">Buscar fuente</label><input type="search" id="settingsSourceSearch" class="settings-search" placeholder="Buscar entre las fuentes…" autocomplete="off">
-          <div class="source-filters">
-            <label for="settingsSourceVisibility">Visibilidad<select id="settingsSourceVisibility"><option value="all">Todas las fuentes</option><option value="visible">Visibles</option><option value="hidden">Ocultas</option></select></label>
-            <label for="settingsSourceStatus">Último chequeo<select id="settingsSourceStatus"><option value="all">Cualquier estado</option><option value="ok">Lectura correcta</option><option value="error">No disponibles</option><option value="empty">Sin noticias</option><option value="stale">Sin novedades</option><option value="unknown">Sin diagnóstico</option></select></label>
-            <label for="settingsSourceType">Tipo de canal<select id="settingsSourceType"><option value="all">RSS y RADAR</option><option value="direct">RSS directo</option><option value="radar">RADAR · Google Noticias</option></select></label>
-          </div>
-          <p class="setting-hint">Busca por nombre, carpeta, dominio o dirección RSS. Los enlaces largos muestran hasta tres líneas; puedes copiar la URL completa o verla en Detalles. Visible u oculta es tu preferencia personal; el estado corresponde a la última lectura del servidor, no a una comprobación en vivo.</p>
-          <div id="settingsCategories" class="settings-category-actions"></div>
-          <div class="source-portability">
-            <button type="button" id="exportOPML" class="settings-secondary">Exportar fuentes visibles (OPML)</button>
-            <button type="button" id="exportSourceCatalog" class="settings-secondary">Exportar catálogo completo (CSV)</button>
-            <label class="settings-secondary upload-label" for="importOPML" tabindex="0" role="button">Importar desde Feedly u otro lector (OPML)</label><input type="file" id="importOPML" accept=".opml,.xml,text/xml,application/xml" hidden>
-          </div>
-          <p class="setting-hint">La importación reconoce fuentes que ya están en el catálogo y permite recuperar sus carpetas. Verás las que faltan antes de aplicar. El archivo se procesa solo en tu navegador.</p>
-          <section id="sourceImportPreview" class="source-import-preview" aria-label="Vista previa de importación OPML" hidden>
-            <h4>Revisar importación</h4><p id="sourceImportSummary" aria-live="polite"></p>
-            <ul id="sourceImportFolders"></ul>
-            <details><summary>Fuentes sin incorporar</summary><ul id="sourceImportUnknown"></ul></details>
-            <p class="setting-hint">Al aplicar se activan las fuentes reconocidas y se añaden a estas carpetas. Se conservan tus otras fuentes, carpetas y noticias guardadas.</p>
-            <div class="source-portability"><button type="button" id="applySourceImport" class="settings-secondary">Aplicar importación</button><button type="button" id="cancelSourceImport" class="settings-secondary">Cancelar</button><button type="button" id="exportSourceImportReport" class="settings-secondary">Descargar informe (CSV)</button></div>
-          </section>
-          <p id="sourceImportNotice" class="settings-notice" aria-live="polite"></p>
+          <details id="sourceManagerTools" class="source-manager-tools">
+            <summary>Filtros y herramientas de fuentes</summary>
+            <div class="source-filters">
+              <label for="settingsSourceVisibility">Visibilidad<select id="settingsSourceVisibility"><option value="all">Todas las fuentes</option><option value="visible">Visibles</option><option value="hidden">Ocultas</option></select></label>
+              <label for="settingsSourceStatus">Último chequeo<select id="settingsSourceStatus"><option value="all">Cualquier estado</option><option value="ok">Lectura correcta</option><option value="error">No disponibles</option><option value="empty">Sin noticias</option><option value="stale">Sin novedades</option><option value="unknown">Sin diagnóstico</option></select></label>
+              <label for="settingsSourceType">Tipo de canal<select id="settingsSourceType"><option value="all">RSS y RADAR</option><option value="direct">RSS directo</option><option value="radar">RADAR · Google Noticias</option></select></label>
+            </div>
+            <p class="setting-hint">Busca por nombre, carpeta, dominio o dirección RSS. Los enlaces largos muestran hasta tres líneas; puedes copiar la URL completa o verla en Detalles. Visible u oculta es tu preferencia personal; el estado corresponde a la última lectura del servidor, no a una comprobación en vivo.</p>
+            <div id="settingsCategories" class="settings-category-actions"></div>
+            <div class="source-portability">
+              <button type="button" id="exportOPML" class="settings-secondary">Exportar fuentes visibles (OPML)</button>
+              <button type="button" id="exportSourceCatalog" class="settings-secondary">Exportar catálogo completo (CSV)</button>
+              <label class="settings-secondary upload-label" for="importOPML" tabindex="0" role="button">Importar desde Feedly u otro lector (OPML)</label><input type="file" id="importOPML" accept=".opml,.xml,text/xml,application/xml" hidden>
+            </div>
+            <p class="setting-hint">La importación reconoce fuentes que ya están en el catálogo y permite recuperar sus carpetas. Verás las que faltan antes de aplicar. El archivo se procesa solo en tu navegador.</p>
+            <section id="sourceImportPreview" class="source-import-preview" aria-label="Vista previa de importación OPML" hidden>
+              <h4>Revisar importación</h4><p id="sourceImportSummary" aria-live="polite"></p>
+              <ul id="sourceImportFolders"></ul>
+              <details><summary>Fuentes sin incorporar</summary><ul id="sourceImportUnknown"></ul></details>
+              <p class="setting-hint">Al aplicar se activan las fuentes reconocidas y se añaden a estas carpetas. Se conservan tus otras fuentes, carpetas y noticias guardadas.</p>
+              <div class="source-portability"><button type="button" id="applySourceImport" class="settings-secondary">Aplicar importación</button><button type="button" id="cancelSourceImport" class="settings-secondary">Cancelar</button><button type="button" id="exportSourceImportReport" class="settings-secondary">Descargar informe (CSV)</button></div>
+            </section>
+            <p id="sourceImportNotice" class="settings-notice" aria-live="polite"></p>
+          </details>
           <div id="settingsSources" class="settings-source-list" role="group" aria-label="Seleccionar fuentes visibles"></div>
           <p class="setting-admin">Para añadir o eliminar fuentes <strong>para todos los visitantes</strong>, hay que actualizar <a href="https://github.com/medinacaj/radar-rss/blob/main/sources/feeds.opml" rel="noopener noreferrer" target="_blank">el OPML del repositorio</a>. Los cambios de este panel son personales.</p>
         </section>
@@ -423,11 +426,11 @@
   <div id="actionToast" class="action-toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
   <script src="./source-tools.js?v=1.0.2" defer></script>
   <script src="./editorial-model.js?v=1.0.0" defer></script>
-  <script src="./app.js?v=9.12.5" defer></script>
-  <script src="./library.js?v=2.1.3" defer></script>
+  <script src="./app.js?v=9.12.6" defer></script>
+  <script src="./library.js?v=2.1.4" defer></script>
   <script src="./sidebar-layout.js?v=1.2.3" defer></script>
   <script src="./news-effects.js?v=1.0.0" defer></script>
-  <script src="./features.js?v=1.4.1" defer></script>
+  <script src="./features.js?v=1.4.2" defer></script>
   <script src="./v12.js?v=1.3.1" defer></script>
   <script src="./v13.js?v=1.4.4" defer></script>
   <script src="./usability.js?v=1.1.1" defer></script>

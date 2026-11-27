@@ -10,7 +10,6 @@
 .library-folder-row .nav-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .library-folder-delete{width:25px;height:26px;flex:0 0 25px;border:0;border-radius:8px;color:var(--muted);background:transparent}
 .library-folder-delete:hover{background:var(--hover);color:var(--text)}
-.folder-settings{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:12px;margin:10px 0}
 .library-source-row{display:flex;align-items:center;gap:8px;min-width:0}
 .library-source-row .settings-source-row{min-width:0;flex:1}
 .library-source-folder{max-width:155px;min-width:100px;width:37%;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text);font-size:11px;padding:7px}
@@ -217,4 +216,24 @@ body .source-folders-section .folder-entry .nav-count{
   body .source-folders-section .folder-entry>.nav-link{
     -webkit-touch-callout:none;
   }
+}
+
+/* Acciones visibles del gestor y contexto del listado. */
+.library-folder-actions{display:flex;flex-wrap:wrap;gap:6px;padding:4px 12px 10px}
+.library-folder-actions button{
+  flex:1 1 auto;min-height:44px;padding:6px 9px;border:1px solid var(--line);
+  border-radius:8px;background:var(--surface);color:var(--text);font-size:12px;font-weight:650
+}
+.library-folder-actions button:hover{background:var(--hover)}
+body.radar-hybrid.dimension .feed-reading-heading{
+  flex-flow:row wrap;align-items:baseline;gap:4px 12px;margin:0 0 12px
+}
+body.radar-hybrid.dimension .feed-reading-heading h1{
+  margin:0;font-size:clamp(19px,2.4vw,26px);overflow-wrap:anywhere
+}
+.feed-reading-count{color:var(--muted);font-size:12px}
+.source-manager-tools{margin:6px 0 12px}
+.source-manager-tools>summary{
+  min-height:44px;padding:10px;border:1px solid var(--line);border-radius:8px;
+  background:var(--surface);color:var(--text);font-size:13px;cursor:pointer
 }

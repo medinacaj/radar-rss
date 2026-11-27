@@ -412,7 +412,7 @@ function runFolderAction(command){
   else if(command==='view'){state.mode='all';state.page=1;goTo('all');}
   else if(command==='sources'){
    setNavOpen(false,false);
-   $('settingsButton').click();selectedTab('sources');
+   openSettings('sources');
   }
   return;
  }
@@ -446,6 +446,7 @@ function installFolderUI(){
  const dialog=mk('dialog','folder-manage-dialog');dialog.id='folderDialog';
  const header=mk('div','folder-dialog-top');
  const title=mk('h2','');title.id='folderDialogTitle';
+ dialog.setAttribute('aria-labelledby',title.id);
  const x=mk('button','folder-dialog-close','×');x.type='button';x.setAttribute('aria-label','Cerrar');x.addEventListener('click',()=>dialog.close());
  header.append(title,x);
  const name=mk('div');name.id='folderNamePane';
@@ -933,7 +934,15 @@ function mount(){
   nav.id='libraryFolderNav';
   nav.hidden=false;
   nav.setAttribute('aria-label','Categorías del catálogo y carpetas personales');
-  foldersSection.append(header,nav);
+  const actions=mk('div','library-folder-actions');
+  const create=mk('button','','Nueva carpeta');create.type='button';
+  create.setAttribute('aria-haspopup','dialog');
+  create.addEventListener('click',createFolder);
+  const manage=mk('button','','Gestionar fuentes');manage.type='button';
+  manage.setAttribute('aria-haspopup','dialog');
+  manage.addEventListener('click',()=>openSettings('sources'));
+  actions.append(create,manage);
+  foldersSection.append(header,actions,nav);
   $('sidebarCoreSection').after(foldersSection);
   const setExpanded=expanded=>{
     nav.hidden=!expanded;
@@ -954,10 +963,6 @@ function mount(){
   $('readerNote').after(section);
   btn.addEventListener('click',addTag);
   input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addTag();}});
-  const sourcePane=document.querySelector('[data-settings-pane="sources"]');
-  const group=mk('div','folder-settings');
-  group.append(mk('span','','Para crear una carpeta, haz clic derecho sobre «Carpetas y categorías» o sobre una carpeta del menú lateral. En móvil, mantén pulsado; con teclado, usa Shift+F10.'));
-  sourcePane.querySelector('.setting-hint').after(group);
   mountSourceImport();
   $('readerSave').addEventListener('click',e=>{
     if(!activeReaderItem)return;

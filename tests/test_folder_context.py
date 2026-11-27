@@ -31,7 +31,7 @@ class FolderContextTests(unittest.TestCase):
         self.assertIn("equipFolder(wrapper,b,'manual',name)",self.library)
         self.assertIn("const menu=mk('div','folder-popup-menu')",self.library)
 
-    def test_create_folder_only_from_context_menu(self):
+    def test_create_folder_from_sidebar_and_context_menu(self):
         self.assertIn("['create','Crear carpeta']",self.library)
         self.assertIn("equipFolder(header,toggle,'section',null)",self.library)
         self.assertIn("if(kind==='section')",self.library)
@@ -42,7 +42,8 @@ class FolderContextTests(unittest.TestCase):
         self.assertIn("forAll?!['read','unread','view','sources'].includes(command)",self.library)
         self.assertNotIn("add.title='Crear carpeta de fuentes'",self.library)
         self.assertNotIn("mk('button','settings-secondary','Crear carpeta')",self.library)
-        self.assertIn('clic derecho sobre «Carpetas y categorías» o sobre una carpeta',self.library)
+        self.assertIn("mk('button','','Nueva carpeta')",self.library)
+        self.assertIn("create.addEventListener('click',createFolder)",self.library)
 
     def test_updated_assets(self):
         self.assertRegex(self.html,r'<script src="\./library\.js\?v=[^"]+" defer></script>')

@@ -44,6 +44,33 @@ class ConcepcionRegressions(unittest.TestCase):
     def tearDown(self):
         self.context.close()
 
+    def test_manager_shortcuts_and_visible_folder_context(self):
+        for width in (390, 1440):
+            with self.subTest(width=width):
+                self.page.set_viewport_size({'width': width, 'height': 844})
+                if width < 950:
+                    self.page.locator('#menuToggle').click()
+                create = self.page.get_by_role('button', name='Nueva carpeta', exact=True)
+                create.press('Enter')
+                self.assertTrue(self.page.get_by_role('dialog', name='Nueva carpeta de fuentes').is_visible())
+                self.assertEqual(self.page.evaluate('document.activeElement.id'), 'folderNameInput')
+                self.page.keyboard.press('Escape')
+                manage = self.page.get_by_role('button', name='Gestionar fuentes', exact=True)
+                manage.press('Enter')
+                self.assertTrue(self.page.locator('#settingsDialog').is_visible())
+                self.assertEqual(self.page.evaluate('document.activeElement.id'), 'settingsSourceSearch')
+                self.assertIsNone(self.page.locator('#sourceManagerTools').get_attribute('open'))
+                first_source = self.page.locator('#settingsSources [data-source-id]').first
+                footer = self.page.locator('#settingsDone')
+                self.assertLess(first_source.bounding_box()['y'], footer.bounding_box()['y'])
+                self.page.keyboard.press('Escape')
+                self.assertTrue(manage.evaluate('(button) => document.activeElement === button'))
+                self.page.locator('#libraryFolderNav .system-folder-link').first.click()
+                heading = self.page.locator('#feedHeading')
+                self.assertEqual(heading.inner_text(), 'Inteligencia Artificial')
+                self.assertGreater(heading.bounding_box()['width'], 10)
+                self.page.locator('#categoryNav [data-destination="all"]').evaluate('(button) => button.click()')
+
     def test_partial_latam_selection_is_completed_without_removing_concepcion(self):
         self.page.evaluate("""() => {
             localStorage.setItem('radar-v12-preferences', JSON.stringify({mine:true,

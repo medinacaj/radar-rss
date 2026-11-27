@@ -37,7 +37,7 @@ class CurrentBrandTests(unittest.TestCase):
         self.assertGreaterEqual(version, 82)
         self.assertIn(f"serviceWorker.register('./sw.js?v={version}'", features)
         self.assertIn("updateViaCache: 'none'", features)
-        self.assertIn("features.js?v=1.4.1", page)
+        self.assertIn("features.js?v=1.4.2", page)
         # Migración: limpia cachés históricas sin borrar las de otras aplicaciones del origen.
         self.assertIn("key.startsWith('notisonda-')", worker)
         self.assertIn("key.startsWith('radar-rss-')", worker)

@@ -639,8 +639,8 @@ def main():
                             assert shadow != "none", (width,browser_name,shadow)
                         check_visible_boxes(page, [".topbar", ".topbar-actions", "#articleGrid",
                             "#articleGrid .article-card"], f"listado {width}px")
-                        assert page.locator('#feedView > .section-heading').evaluate(
-                            'n=>n.classList.contains("sr-only")'), 'No duplicate news heading'
+                        expect(page.locator('#feedView > .section-heading h1')).to_be_visible()
+                        check_visible_boxes(page, ['#feedHeading', '#visibleCount'], f'contexto del listado {width}px')
                         assert page.locator('#feedView > .filter-bar').evaluate(
                             'n=>getComputedStyle(n).display==="none"'), 'No duplicate news toolbar'
                         ensure_navigation(page)
@@ -720,7 +720,7 @@ def main():
                         page.evaluate("window.scrollTo({top:0,behavior:'instant'})")
                         page.evaluate("() => new Promise(resolve=>requestAnimationFrame(resolve))")
                         auxiliary = [page.locator(selector).bounding_box() for selector in
-                                     ("#historyProgress", "#feedActiveFilters", "#v12SavedSearches", "#feedContext")
+                                     ("#feedView > .section-heading", "#historyProgress", "#feedActiveFilters", "#v12SavedSearches", "#feedContext")
                                      if page.locator(selector).is_visible()]
                         feed_top=page.locator("#feedView").bounding_box()['y']
                         auxiliary_bottom=max([box['y']+box['height'] for box in auxiliary],default=feed_top)

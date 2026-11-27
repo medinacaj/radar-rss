@@ -638,6 +638,9 @@ class DimensionRegressions(unittest.TestCase):
     def open_source_settings(self):
         self.page.locator('#settingsButton').click()
         self.page.locator('[data-settings-tab="sources"]').click()
+        tools = self.page.locator('#sourceManagerTools')
+        if tools.get_attribute('open') is None:
+            tools.locator(':scope > summary').click()
 
     def test_exports_keep_legacy_backup_format_and_use_current_identity(self):
         self.open_source_settings()
@@ -891,7 +894,12 @@ class DimensionRegressions(unittest.TestCase):
                 expect(self.page.locator('#settingsSources .source-rss-url').first).to_be_visible()
                 self.assertTrue(self.page.locator('#settingsPages').evaluate('n=>n.scrollWidth<=n.clientWidth+2'))
                 self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth+2'))
+        tools = self.page.locator('#sourceManagerTools > summary')
+        tools.click()
         self.page.locator('#settingsSourceSearch').focus();self.page.keyboard.press('Tab')
+        expect(tools).to_be_focused()
+        self.page.keyboard.press('Enter')
+        self.page.keyboard.press('Tab')
         expect(self.page.locator('#settingsSourceVisibility')).to_be_focused()
 
 
