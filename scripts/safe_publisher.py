@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import http.client
 import ipaddress
+import math
 import os
 from queue import Empty, Queue
 import re
@@ -12,12 +13,59 @@ import ssl
 from threading import Event, Lock, Thread, Timer
 import time
 from urllib.parse import urljoin, urlsplit, urlunsplit
-from urllib.robotparser import RobotFileParser
+from protego import Protego
 
-AGENT = "Mozilla/5.0 (compatible; RadarRSS/1.1; +https://github.com/medinacaj/radar-rss)"
+ROBOTS_AGENT = "RadarRSS"
+AGENT = f"{ROBOTS_AGENT}/1.1 (+https://github.com/medinacaj/radar-rss)"
 MAX_REQUESTS = 100
 MAX_SECONDS = 180
 MAX_BYTES = 1_000_000
+
+
+# Give every literal octet a fixed-width token so Protego compares the same
+# path representation on both sides. A wildcard cannot start a literal match
+# inside a token. Keep escaped reserved octets distinct from raw characters.
+ROBOTS_OCTETS = re.compile(rb'%[0-9A-Fa-f]{2}|.', re.DOTALL)
+UNRESERVED = b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~'
+
+
+def robots_path(path: str, *, rule: bool = False) -> str:
+    octets = ROBOTS_OCTETS.findall(path.encode('utf-8'))
+    tokens = ['/']
+    for index, octet in enumerate(octets):
+        if rule and (octet == b'*' or (octet == b'$' and index == len(octets)-1)):
+            tokens.append(octet.decode('ascii'))
+        elif len(octet) == 3:
+            byte = int(octet[1:], 16)
+            prefix = 'x' if byte in UNRESERVED or byte >= 128 else 'y'
+            tokens.append(f'{prefix}{byte:02X}')
+        else:
+            tokens.append(f'x{octet[0]:02X}')
+    return ''.join(tokens)
+
+
+def parse_robots(rules: str) -> Protego:
+    normalized = []
+    for line in rules.splitlines():
+        field, separator, value = line.partition('#')[0].partition(':')
+        if not separator:
+            continue
+        field, value = field.strip().lower(), value.strip()
+        if field == 'user-agent':
+            if value and value.casefold() not in (ROBOTS_AGENT.casefold(), '*'):
+                value = 'UnrelatedCrawler'
+        elif field in ('allow', 'disallow'):
+            if value and not value.startswith('/'):
+                continue
+            if value:
+                value = robots_path(value, rule=True)
+        elif field == 'crawl-delay':
+            if not re.fullmatch(r'[0-9]+(?:\.[0-9]+)?', value) or not math.isfinite(float(value)):
+                continue
+        elif field != 'request-rate':
+            continue
+        normalized.append(f'{field}: {value}')
+    return Protego.parse('\n'.join(normalized))
 
 
 class FetchError(ValueError):
@@ -150,7 +198,7 @@ class SafeFetcher:
         self.requests_left = min(MAX_REQUESTS, max_requests)
         self.deadline = time.monotonic() + min(MAX_SECONDS, seconds)
         self.exchange_seconds = exchange_seconds
-        self.robots: dict[str, RobotFileParser] = {}
+        self.robots: dict[str, Protego] = {}
         self.last_requested: dict[str, float] = {}
         self.context = ssl.create_default_context()
 
@@ -234,27 +282,24 @@ class SafeFetcher:
         origin = f'https://{parsed.hostname}'
         if origin not in self.robots:
             status, _, raw = self._read(origin+'/robots.txt', parsed.hostname, 64_000, robots=False)
-            parser = RobotFileParser()
-            if status == 404:
-                parser.parse([])
-            elif status == 200:
-                parser.parse(raw.decode('utf-8', errors='replace').splitlines())
-            else:
-                raise FetchError('robots.txt no disponible o acceso denegado', reason='robots')
-            self.robots[origin] = parser
+            if status not in (200, 404):
+                raise FetchError(f'robots.txt HTTP {status}', reason='robots_http')
+            rules = raw.decode('utf-8-sig', errors='replace') if status == 200 else ''
+            self.robots[origin] = parse_robots(rules)
         parser = self.robots[origin]
-        delay = 0
-        for agent in ('RadarRSS', AGENT):
-            if not parser.can_fetch(agent, url):
-                raise FetchError('robots.txt no permite la consulta', reason='robots')
-            delay = max(delay, parser.crawl_delay(agent) or 0)
-            rate = parser.request_rate(agent)
-            if rate and rate.requests > 0:
-                delay = max(delay, rate.seconds / rate.requests)
+        request_path = parsed.path or '/'
+        if parsed.query:
+            request_path += '?' + parsed.query
+        if not parser.can_fetch(robots_path(request_path), ROBOTS_AGENT):
+            raise FetchError('robots.txt no permite la consulta', reason='robots_rule')
+        delay = parser.crawl_delay(ROBOTS_AGENT) or 0
+        rate = parser.request_rate(ROBOTS_AGENT)
+        if rate and rate.requests > 0:
+            delay = max(delay, rate.seconds / rate.requests)
         last_request = self.last_requested.get(origin)
         if last_request is not None and time.monotonic() < last_request+delay:
             # Skip instead of waiting or defeating the publisher's crawl policy.
-            raise FetchError('robots.txt exige más tiempo entre consultas', reason='robots')
+            raise FetchError('robots.txt exige más tiempo entre consultas', reason='robots_delay')
 
     def _read(self, url: str, publisher: str | None, limit: int, *, robots: bool = True):
         for _ in range(4):
