@@ -1,6 +1,25 @@
 # Memoria operativa — Radar-RSS
 
-Corte: **26-11-2026, America/Santiago**. Contraste remoto de entrada alrededor de 18:03–18:06 locales (21:03–21:06 UTC). Revalidar GitHub al retomar; esta memoria no promete salud permanente.
+Corte: **28-11-2026, America/Santiago** (contraste remoto alrededor de 09:45–10:10 locales). Revalidar GitHub al retomar; esta memoria no promete salud permanente. La sección «Actualización 28-11» manda sobre las tablas anteriores cuando difieran; estas se conservan como historia del corte del 26-11.
+
+## Actualización 28-11 (estado real contrastado)
+
+| Hecho | Evidencia |
+|---|---|
+| `main` = `f07a9fbe9a6e9f6819a491f2549449dee4c03da8` (#186, D-11) | git local/remoto coinciden; CI [46145224151](https://github.com/medinacaj/radar-rss/actions/runs/46145224151) success. |
+| **#184 integrado** (`7a61a00`): Protego en `requirements.txt` (`>=0.6.2,<0.7`), diagnóstico `robots_http/rule/delay` y marca `last_scan.robots_policy="rfc9309-v1"` | CI [46144614768](https://github.com/medinacaj/radar-rss/actions/runs/46144614768) success; despliegue [46144614771](https://github.com/medinacaj/radar-rss/actions/runs/46144614771) success. |
+| **AUTO tras #184** (log del job 140977788821, 12:26:04Z): la migración revisó una sola vez; `robots_denials: 11`, **`robots_rule: 11`**, `robots_http: 0`, `robots_delay: 0`, `added: 0`, `outcome: unavailable` | Las once semillas fueron rechazadas por **regla explícita** del robots.txt real, no por HTTP ni crawl-delay. El defecto del parser deja de ser causa probable. Por D-08 se respeta la denegación; no se suplantan crawlers ni se desactiva robots. Altas AUTO reales siguen en **cero**. |
+| **Agenda con D-11** (despliegue #335 [46145224099](https://github.com/medinacaj/radar-rss/actions/runs/46145224099), job 140979695940) | `Agenda validated: 0 events 108 pending` (antes 101 pendientes): **D-11 está integrado y desplegado pero aún no demuestra efecto**. Causa no determinada: el log no distingue por qué quedan pendientes. |
+| Despliegues programados | Cron :17 cada hora UTC con éxito hasta #335 (12:33Z). #165 sigue abierto sin cambios (único PR abierto). |
+| No verificable desde este entorno | Pages, blobs de artefactos y logs completos bloqueados por el proxy del entorno; sin lectura directa de `events.json`/`discovered-sources.json` publicados. |
+
+### Cambio de esta sesión (rama `claude/gracious-meitner-j6bfz1`, sin integrar)
+
+Diagnóstico **solo de log** para la agenda: `extract_event(..., diagnostics=dict)` y `_text_date(..., trace=list)` clasifican cada anuncio de actividad sin fecha estructurada (`confirmada_texto`, `confirmada_ano_deducido`, `sin_fecha_en_texto`, `fecha_sin_clausula`, `fecha_no_inmediata`, `contexto_inscripcion`, `sin_ano_sin_ancla`, `sin_ano_fuera_de_margen`, `alternativa`, `negacion`, `fechas_contradictorias`); `collect_events.py` imprime el recuento en stderr (`Agenda, fechas en texto: ...`). No cambia reglas de confirmación, JSON publicado ni esquema (comprobado: resultado idéntico con y sin diagnóstico). Pruebas: 422 Python (Python 3.13 local, CI usa 3.12), `node --check` de siete archivos y las dos suites Node citadas en AGENTS.md. **Implementado y probado localmente; no integrado ni desplegado.**
+
+Observación a decidir (no cambiada): `REALIZATION` reconoce «se realizará/celebrará/…» en singular; el plural «se realizarán» queda como `fecha_no_inmediata`. Puede ser una causa de pendientes, pero ampliar el reconocimiento afecta D-05/D-11 y exige decisión del propietario con evidencia del log.
+
+**Siguiente acción concreta:** integrar este diagnóstico (PR único tras CI), leer en el siguiente despliegue la línea `Agenda, fechas en texto:` y decidir con esos recuentos si hace falta ampliar el reconocimiento o si el 0 confirmadas es legítimo. Para AUTO: investigar una vía legítima (feeds publicados explícitamente, APIs o acuerdos) en lugar de reintentar sobre robots que prohíben; no forzar altas.
 
 ## Identidad e infraestructura
 
@@ -45,7 +64,7 @@ La descripción de GitHub aún dice Notisonda; documentación antigua usa /notis
 - **Identidad:** #182 archivó ocho originales byte por byte fuera de web y corrigió aliases públicos; #183 documentó continuidad. Históricos no equivalen a la marca actual.
 - **Seguridad:** #178/#180 y transporte AUTO conservan URL/host público, IP fijada, robots, presupuesto y saneamiento; AUTO sin imágenes/OG.
 
-## Siguiente acción P1: #184
+## Historia 26-11 — plan de #184 (ya ejecutado; ver actualización 28-11)
 
 Python 3.12 robotparser usa primer prefijo y no interpreta correctamente precedencia, comodines ni end anchors RFC 9309. El código consulta RadarRSS y el AGENT completo (interpretado como Mozilla por stdlib). Los fixtures demuestran falsos bloqueos y falsos permisos.
 
@@ -64,7 +83,7 @@ Módulos: scripts/safe_publisher.py, scripts/source_discovery.py, requirements.t
 
 Inventario de entrada: 144 ramas antes de la rama documental (143 auditadas inicialmente + #184); no se borró ninguna. Main code `76c0d8a...` corresponde al squash #176; #182 squash `06caa3ae54debc1393fd9d582fc3068d1fd4e165`; #183 `c14db875a6d05244aabb66fac0becc33691dc018`.
 
-- #184 abierto: continuidad activa en RED, head completo arriba.
+- #184: **integrado** (`7a61a00`); el estado «RED» y la sección «Siguiente acción P1: #184» de abajo son historia del 26-11.
 - [#165](https://github.com/medinacaj/radar-rss/pull/165) abierto: test/sidebar-browser-contracts-20261113, head `100afc385fec8c8dcdafcd1da0b46a9128504907`, selectores obsoletos y tres navegadores fallidos; superposición #170/#171. No fusionar sin resolver.
 - design/pulso-editorial: sin PR; head observado abreviado 3e2f9fb9, conservado, no adoptado.
 - Quince ramas cerradas sin merge: #120/#121/#123/#125/#126/#128/#132 consolidadas en #138; #76/#77/#78/#88/#92 incorporadas/sustituidas posteriormente; #36 por #39, #163 por #170, #48 obsoleta. Exclusividad de commits tras squash no justifica importar ramas enteras. [Consolidación](integracion-pendientes-2026-11-03.md) y [historia](project-status.md). Crónica Uno/candidatas deshabilitadas siguen como investigación.

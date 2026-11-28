@@ -34,7 +34,7 @@ Actualizar consulta lo publicado; no dispara ingesta desde navegador. Cron horar
 
 HTTPS público, URL/DNS/IP fijada durante TLS, mismo editor, robots y presupuestos; sin sortear 401/403/429 o proxies. No sustituir transporte por requests común ni añadir imágenes/OG AUTO. Corregir interpretación exige probar permisos y prohibiciones; respetar denegación real.
 
-Protego >=0.6.2,<0.7, diagnóstico y marca persistente de parser son **propuestas pendientes de #184**, no implementadas, y no prueban permiso de Google.
+Actualización 28-11: Protego `>=0.6.2,<0.7`, diagnóstico (`robots_http/rule/delay`) y marca persistente `robots_policy=rfc9309-v1` **están implementados e integrados** (#184). Con el parser corregido, las once semillas siguen rechazadas por regla explícita de su robots.txt (`robots_rule: 11`, log del despliegue 46144614771): la denegación es real y **se respeta**; no se suplantan crawlers, no se desactiva robots y no se elude con proxies. Esto no prueba permiso de Google ni de ningún editor.
 
 ## D-09 — Privacidad [CONFIRMADO] [NO MODIFICAR]
 
