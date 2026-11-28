@@ -56,6 +56,7 @@
         require(row.end_date===null||(day(row.end_date)&&row.end_date>=row.start_date));
         require(row.status!=='postponed');
         require(object(row.date_evidence)&&['rss','jsonld','text','calendar'].includes(row.date_evidence.kind)&&text(row.date_evidence.value,1000)&&url(row.date_evidence.url));
+        require(row.date_evidence.year_inferred===undefined||(row.date_evidence.year_inferred===true&&row.date_evidence.kind==='text'));
       }else{
         require(row.start_date===null&&row.end_date===null&&row.date_evidence===null);
         require(row.timezone===null||zone(row.timezone));
@@ -222,6 +223,12 @@
       if(row.end_date&&row.end_date!==row.start_date){
         const end=mk('time','',dateLabel(row.end_date));end.dateTime=row.end_date;
         dates.append(document.createTextNode(' — '),end);
+      }
+      // El anuncio no indicaba el año: se dedujo de su propia fecha de publicación.
+      if(row.date_evidence?.year_inferred===true){
+        const note=mk('span','agenda-year-note',' · año deducido del anuncio');
+        note.title='El anuncio decía el día y el mes; el año se tomó de su fecha de publicación (máximo 90 días después).';
+        dates.append(note);
       }
       item.append(dates);
     }

@@ -43,3 +43,7 @@ Preferencias/búsquedas/lectura/Guardadas en localStorage; sin telemetría o sin
 ## D-10 — Respaldo actual [CONFIRMADO]
 
 Solicitud del 26-11: consolidar este producto y continuidad verificable sin abrir otro producto ni desplegar/cambiar infraestructura durante respaldo. Preservar incompletos en remoto, separar implementación/CI/integración/staging/producción y declarar límites del entorno. No inventar árbol limpio, carga real, pruebas físicas, restauración o frescura actual. SHA base/código dentro del archivo; SHA documental final después de publicar, evitando autorreferencia.
+
+## D-11 — Agenda: año deducido con resguardos [CONFIRMADO]
+
+Decisión expresa del propietario (28-11-2026), que acota D-05 sin sustituirla: un anuncio que da día y mes sin año («se realizará el próximo sábado 6 de diciembre») puede confirmarse **solo si** cumple todas las exigencias de texto ya vigentes (título de actividad, cláusula de realización inmediata, sin fechas alternativas ni negaciones) y el año se toma de la **fecha de publicación del propio anuncio**: la siguiente ocurrencia de ese día y mes en los 90 días posteriores. Sin fecha de publicación, o fuera de ese margen, sigue pendiente. Una publicación con fecha futura usa la hora actual como referencia. La ficha queda marcada (`date_evidence.year_inferred`) y la agenda muestra «año deducido del anuncio». No aplica a calendarios directos (`event_sources.py`), que siguen exigiendo hechos explícitos. Motivo: con la regla anterior la agenda mostraba 0 confirmadas y 101 pendientes.

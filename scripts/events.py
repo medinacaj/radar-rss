@@ -22,7 +22,10 @@ MAX_DOCUMENT_BYTES = 8_000_000
 ACTIVITY = re.compile(r'\b(?:concierto|festival|feria|taller|seminario|charla|exposici[oó]n|exhibici[oó]n|encuentro|congreso|recital|funci[oó]n|obra de teatro|presentaci[oó]n|conversatorio|ciclo|jornada|estreno|marat[oó]n|corrida|visita guiada)\b',re.I)
 REALIZATION = re.compile(r'(?:se\s+(?:realizar[aá]|celebrar[aá]|desarrollar[aá]|efectuar[aá])|tendr[aá]\s+lugar|se\s+llevar[aá]\s+a\s+cabo|(?:programad[oa]|agendad[oa])\s+para|(?:se\s+presentar[aá]|se\s+inaugurar[aá])|(?:este|el)\s+pr[oó]ximo)',re.I)
 MONTHS = {name:i+1 for i,name in enumerate(('enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'))}
-TEXT_DATE = re.compile(r'\b(?:(\d{4}-\d{2}-\d{2})|(\d{1,2})\s+de\s+('+ '|'.join(MONTHS)+r')\s+(?:de[l]?\s+)?(\d{4})|(\d{1,2})[/-](\d{1,2})[/-](\d{4}))\b',re.I)
+TEXT_DATE = re.compile(r'\b(?:(\d{4}-\d{2}-\d{2})|(\d{1,2})\s+de\s+('+ '|'.join(MONTHS)+r')\s+(?:de[l]?\s+)?(\d{4})|(\d{1,2})[/-](\d{1,2})[/-](\d{4})|(\d{1,2})\s+de\s+('+ '|'.join(MONTHS)+r')(?!\s+(?:de[l]?\s+)?\d))\b',re.I)
+# A day and month without a year are completed only from the announcement's own
+# local date: the next occurrence on or after it, and at most this many days later.
+YEARLESS_WINDOW_DAYS = 90
 EVENT_TYPES = {'Event','BusinessEvent','ChildrensEvent','ComedyEvent','CourseInstance','DanceEvent','DeliveryEvent','EducationEvent','EventSeries','ExhibitionEvent','Festival','FoodEvent','Hackathon','LiteraryEvent','MusicEvent','PublicationEvent','SaleEvent','ScreeningEvent','SocialEvent','SportsEvent','TheaterEvent','VisualArtsEvent'}
 EVENT_LABELS = {'MusicEvent':'Música','TheaterEvent':'Teatro','DanceEvent':'Danza',
     'SportsEvent':'Deporte','ExhibitionEvent':'Exposición','VisualArtsEvent':'Artes visuales',
@@ -182,9 +185,23 @@ def _status(text):
     return 'scheduled'
 
 
-def _text_date(text,zone):
-    """Return (date, rejected), distinguishing contradiction from omission."""
-    dates=[]
+def _yearless(day,month,anchor):
+    """Next occurrence of day/month on or after anchor, within the window."""
+    for year in (anchor.year,anchor.year+1):
+        try:candidate=date(year,month,day)
+        except ValueError:continue
+        if candidate>=anchor:
+            return candidate if (candidate-anchor).days<=YEARLESS_WINDOW_DAYS else None
+    return None
+
+
+def _text_date(text,zone,anchor=None):
+    """Return (date, rejected, year_inferred), distinguishing contradiction from omission.
+
+    anchor is the local date of the announcement; without it a day and month
+    without a year stays unverified.
+    """
+    dates=[];inferred=False
     for match in TEXT_DATE.finditer(text):
         # Date must directly follow a future realization clause in its sentence.
         prefix=re.split(r'[.!?;\n]',text[:match.start()])[-1][-200:]
@@ -195,17 +212,24 @@ def _text_date(text,zone):
         # rather than a later announcement, registration or ticket-sale date.
         if not re.fullmatch(r'(?:\s+(?:el|d[ií]a|este|pr[oó]ximo|lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo))*\s*',prefix[clause.end():],re.I):continue
         if re.search(r'\b(?:inscripci[oó]n|inscripciones|anuncio|publicaci[oó]n|entradas|reservas|postulaci[oó]n|venta)\b',prefix[:clause.start()],re.I):continue
-        if re.search(r'\b(?:no|nunca|jam[aá]s|tampoco)\s*$',prefix[:clause.start()],re.I):return None,True
+        if re.search(r'\b(?:no|nunca|jam[aá]s|tampoco)\s*$',prefix[:clause.start()],re.I):return None,True,False
         suffix=re.split(r'[.!?;\n]',text[match.end():],maxsplit=1)[0]
         alternative=TEXT_DATE.search(suffix)
-        if alternative and re.search(r'\b(?:o|u)\b',suffix[:alternative.start()],re.I):return None,True
+        if alternative and re.search(r'\b(?:o|u)\b',suffix[:alternative.start()],re.I):return None,True,False
+        if match[8]:
+            if anchor is None:continue
+            candidate=_yearless(int(match[8]),MONTHS[match[9].lower()],anchor)
+            if candidate is None:continue
+            dates.append(candidate.isoformat());inferred=True
+            continue
         try:
             if match[1]:value=match[1]
             elif match[2]:value=f'{int(match[4]):04}-{MONTHS[match[3].lower()]:02}-{int(match[2]):02}'
             else:value=f'{int(match[7]):04}-{int(match[6]):02}-{int(match[5]):02}'
             dates.append(local_date(value,zone))
-        except (ValueError,TypeError):return None,True
-    return (dates[0],False) if len(set(dates))==1 else (None,len(set(dates))>1)
+        except (ValueError,TypeError):return None,True,False
+    if len(set(dates))==1:return dates[0],False,inferred
+    return None,len(set(dates))>1,False
 
 
 def extract_event(entry, source, now, html=''):
@@ -257,7 +281,10 @@ def extract_event(entry, source, now, html=''):
     try:zone=ZoneInfo(source.get('timezone',''))
     except (ValueError,TypeError,ZoneInfoNotFoundError):
         item['timezone']=None;item['reason']='timezone_missing';return item
-    text_start,text_rejected=_text_date(text,zone) if ACTIVITY.search(title) else (None,False)
+    announced=entry_date(entry)
+    # The announcement anchors a yearless date; a timestamp in the future is not trusted.
+    anchor=min(announced,now).astimezone(zone).date() if announced else None
+    text_start,text_rejected,year_inferred=_text_date(text,zone,anchor) if ACTIVITY.search(title) else (None,False,False)
     if text_rejected:
         # This is not an incomplete repeat: merge must not restore a date
         # expressly negated or offered as an alternative by this update.
@@ -299,6 +326,7 @@ def extract_event(entry, source, now, html=''):
         item['end_date']=local_date(end,zone) if end else None
         if item['end_date'] and item['end_date']<item['start_date']:raise ValueError('Reversed range')
         item['date_evidence']={'kind':kind,'value':raw[:1000],'url':url}
+        if kind=='text' and year_inferred:item['date_evidence']['year_inferred']=True
         item['status_explicit']=item['status']=='scheduled' and (rescheduled or text_rescheduled)
         item.pop('reason',None)
     except (ValueError,TypeError,OverflowError):
@@ -440,6 +468,7 @@ def validate_document(doc):
                 if item['status']=='postponed':fail('postponed date')
                 evidence=item.get('date_evidence')
                 if not isinstance(evidence,dict) or evidence.get('kind') not in ('rss','jsonld','text','calendar') or not string(evidence.get('value'),1000) or not string(evidence.get('url'),4000) or not safe_web_url(evidence['url']):fail('date_evidence')
+                if 'year_inferred' in evidence and (evidence['year_inferred'] is not True or evidence['kind']!='text'):fail('year_inferred')
             else:
                 if item.get('start_date') is not None or item.get('end_date') is not None:fail('pending dates')
                 if item.get('reason') not in ('date_unverified','timezone_missing','postponed'):fail('pending reason')

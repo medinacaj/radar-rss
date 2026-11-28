@@ -36,6 +36,7 @@ body.light .agenda-section{--agenda-accent:#246b63;--agenda-selected-ink:#ffffff
 .agenda-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:0;margin:12px 0;list-style:none}
 .agenda-item{min-width:0;border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--surface);overflow-wrap:anywhere}
 .agenda-date{margin:0 0 8px;color:var(--agenda-accent);font:700 13px/1.55 var(--font-ui)}
+.agenda-year-note{color:var(--muted);font-weight:600}
 .agenda-item-title{margin:0 0 9px;font:700 18px/1.4 var(--font-ui)}
 .agenda-item-title a{color:var(--text);text-decoration:none}
 .agenda-item-title a:hover{text-decoration:underline;text-underline-offset:3px}
