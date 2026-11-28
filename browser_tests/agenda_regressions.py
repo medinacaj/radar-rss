@@ -45,7 +45,10 @@ def document():
                        event('hoy-venezuela', timezone='America/Caracas', source_id='medio-7', category=MONAGAS),
                        event('limite90', '2027-01-23'), event('fuera90', '2027-01-24'),
                        event('cancelado', status='cancelled'),
-                       event('texto', title='<img src=x onerror=alert(1)> & feria')],
+                       event('texto', title='<img src=x onerror=alert(1)> & feria'),
+                       event('anio-deducido', '2026-11-05',
+                             date_evidence={'kind': 'text', 'value': '2026-11-05', 'year_inferred': True,
+                                            'url': 'https://example.com/eventos/anio-deducido'})],
                 pending=[pending, postponed])
 
 
@@ -251,6 +254,9 @@ def main():
                 expect(page.locator('#agendaList [data-event-id="multidia"]')).to_contain_text('Teatro local')
                 expect(page.locator('#agendaList [data-event-id="viejo-futuro"]')).to_contain_text('Anunciado')
                 expect(page.locator('#agendaList [data-event-id="hoy-chile"]')).to_contain_text('Lugar por confirmar')
+                # D-11: un año deducido de la fecha del anuncio queda señalado en la ficha.
+                expect(page.locator('#agendaList [data-event-id="anio-deducido"] .agenda-year-note')).to_contain_text('año deducido del anuncio')
+                expect(page.locator('#agendaList [data-event-id="viejo-futuro"] .agenda-year-note')).to_have_count(0)
                 expect(page.locator('#agendaList [data-event-id="cancelado"]')).to_have_count(0)
                 expect(page.locator('#agendaPending')).to_be_visible()
                 page.locator('#agendaPending > summary').click()

@@ -72,6 +72,53 @@ class EventTests(unittest.TestCase):
             self.assertIsNone(events.extract_event(self.entry(summary=summary), SOURCE, NOW)['start_date'])
         self.assertIsNone(events.extract_event(self.entry(title='Municipio informa presupuesto',summary=good['summary']),SOURCE,NOW))
 
+    def test_yearless_text_date_is_anchored_to_the_announcement(self):
+        # Anuncio del 20-11-2026: «6 de diciembre» es el próximo 6 de diciembre (16 días).
+        recent = {'published':'Fri, 20 Nov 2026 12:00:00 GMT'}
+        later = datetime(2026, 11, 21, 12, tzinfo=timezone.utc)
+        result = events.extract_event(self.entry(summary='El concierto se realizará el próximo sábado 6 de diciembre en la plaza.', **recent), SOURCE, later)
+        self.assertEqual(result['start_date'], '2026-12-06')
+        self.assertEqual(result['date_evidence']['kind'], 'text')
+        self.assertIs(result['date_evidence']['year_inferred'], True)
+        events.validate_document(events.merge_events(None, [result], [], later))
+        # El cruce de año toma la siguiente ocurrencia: un anuncio de diciembre para el 10 de enero.
+        december = {'published':'Mon, 21 Dec 2026 12:00:00 GMT'}
+        result = events.extract_event(self.entry(summary='El festival se realizará el 10 de enero.', **december), SOURCE, datetime(2026, 12, 22, tzinfo=timezone.utc))
+        self.assertEqual(result['start_date'], '2027-01-10')
+        # Un año explícito nunca se marca como deducido.
+        explicit = events.extract_event(self.entry(summary='El concierto se realizará el 6 de diciembre de 2026.', **recent), SOURCE, later)
+        self.assertNotIn('year_inferred', explicit['date_evidence'])
+
+    def test_yearless_text_date_stays_pending_without_safe_anchor(self):
+        later = datetime(2026, 11, 21, 12, tzinfo=timezone.utc)
+        summary = 'El concierto se realizará el 6 de diciembre.'
+        cases = (
+            # Sin fecha de publicación no hay referencia para el año.
+            ({'published': None}, later),
+            # Más de 90 días después del anuncio: fuera del margen.
+            ({'published':'Mon, 01 Jun 2026 12:00:00 GMT'}, later),
+        )
+        for updates, now in cases:
+            entry = {k: v for k, v in {**self.entry(summary=summary), **updates}.items() if v is not None}
+            self.assertIsNone(events.extract_event(entry, SOURCE, now)['start_date'])
+        # Sin cláusula de realización («fue anunciado») tampoco se deduce nada.
+        announced = self.entry(summary='El concierto fue anunciado el 6 de diciembre.', published='Fri, 20 Nov 2026 12:00:00 GMT')
+        self.assertIsNone(events.extract_event(announced, SOURCE, later)['start_date'])
+        # Dos fechas alternativas siguen siendo una contradicción.
+        alternative = self.entry(summary='El concierto se realizará el 6 de diciembre o el 13 de diciembre.', published='Fri, 20 Nov 2026 12:00:00 GMT')
+        self.assertIsNone(events.extract_event(alternative, SOURCE, later)['start_date'])
+        # Una fecha de publicación futura no sirve de referencia: se usa la hora actual.
+        future = self.entry(summary=summary, published='Fri, 01 Oct 2027 12:00:00 GMT')
+        self.assertEqual(events.extract_event(future, SOURCE, later)['start_date'], '2026-12-06')
+
+    def test_year_inferred_flag_is_validated(self):
+        recent = self.entry(summary='El concierto se realizará el 6 de diciembre.', published='Fri, 20 Nov 2026 12:00:00 GMT')
+        later = datetime(2026, 11, 21, 12, tzinfo=timezone.utc)
+        doc = events.merge_events(None, [events.extract_event(recent, SOURCE, later)], [], later)
+        doc['items'][0]['date_evidence']['year_inferred'] = 'sí'
+        with self.assertRaises(ValueError):
+            events.validate_document(doc)
+
     def test_malformed_dates_missing_timezone_and_reversed_ranges_pending(self):
         for values in ({'ev_startdate':'2026-02-30'}, {'ev_startdate':'11/02'},
                        {'ev_startdate':'2026-11-01','ev_enddate':'2026-10-30'}):
