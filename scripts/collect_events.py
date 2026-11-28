@@ -6,6 +6,7 @@ import argparse
 from datetime import datetime, timezone
 import json
 from pathlib import Path
+import sys
 from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -68,7 +69,7 @@ def fetch_event_page(url,source):
 
 def collect_document(sources,previous,now,direct_sources=()):
     if previous is not None:validate_document(previous)
-    incoming=[];states=[];pages=0
+    incoming=[];states=[];pages=0;diagnostics={}
     for source in sources:
         state={'source_id':source['id'],'source_name':source['name'],'url':source['url'],
                'timezone':source['timezone'],'checked_at':iso(now),'status':'ok','error':None}
@@ -77,7 +78,7 @@ def collect_document(sources,previous,now,direct_sources=()):
             entries=parsed.get('entries',[])
             if parsed.get('bozo') and not entries:raise ValueError('Invalid RSS document')
             for entry in entries[:MAX_FEED_ENTRIES]:
-                item=extract_event(entry,source,now)
+                item=extract_event(entry,source,now,diagnostics=diagnostics)
                 if item is None:continue
                 # Extra page lookup only for activity candidates, never general news.
                 # A publisher may remove only the JSON-LD startDate when
@@ -90,6 +91,9 @@ def collect_document(sources,previous,now,direct_sources=()):
         except (requests.RequestException,ValueError,TypeError,OSError,KeyError) as exc:
             state['status']='error';state['error']=type(exc).__name__+': '+str(exc)[:300]
         states.append(state)
+    if diagnostics:
+        # Log only: why activity announcements stay pending (never published).
+        print('Agenda, fechas en texto: '+', '.join(f'{reason}={count}' for reason,count in sorted(diagnostics.items())),file=sys.stderr)
     if direct_sources:
         import event_sources
         rss_ids={source['id'] for source in sources}

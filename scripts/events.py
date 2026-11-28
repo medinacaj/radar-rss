@@ -195,31 +195,33 @@ def _yearless(day,month,anchor):
     return None
 
 
-def _text_date(text,zone,anchor=None):
+def _text_date(text,zone,anchor=None,trace=None):
     """Return (date, rejected, year_inferred), distinguishing contradiction from omission.
 
     anchor is the local date of the announcement; without it a day and month
-    without a year stays unverified.
+    without a year stays unverified. trace, when a list, receives the reason
+    each date candidate was discarded (diagnostics only; never changes the result).
     """
     dates=[];inferred=False
+    note=trace.append if trace is not None else (lambda reason:None)
     for match in TEXT_DATE.finditer(text):
         # Date must directly follow a future realization clause in its sentence.
         prefix=re.split(r'[.!?;\n]',text[:match.start()])[-1][-200:]
         clauses=list(REALIZATION.finditer(prefix))
-        if not clauses:continue
+        if not clauses:note('fecha_sin_clausula');continue
         clause=clauses[-1]
         # The date must be the immediate complement of the realization clause,
         # rather than a later announcement, registration or ticket-sale date.
-        if not re.fullmatch(r'(?:\s+(?:el|d[ií]a|este|pr[oó]ximo|lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo))*\s*',prefix[clause.end():],re.I):continue
-        if re.search(r'\b(?:inscripci[oó]n|inscripciones|anuncio|publicaci[oó]n|entradas|reservas|postulaci[oó]n|venta)\b',prefix[:clause.start()],re.I):continue
-        if re.search(r'\b(?:no|nunca|jam[aá]s|tampoco)\s*$',prefix[:clause.start()],re.I):return None,True,False
+        if not re.fullmatch(r'(?:\s+(?:el|d[ií]a|este|pr[oó]ximo|lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo))*\s*',prefix[clause.end():],re.I):note('fecha_no_inmediata');continue
+        if re.search(r'\b(?:inscripci[oó]n|inscripciones|anuncio|publicaci[oó]n|entradas|reservas|postulaci[oó]n|venta)\b',prefix[:clause.start()],re.I):note('contexto_inscripcion');continue
+        if re.search(r'\b(?:no|nunca|jam[aá]s|tampoco)\s*$',prefix[:clause.start()],re.I):note('negacion');return None,True,False
         suffix=re.split(r'[.!?;\n]',text[match.end():],maxsplit=1)[0]
         alternative=TEXT_DATE.search(suffix)
-        if alternative and re.search(r'\b(?:o|u)\b',suffix[:alternative.start()],re.I):return None,True,False
+        if alternative and re.search(r'\b(?:o|u)\b',suffix[:alternative.start()],re.I):note('alternativa');return None,True,False
         if match[8]:
-            if anchor is None:continue
+            if anchor is None:note('sin_ano_sin_ancla');continue
             candidate=_yearless(int(match[8]),MONTHS[match[9].lower()],anchor)
-            if candidate is None:continue
+            if candidate is None:note('sin_ano_fuera_de_margen');continue
             dates.append(candidate.isoformat());inferred=True
             continue
         try:
@@ -229,10 +231,22 @@ def _text_date(text,zone,anchor=None):
             dates.append(local_date(value,zone))
         except (ValueError,TypeError):return None,True,False
     if len(set(dates))==1:return dates[0],False,inferred
+    if len(set(dates))>1:note('fechas_contradictorias')
     return None,len(set(dates))>1,False
 
 
-def extract_event(entry, source, now, html=''):
+# Furthest guard reached wins, so the log points at the deciding obstacle.
+_DIAGNOSIS_ORDER=('fecha_sin_clausula','fecha_no_inmediata','contexto_inscripcion','sin_ano_sin_ancla','sin_ano_fuera_de_margen','alternativa','negacion','fechas_contradictorias')
+
+
+def _diagnosis(trace,start,year_inferred):
+    """Single label for why an activity announcement's text did or did not confirm a date."""
+    if start:return 'confirmada_ano_deducido' if year_inferred else 'confirmada_texto'
+    seen=[reason for reason in _DIAGNOSIS_ORDER if reason in trace]
+    return seen[-1] if seen else 'sin_fecha_en_texto'
+
+
+def extract_event(entry, source, now, html='', diagnostics=None):
     """Return confirmed/pending event or None for generic news/unsafe entries.
 
     source is a catalog row enriched with an explicit IANA timezone. Pending
@@ -284,7 +298,12 @@ def extract_event(entry, source, now, html=''):
     announced=entry_date(entry)
     # The announcement anchors a yearless date; a timestamp in the future is not trusted.
     anchor=min(announced,now).astimezone(zone).date() if announced else None
-    text_start,text_rejected,year_inferred=_text_date(text,zone,anchor) if ACTIVITY.search(title) else (None,False,False)
+    trace=[] if diagnostics is not None else None
+    text_start,text_rejected,year_inferred=_text_date(text,zone,anchor,trace) if ACTIVITY.search(title) else (None,False,False)
+    if diagnostics is not None and ACTIVITY.search(title) and not (explicit or objects):
+        # Counts only announcements whose date could come from the text alone.
+        label=_diagnosis(trace,text_start,year_inferred)
+        diagnostics[label]=diagnostics.get(label,0)+1
     if text_rejected:
         # This is not an incomplete repeat: merge must not restore a date
         # expressly negated or offered as an alternative by this update.

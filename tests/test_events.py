@@ -111,6 +111,40 @@ class EventTests(unittest.TestCase):
         future = self.entry(summary=summary, published='Fri, 01 Oct 2027 12:00:00 GMT')
         self.assertEqual(events.extract_event(future, SOURCE, later)['start_date'], '2026-12-06')
 
+    def test_diagnostics_name_the_guard_that_keeps_text_dates_pending(self):
+        later = datetime(2026, 11, 21, 12, tzinfo=timezone.utc)
+        recent = {'published': 'Fri, 20 Nov 2026 12:00:00 GMT'}
+        cases = {
+            'confirmada_texto': 'El concierto se realizará el 6 de diciembre de 2026.',
+            'confirmada_ano_deducido': 'El concierto se realizará el 6 de diciembre.',
+            'sin_fecha_en_texto': 'Gran concierto de primavera para toda la familia.',
+            'fecha_sin_clausula': 'El concierto fue anunciado el 6 de diciembre.',
+            'fecha_no_inmediata': 'El concierto se realizará con entrada liberada, domingo 6 de diciembre.',
+            'contexto_inscripcion': 'La inscripción al concierto se realizará el 6 de diciembre.',
+            'alternativa': 'El concierto se realizará el 6 de diciembre o el 13 de diciembre.',
+            'negacion': 'El concierto no se realizará el 6 de diciembre.',
+        }
+        for expected, summary in cases.items():
+            with self.subTest(expected):
+                diagnostics = {}
+                entry = self.entry(summary=summary, **recent)
+                observed = events.extract_event(entry, SOURCE, later, diagnostics=diagnostics)
+                self.assertEqual(diagnostics, {expected: 1})
+                # El diagnóstico solo observa: el resultado es idéntico sin él.
+                self.assertEqual(observed, events.extract_event(entry, SOURCE, later))
+        # Sin ancla de publicación y fuera del margen se distinguen entre sí.
+        for expected, updates in (('sin_ano_sin_ancla', {'published': None}),
+                                  ('sin_ano_fuera_de_margen', {'published': 'Mon, 01 Jun 2026 12:00:00 GMT'})):
+            diagnostics = {}
+            entry = {k: v for k, v in {**self.entry(summary='El concierto se realizará el 6 de diciembre.'), **updates}.items() if v is not None}
+            events.extract_event(entry, SOURCE, later, diagnostics=diagnostics)
+            self.assertEqual(diagnostics, {expected: 1})
+        # Fechas estructuradas y titulares que no son actividades no cuentan.
+        diagnostics = {}
+        events.extract_event(self.entry(ev_startdate='2026-11-01'), SOURCE, later, diagnostics=diagnostics)
+        events.extract_event(self.entry(title='Balance económico de octubre'), SOURCE, later, diagnostics=diagnostics)
+        self.assertEqual(diagnostics, {})
+
     def test_year_inferred_flag_is_validated(self):
         recent = self.entry(summary='El concierto se realizará el 6 de diciembre.', published='Fri, 20 Nov 2026 12:00:00 GMT')
         later = datetime(2026, 11, 21, 12, tzinfo=timezone.utc)
